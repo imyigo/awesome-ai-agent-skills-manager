@@ -78,6 +78,25 @@ if (Test-Path "$SyncDir\.env.example") {
     Write-Host "   [System.Environment]::SetEnvironmentVariable('GITHUB_TOKEN', 'ghp_...', 'User')" -ForegroundColor Gray
 }
 
+# 5. Git post-merge hook (mcp_config.json hardlink yenileyici)
+Write-Host ""
+Write-Host "🔗 Git hook kuruluyor..." -ForegroundColor Yellow
+$hookSrc  = "$SyncDir\.git\hooks\post-merge"
+$hookDest = "$SyncDir\.git\hooks\post-merge"
+
+if (-not (Test-Path "$SyncDir\.git\hooks")) {
+    New-Item -ItemType Directory -Path "$SyncDir\.git\hooks" -Force | Out-Null
+}
+
+if (Test-Path $hookSrc) {
+    Write-Host "   ✅ post-merge hook mevcut" -ForegroundColor Green
+} else {
+    Write-Host "   ⚠️  Hook bulunamadı, skip." -ForegroundColor Yellow
+}
+
 Write-Host ""
 Write-Host "🎉 Kurulum tamamlandı! Antigravity'yi yeniden başlatın." -ForegroundColor Green
+Write-Host ""
+Write-Host "  Sonraki güncellemeler için:" -ForegroundColor Gray
+Write-Host "  cd $SyncDir && git pull" -ForegroundColor Gray
 Write-Host ""
