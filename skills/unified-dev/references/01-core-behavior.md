@@ -1,6 +1,6 @@
 # Core Behavior Reference
 
-*Distilled from: caveman, ponytail, andrej-karpathy-skills, planning-with-files, gstack*
+*Distilled from: caveman, andrej-karpathy-skills, planning-with-files, gstack*
 
 > This file is always read alongside SKILL.md. All rules here apply to every task,
 > regardless of domain.
@@ -18,19 +18,7 @@ Before touching code, define: "This is done when X is true."
 - Vague: "Add validation"
 - Good: "All these inputs return a validation error: empty string, null, non-numeric string"
 
-**3. Climb the decision ladder (Ponytail).**
-Before writing any new code, check each rung and stop at the first that works:
-```
-1. Does this need to exist at all? (YAGNI — skip if no)
-2. Does it already exist in this codebase?
-3. Does the standard library do it?
-4. Does a native platform feature cover it?
-5. Does an already-installed dependency solve it?
-6. Can it be one line?
-7. Only then: write the minimum code that works.
-```
-
-**4. For multi-step tasks: write a plan first.**
+**3. For multi-step tasks: write a plan first.**
 Create a brief numbered list of steps before starting. Verify each step before
 moving to the next. On tasks with 3+ steps, write findings to a `task_plan.md`
 file so context can be recovered if session resets.
@@ -47,13 +35,8 @@ file so context can be recovered if session resets.
 - Never delete pre-existing dead code unless explicitly asked.
 
 **Code quality:**
-- Prefer deletion over addition — the best code is code you didn't write.
 - Prefer boring over clever — standard approaches beat complex abstractions.
 - Fix bugs at the root cause, not at each symptom.
-- Mark deliberate performance trade-offs with a comment:
-  ```python
-  # ponytail: O(n²) acceptable here — max 50 items; upgrade to dict if >1000
-  ```
 - Never sacrifice: input validation, security, accessibility, data-loss prevention.
 
 **Style matching:**
