@@ -10,7 +10,27 @@ description: >
 # Unified Dev Skill
 
 A modular, distilled skill set covering all development domains. Core behavior
-rules apply to EVERY task. Domain-specific references are loaded on demand.
+rules apply to EVERY task. Domain-specific references are loaded lazily on demand to optimize token usage.
+
+---
+
+## 🌳 Architecture & Token Hierarchy
+
+```mermaid
+graph TD
+    User[Task Request] --> SKILL[SKILL.md Dispatcher]
+    SKILL --> Core[01-core-behavior.md - ALWAYS LOADED]
+    
+    SKILL -- Web / UI / Design --> Web[02-web.md]
+    SKILL -- Mobile / iOS / Android / macOS --> Mobile[03-mobile.md]
+    SKILL -- Game Dev --> Game[04-game.md]
+    SKILL -- Security / Audit --> Sec[05-security.md]
+    SKILL -- Planning / Architecture --> Plan[06-planning.md]
+    SKILL -- Marketing / ASO / CRO --> Mkt[07-marketing.md]
+```
+
+> **Token Economy Protocol:** NEVER load references outside the active task domain.
+> Always execute Core behavior first.
 
 ---
 
