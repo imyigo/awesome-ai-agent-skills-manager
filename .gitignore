@@ -1,0 +1,15 @@
+# Gizli dosyalar — asla commit etme
+.env
+*.env.local
+*.secret
+
+# Log ve geçici dosyalar
+*.log
+*.tmp
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# macOS (diğer bilgisayar Mac ise)
+.DS_Store
