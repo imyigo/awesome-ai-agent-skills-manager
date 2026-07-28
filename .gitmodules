@@ -1,0 +1,21 @@
+[submodule "skills/originals/caveman"]
+	path = skills/originals/caveman
+	url = https://github.com/JuliusBrussee/caveman.git
+[submodule "skills/originals/karpathy"]
+	path = skills/originals/karpathy
+	url = https://github.com/multica-ai/andrej-karpathy-skills.git
+[submodule "skills/originals/planning-with-files"]
+	path = skills/originals/planning-with-files
+	url = https://github.com/OthmanAdi/planning-with-files.git
+[submodule "skills/originals/ux-ui"]
+	path = skills/originals/ux-ui
+	url = https://github.com/plugin87/ux-ui-agent-skills.git
+[submodule "skills/originals/marketingskills"]
+	path = skills/originals/marketingskills
+	url = https://github.com/coreyhaines31/marketingskills.git
+[submodule "skills/originals/game-studios"]
+	path = skills/originals/game-studios
+	url = https://github.com/Donchitos/Claude-Code-Game-Studios.git
+[submodule "skills/originals/graphify"]
+	path = skills/originals/graphify
+	url = https://github.com/Graphify-Labs/graphify.git
