@@ -89,26 +89,26 @@ git clone --recursive https://github.com/imyigo/claude-antigravity-skills.git ~/
 **Windows (PowerShell):**
 ```powershell
 cd ~/.gemini/claude-antigravity-best-skills
-.\setup.ps1
+.\kurulum-windows.ps1
 ```
 
 **macOS / Linux (Bash/Zsh):**
 ```bash
 cd ~/.gemini/claude-antigravity-best-skills
-chmod +x setup.sh update-skills.sh
-./setup.sh
+chmod +x kurulum-mac-linux.sh guncelle-mac-linux.sh
+./kurulum-mac-linux.sh
 ```
 
 ### 3. One-Click Updates
 
 **Windows:**
 ```powershell
-.\update-skills.ps1
+.\guncelle-windows.ps1
 ```
 
 **macOS / Linux:**
 ```bash
-./update-skills.sh
+./guncelle-mac-linux.sh
 ```
 
 ---
