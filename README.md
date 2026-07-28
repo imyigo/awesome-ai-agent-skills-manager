@@ -1,5 +1,15 @@
 # ⚡ Claude & Antigravity Best Skills Framework
 
+<p align="center">
+  <a href="README.md"><b>English</b></a> •
+  <a href="docs/README.tr.md"><b>Türkçe</b></a> •
+  <a href="docs/README.de.md"><b>Deutsch</b></a> •
+  <a href="docs/README.ru.md"><b>Русский</b></a> •
+  <a href="docs/README.zh.md"><b>中文</b></a> •
+  <a href="docs/README.fr.md"><b>Français</b></a> •
+  <a href="docs/README.pt.md"><b>Português</b></a>
+</p>
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Built%20For-Claude%20Code-5A67D8?logo=anthropic)](https://claude.ai)
 [![Google Antigravity](https://img.shields.io/badge/Compatible-Google%20Antigravity-4285F4?logo=google)](https://google.com)

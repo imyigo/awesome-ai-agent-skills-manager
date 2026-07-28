@@ -19,3 +19,9 @@
 [submodule "skills/originals/graphify"]
 	path = skills/originals/graphify
 	url = https://github.com/Graphify-Labs/graphify.git
+[submodule "skills/originals/understand-anything"]
+	path = skills/originals/understand-anything
+	url = https://github.com/Egonex-AI/Understand-Anything.git
+[submodule "skills/originals/awesome-agent-skills"]
+	path = skills/originals/awesome-agent-skills
+	url = https://github.com/VoltAgent/awesome-agent-skills.git
