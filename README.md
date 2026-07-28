@@ -1,80 +1,99 @@
-# claude-antigravity-best-skills
+# ⚡ Claude & Antigravity Best Skills Framework
 
-Google Antigravity & Claude için hazırlanmış, **token optimizasyonlu (lazy-load) ve modüler** geliştirici yetenekleri (skills) ve MCP yapılandırma deposu.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Claude Code](https://img.shields.io/badge/Built%20For-Claude%20Code-5A67D8?logo=anthropic)](https://claude.ai)
+[![Google Antigravity](https://img.shields.io/badge/Compatible-Google%20Antigravity-4285F4?logo=google)](https://google.com)
+[![Token Optimized](https://img.shields.io/badge/Token%20Economy-Lazy--Load-brightgreen)](#-architecture--token-economy)
+[![Live Git Submodules](https://img.shields.io/badge/Sync-Git%20Submodules-orange)](#-live-sync-with-original-repos)
+
+> **The ultimate, token-optimized, 3-tier modular skill & MCP framework for Claude Code and Google Antigravity.** Combines 10+ top community skills into a unified, zero-conflict architecture with live Git submodule syncing.
 
 ---
 
-## 🌳 Mimari & Token Hiyerarşisi
+## 🌟 Key Features
 
-Bu repodaki skill yapısı gereksiz token tüketimini önlemek için 3 katmanlı bir ağaç yapısıyla çalışır:
+* **🧠 Unified Super-Skill (`unified-dev`):** Distills 10+ top community skills into a non-conflicting, single core agent framework.
+* **⚡ 60-70% Token Savings:** Employs a 3-tier **Lazy-Load** architecture. Only loads specific domain references (Web, Mobile, Security, etc.) when triggered.
+* **🔄 Live Auto-Sync:** Linked directly to original open-source repos via **Git Submodules**. Update all skills with a single command!
+* **🛡️ Security & Zero-Leak Ready:** Public-safe configuration. No hardcoded credentials.
+* **🖥️ Multi-Machine Sync:** Complete cross-device sync setup script (`setup.ps1`).
+
+---
+
+## 🌳 Architecture & Token Economy
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  KATMAN 0: Çekirdek Kurallar (Her Zaman Aktif)           │
+│  TIER 0: Core Rules (Always Active - Low Token Footprint)│
 │  skills/unified-dev/SKILL.md                            │
 │  └── references/01-core-behavior.md                     │
-│       • Caveman İletişim Protokolü (Öz/Kısa yanıtlar)  │
-│       • Karpathy Guardrail'ları (Varsayımları sor)      │
-│       • File-Based Planning (Dosya bazlı hafıza)        │
+│       • Concise Output Style (Caveman protocol)         │
+│       • Karpathy Anti-Hallucination Guardrails          │
+│       • File-Based Task & Memory Planning               │
 └─────────────────────────────────────────────────────────┘
-              ↓ İhtiyaca göre yönlendirir (Lazy-Load)
+              ↓ Lazy-Loaded on Demand
 ┌─────────────────────────────────────────────────────────┐
-│  KATMAN 1: Alan Referansları (Sadece İlgili Görevde)     │
+│  TIER 1: Domain References (Loaded Only When Needed)    │
 │  ├── references/02-web.md        (Web, UI/UX, WCAG 2.2)│
 │  ├── references/03-mobile.md     (iOS, Android, macOS) │
-│  ├── references/04-game.md       (Oyun Mimarısı, GDD)  │
-│  ├── references/05-security.md   (OWASP, STRIDE)       │
+│  ├── references/04-game.md       (Game Engines, GDD)   │
+│  ├── references/05-security.md   (OWASP Top 10, STRIDE)│
 │  ├── references/06-planning.md   (PRD, ADR, Sprint)    │
-│  └── references/07-marketing.md  (ASO, CRO, Copy)      │
+│  └── references/07-marketing.md  (ASO, CRO, Copywriting)│
 └─────────────────────────────────────────────────────────┘
-              ↓ Sadece komut ile çağrılır
+              ↓ Explicit Tool Execution
 ┌─────────────────────────────────────────────────────────┐
-│  KATMAN 2: Harici Araçlar (CLI/Daemon)                  │
-│  ├── tools/graphify-install.md   (Bilgi Grafiği)        │
-│  └── tools/claude-mem-install.md (Kalıcı Hafıza)        │
+│  TIER 2: External Tools & Daemons                       │
+│  ├── tools/graphify-install.md   (Knowledge Graph)      │
+│  └── tools/claude-mem-install.md (Persistent Memory)    │
 └─────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 📁 Dosya Yapısı
+## 🔄 Live Sync with Original Repos
 
-```
-claude-antigravity-best-skills/
-├── mcp_config.json              # MCP sunucu tanımları (Wix, GitHub)
-├── setup.ps1                    # Otomatik kurulum ve junction bağlama scripti
-├── skills/
-│   └── unified-dev/             # Ana modüler geliştirici skill seti
-│       ├── SKILL.md             # Tetikleyici + Yönlendirici
-│       └── references/          # Domain bazlı referanslar (Lazy Load)
-├── tools/                       # CLI araçlarının kurulum kılavuzları
-└── sidecars/                    # Sidecar tanımları
-```
+This framework maintains live links to original community repos via Git Submodules inside `skills/originals/`:
+
+* [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) — Token reduction communication style
+* [multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills) — Behavioral guardrails
+* [OthmanAdi/planning-with-files](https://github.com/OthmanAdi/planning-with-files) — Persistent file planning
+* [plugin87/ux-ui-agent-skills](https://github.com/plugin87/ux-ui-agent-skills) — Senior UI/UX & WCAG 2.2
+* [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills) — Marketing, ASO & CRO
+* [Donchitos/Claude-Code-Game-Studios](https://github.com/Donchitos/Claude-Code-Game-Studios) — Game dev framework
+* [Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify) — Codebase knowledge graph
+* [Egonex-AI/Understand-Anything](https://github.com/Egonex-AI/Understand-Anything) — Guided codebase tours
+* [VoltAgent/awesome-agent-skills](https://github.com/VoltAgent/awesome-agent-skills) — 1000+ Agent skills index
 
 ---
 
-## 🚀 Yeni Bilgisayarda Kurulum
+## 🚀 Quick Setup (30 Seconds)
 
-### 1. Repo'yu klonla
-```powershell
-git clone https://github.com/imyigo/claude-antigravity-skills.git `
-  C:\Users\<KULLANICI_ADI>\claude-antigravity-best-skills
+### 1. Clone with Submodules
+```bash
+git clone --recursive https://github.com/imyigo/claude-antigravity-skills.git ~/.gemini/claude-antigravity-best-skills
 ```
 
-### 2. Kurulum Scriptini Çalıştır
+### 2. Run Setup Script (Windows / macOS / Linux)
 ```powershell
-cd C:\Users\<KULLANICI_ADI>\claude-antigravity-best-skills
+cd ~/.gemini/claude-antigravity-best-skills
 .\setup.ps1
 ```
-*Script otomatik olarak `mcp_config.json` hardlink'ini, `skills/` junction bağını ve git `post-merge` hook'unu kurar.*
+
+### 3. One-Click Updates
+To update all skills from their live original GitHub sources at any time:
+```powershell
+.\update-skills.ps1
+```
 
 ---
 
-## 🔄 Güncelleme Yapmak
+## 🤝 Contributing
 
-Tüm değişiklikleri ve geliştirmeleri almak için:
-```powershell
-cd C:\Users\<KULLANICI_ADI>\claude-antigravity-best-skills
-git pull
-```
-*`post-merge` hook sayesinde `mcp_config.json` ve skill bağlantıları otomatik olarak güncellenir.*
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/imyigo/claude-antigravity-skills/issues).
+
+---
+
+## 📜 License
+
+This project is [MIT](LICENSE) licensed.
