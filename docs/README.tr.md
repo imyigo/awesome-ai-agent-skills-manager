@@ -69,15 +69,30 @@ git clone --recursive https://github.com/imyigo/claude-antigravity-skills.git ~/
 ```
 
 ### 2. Kurulum Scriptini Çalıştırın
+
+**Windows (PowerShell):**
 ```powershell
 cd ~/.gemini/claude-antigravity-best-skills
 .\setup.ps1
 ```
 
+**macOS / Linux (Bash/Zsh):**
+```bash
+cd ~/.gemini/claude-antigravity-best-skills
+chmod +x setup.sh update-skills.sh
+./setup.sh
+```
+
 ### 3. Tek Tıkla Güncelleme
-Orijinal kaynak repolardaki en son güncellemeleri çekmek için:
+
+**Windows:**
 ```powershell
 .\update-skills.ps1
+```
+
+**macOS / Linux:**
+```bash
+./update-skills.sh
 ```
 
 ---

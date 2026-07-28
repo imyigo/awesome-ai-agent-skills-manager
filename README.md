@@ -84,16 +84,31 @@ This framework maintains live links to original community repos via Git Submodul
 git clone --recursive https://github.com/imyigo/claude-antigravity-skills.git ~/.gemini/claude-antigravity-best-skills
 ```
 
-### 2. Run Setup Script (Windows / macOS / Linux)
+### 2. Run Setup Script
+
+**Windows (PowerShell):**
 ```powershell
 cd ~/.gemini/claude-antigravity-best-skills
 .\setup.ps1
 ```
 
+**macOS / Linux (Bash/Zsh):**
+```bash
+cd ~/.gemini/claude-antigravity-best-skills
+chmod +x setup.sh update-skills.sh
+./setup.sh
+```
+
 ### 3. One-Click Updates
-To update all skills from their live original GitHub sources at any time:
+
+**Windows:**
 ```powershell
 .\update-skills.ps1
+```
+
+**macOS / Linux:**
+```bash
+./update-skills.sh
 ```
 
 ---
