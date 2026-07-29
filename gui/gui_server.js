@@ -338,6 +338,7 @@ function parseSkillMetadata(skillDir) {
 
 function getLiveSkillsData() {
   const skillsDir = path.join(SYNC_DIR, 'repo', 'skills');
+  const serverSkillsDir = path.join(SYNC_DIR, 'repo', 'server-skills');
   const unifiedDir = path.join(SYNC_DIR, 'repo', 'skills', 'unified-dev');
 
   const categories = {
@@ -350,11 +351,12 @@ function getLiveSkillsData() {
     marketing: { title: "Pazarlama & CRO", command: "/marketing", rules: ["PAS & AIDA Copywriting", "App Store Optimization"], repos: [], files: [] },
   };
 
-  if (fs.existsSync(skillsDir)) {
+  const scanDir = (targetDir, isServerRepo = false) => {
+    if (!fs.existsSync(targetDir)) return;
     try {
-      const subFolders = fs.readdirSync(skillsDir);
+      const subFolders = fs.readdirSync(targetDir);
       subFolders.forEach(folder => {
-        const subPath = path.join(skillsDir, folder);
+        const subPath = path.join(targetDir, folder);
         if (fs.statSync(subPath).isDirectory()) {
           let gitUrl = "";
           let commitHash = "";
@@ -367,7 +369,7 @@ function getLiveSkillsData() {
           }
 
           const meta = parseSkillMetadata(subPath);
-          const repoObj = { name: folder, url: gitUrl, tag: commitHash, meta };
+          const repoObj = { name: folder, url: gitUrl, tag: commitHash, meta, isServerRepo };
 
           const folderLower = folder.toLowerCase();
           const descLower = (meta.description || '').toLowerCase();
@@ -394,7 +396,10 @@ function getLiveSkillsData() {
         }
       });
     } catch (err) {}
-  }
+  };
+
+  scanDir(skillsDir, false);
+  scanDir(serverSkillsDir, true);
 
   if (fs.existsSync(unifiedDir)) {
     try {
@@ -875,7 +880,8 @@ function createServer(port) {
       req.on('end', () => {
         try {
           const { engineId } = JSON.parse(body || '{}');
-          const enginePath = path.join(SYNC_DIR, 'repo', 'skills', engineId);
+          let enginePath = path.join(SYNC_DIR, 'repo', 'server-skills', engineId);
+          if (!fs.existsSync(enginePath)) enginePath = path.join(SYNC_DIR, 'repo', 'skills', engineId);
           if (!fs.existsSync(enginePath)) throw new Error('Engine dizini bulunamadı!');
 
           let buildCmd = '';
@@ -908,7 +914,8 @@ const engineProcesses = {};
       req.on('end', async () => {
         try {
           const { engineId, action } = JSON.parse(body || '{}');
-          const enginePath = path.join(SYNC_DIR, 'repo', 'skills', engineId);
+          let enginePath = path.join(SYNC_DIR, 'repo', 'server-skills', engineId);
+          if (!fs.existsSync(enginePath)) enginePath = path.join(SYNC_DIR, 'repo', 'skills', engineId);
 
           if (action === 'start') {
             if (engineProcesses[engineId]) {

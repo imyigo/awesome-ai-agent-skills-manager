@@ -28,3 +28,5 @@ repo/mcp/*
 !repo/mcp/.gitkeep
 repo/commands/*
 !repo/commands/.gitkeep
+repo/server-skills/*
+!repo/server-skills/.gitkeep
