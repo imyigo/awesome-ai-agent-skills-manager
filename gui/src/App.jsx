@@ -237,12 +237,54 @@ function CategoryDetail({ category, onBack, onDeleteSkill }) {
   );
 }
 
-// 4. MAIN REACT APP COMPONENT
+// 4. FLOATING TERMINAL DRAWER COMPONENT (VS CODE STYLE)
+function TerminalDrawer({ logs, onClear }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="fixed bottom-4 right-4 z-50 transition-all duration-300">
+      {!isOpen ? (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="flex items-center gap-2.5 bg-slate-900/90 hover:bg-slate-800 text-indigo-300 border border-slate-700 px-4 py-2.5 rounded-2xl shadow-2xl backdrop-blur-xl text-xs font-semibold hover:border-indigo-500/50 transition-all"
+        >
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>💻 Canlı Konsol ({logs.length})</span>
+          <span className="text-[10px] bg-indigo-500/20 px-1.5 py-0.5 rounded text-indigo-300">Aç ▲</span>
+        </button>
+      ) : (
+        <div className="w-80 sm:w-[480px] bg-slate-950/95 border border-slate-800 rounded-2xl shadow-2xl backdrop-blur-2xl overflow-hidden font-mono text-xs">
+          <div className="flex items-center justify-between px-4 py-2.5 bg-slate-900/90 border-b border-slate-800 text-slate-400">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <span className="ml-2 font-semibold text-[11px] text-slate-300">node-terminal.log</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={onClear} className="hover:text-slate-200 text-[10px] bg-slate-800 px-2 py-0.5 rounded">
+                Temizle
+              </button>
+              <button onClick={() => setIsOpen(false)} className="hover:text-rose-400 font-bold px-1.5 py-0.5">
+                ▼
+              </button>
+            </div>
+          </div>
+          <pre className="p-4 text-indigo-300 whitespace-pre-wrap max-h-64 overflow-y-auto leading-relaxed text-[11px]">
+            {logs.join('\n')}
+          </pre>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 5. MAIN REACT APP COMPONENT
 function App() {
   const [activeCategory, setActiveCategory] = useState('overview');
   const [aiStatus, setAiStatus] = useState({});
   const [liveSkills, setLiveSkills] = useState({});
-  const [logs, setLogs] = useState(["⚡ Gelişmiş React 18 Skill Yönetim Platformu Hazır."]);
+  const [logs, setLogs] = useState(["⚡ VS Code Tarzı Yüzen Terminal Hazır."]);
   
   // Advanced Form State
   const [repoUrl, setRepoUrl] = useState('');
@@ -356,7 +398,7 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen">
+    <div className="flex flex-col lg:flex-row min-h-screen relative pb-16">
       <Sidebar
         activeCategory={activeCategory}
         onSelectCategory={setActiveCategory}
@@ -461,7 +503,7 @@ function App() {
                     <h4 className="text-base font-semibold text-white flex items-center gap-2">
                       <span>🔄</span> Canlı Repoları Güncelle
                     </h4>
-                    <p class="text-xs text-slate-400 mt-2">
+                    <p className="text-xs text-slate-400 mt-2">
                       Orijinal GitHub repolarından en son sürüm değişikliklerini çeker ve submodule commit loglarını günceller.
                     </p>
                   </div>
@@ -480,22 +522,10 @@ function App() {
             onDeleteSkill={handleDeleteSkill}
           />
         )}
-
-        {/* Console Log Component */}
-        <section className="mt-8">
-          <div className="flex justify-between items-center mb-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Canlı React Konsol Logları</h3>
-            <button onClick={() => setLogs(["⚡ React konsolu temizlendi."])} className="text-xs text-slate-400 hover:text-slate-200">
-              Temizle
-            </button>
-          </div>
-          <div className="bg-slate-950 border border-slate-800/80 rounded-2xl p-5 font-mono text-xs shadow-2xl overflow-hidden">
-            <pre className="text-indigo-300 whitespace-pre-wrap max-h-64 overflow-y-auto leading-relaxed">
-              {logs.join('\n')}
-            </pre>
-          </div>
-        </section>
       </main>
+
+      {/* Floating VS Code Style Terminal Drawer Component */}
+      <TerminalDrawer logs={logs} onClear={() => setLogs(["⚡ Konsol temizlendi."])} />
     </div>
   );
 }
