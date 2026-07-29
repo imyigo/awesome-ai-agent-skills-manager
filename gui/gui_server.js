@@ -68,7 +68,7 @@ function watchAIDirectories() {
     } catch (e) {}
   }
 
-  console.log('[SSE] 19 Provider Filesystem watcher aktif — canlı push hazır.');
+  console.log('[SSE] 19 Provider Filesystem watcher aktif - canlı push hazır.');
 }
 
 const REACT_HTML_SHELL = `<!DOCTYPE html>
@@ -76,7 +76,7 @@ const REACT_HTML_SHELL = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>⚡ Multi-AI Skill Hub — Universal Control Center</title>
+  <title>Multi-AI Skill Hub - Universal Control Center</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -141,13 +141,11 @@ function getAIStatus() {
     const installed = checkAIInstalled(key);
     const skillsPath = path.join(provider.path, provider.skillsSub);
     let linked = false;
-    if (fs.existsSync(skillsPath)) {
-      try {
-        const stat = fs.lstatSync(skillsPath);
-        linked = stat.isSymbolicLink() || stat.isDirectory();
-      } catch (e) {
-        linked = false;
-      }
+    try {
+      const stat = fs.lstatSync(skillsPath);
+      linked = stat.isSymbolicLink() || stat.isDirectory();
+    } catch (e) {
+      linked = false;
     }
     result[key] = {
       name: provider.name,
@@ -191,6 +189,7 @@ function parseSkillMetadata(skillDir) {
       meta.hasFrontmatter = true;
       const yamlLines = fmMatch[1].split('\n');
       yamlLines.forEach(line => {
+        if (line.trim().startsWith('#')) return;
         const [k, ...v] = line.split(':');
         if (k && v.length) {
           const key = k.trim().toLowerCase();
@@ -350,32 +349,32 @@ function getCommandsList() {
   }
 }
 
-// PRESETS (GELİŞTİRİCİ MODLARI) SYSTEM
+// PRESETS SYSTEM
 const PRESETS = [
   {
     id: "fullstack-pro",
-    title: "⚡ Fullstack Web & App Architect",
+    title: "Fullstack Web & App Architect",
     description: "Karpathy guardrails, UX/UI OKLCH design tokens, Node.js + React 18 & SQLite standartları.",
     skills: ["ux-ui", "caveman", "unified-dev"],
     active: true
   },
   {
     id: "security-auditor",
-    title: "🔐 Security Audit & Hardening",
+    title: "Security Audit & Hardening",
     description: "OWASP Top 10, AST static scanning, STRIDE tehdit modelleme ve sıfır-güven (Zero-Trust) denetimi.",
     skills: ["security", "unified-dev"],
     active: false
   },
   {
     id: "game-studio",
-    title: "🎮 Indie Game Developer Studio",
+    title: "Indie Game Developer Studio",
     description: "GDD şablonları, 60 FPS performans kuralları, Object Pooling ve Game Feel (Juice) rehberi.",
     skills: ["game", "caveman"],
     active: false
   },
   {
     id: "growth-marketing",
-    title: "📈 Growth Marketing & ASO/CRO",
+    title: "Growth Marketing & ASO/CRO",
     description: "PAS/AIDA reklam metinleri, App Store Optimization ve Landing Page Dönüşüm optimizasyonu.",
     skills: ["marketing", "ux-ui"],
     active: false
@@ -391,13 +390,11 @@ const MARKETPLACE_CATALOG = [
   { name: "coreyhaines31/marketingskills", label: "Marketing & Growth Skills", stars: "14.0k", desc: "Pazarlama, CRO, SEO ve büyüme odaklı yetenekler.", url: "https://github.com/coreyhaines31/marketingskills" },
 ];
 
+// FIX: Robust Junction / Symlink Removal for Windows & Unix (handles broken links)
 function removeLinkTarget(targetPath) {
-  if (!fs.existsSync(targetPath)) return;
   try {
     const stat = fs.lstatSync(targetPath);
-    if (stat.isSymbolicLink()) {
-      fs.unlinkSync(targetPath);
-    } else if (isWin && stat.isDirectory()) {
+    if (isWin && (stat.isSymbolicLink() || stat.isDirectory())) {
       try {
         fs.rmdirSync(targetPath);
       } catch (e) {
@@ -407,9 +404,7 @@ function removeLinkTarget(targetPath) {
       fs.rmSync(targetPath, { recursive: true, force: true });
     }
   } catch (e) {
-    try {
-      fs.rmSync(targetPath, { recursive: true, force: true });
-    } catch (err) {}
+    // Path does not exist or link already broken - clean state
   }
 }
 
@@ -617,20 +612,20 @@ function createServer(port) {
 
   server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
-      console.error(`❌ Port ${port} dolu! Mevcut bir sunucu çalışıyor olabilir.`);
+      console.error(`Port ${port} dolu! Mevcut bir sunucu çalışıyor olabilir.`);
       process.exit(1);
     } else {
-      console.error('❌ Sunucu Hatası:', err);
+      console.error('Sunucu Hatası:', err);
       process.exit(1);
     }
   });
 
   server.listen(port, () => {
     console.log(`\n====================================================`);
-    console.log(` ⚡ Multi-AI Skill Hub Universal Control Center`);
-    console.log(` ⚛️ React 18 Entry: http://localhost:${port}`);
-    console.log(` 🔌 SSE Push:       http://localhost:${port}/api/events`);
-    console.log(` 🤖 19 AI Provider: Active`);
+    console.log(` Multi-AI Skill Hub Universal Control Center`);
+    console.log(` React 18 Entry: http://localhost:${port}`);
+    console.log(` SSE Push:       http://localhost:${port}/api/events`);
+    console.log(` 19 AI Provider: Active`);
     console.log(`====================================================\n`);
 
     watchAIDirectories();
