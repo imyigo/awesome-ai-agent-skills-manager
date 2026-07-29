@@ -336,8 +336,8 @@ function getLiveSkillsData() {
           let gitUrl = "";
           let commitHash = "";
           try {
-            gitUrl = execSync("git config --get remote.origin.url", { cwd: subPath }).toString().trim();
-            commitHash = execSync("git rev-parse --short HEAD", { cwd: subPath }).toString().trim();
+            gitUrl = execSync("git config --get remote.origin.url", { cwd: subPath, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+            commitHash = execSync("git rev-parse --short HEAD", { cwd: subPath, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
           } catch (e) {
             gitUrl = "https://github.com/" + folder;
             commitHash = "HEAD";
