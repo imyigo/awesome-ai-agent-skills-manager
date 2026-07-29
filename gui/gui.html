@@ -28,7 +28,7 @@
     }
   </script>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen antialiased selection:bg-indigo-500 selection:text-white" onload="loadAIStatus()">
 
   <!-- Background Glow Accents -->
   <div class="fixed top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -143,14 +143,17 @@
             Yönetim Dashboard & AI Bağlantıları
           </h2>
           <p class="text-xs text-slate-400 mt-1" id="view-subtitle">
-            Google Antigravity • Claude Code • Cursor IDE • OpenAI Codex
+            Canlı Sistem Taraması ve Seçmeli AI Bağlantı Yönetimi
           </p>
         </div>
 
         <div class="flex items-center gap-3">
+          <button onclick="loadAIStatus()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all">
+            <span>🔄 Yenile</span>
+          </button>
           <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            Sunucu Aktif (localhost:3777)
+            Sunucu Aktif
           </span>
         </div>
       </header>
@@ -160,45 +163,85 @@
         
         <!-- DEFAULT OVERVIEW VIEW -->
         <div id="view-overview-content">
-          <!-- AI Assistants Status Section -->
+          
+          <!-- AI Assistants Detection & Link Management Section -->
           <section class="mb-10">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Bağlı AI Asistanları</h3>
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Bilgisayardaki AI Asistanları & Tercihli Bağlantılar</h3>
+              <span class="text-[11px] text-slate-500">İstediğiniz AI aracını bağlayabilir veya bağsız bırakabilirsiniz.</span>
+            </div>
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-4 hover:border-indigo-500/40 transition-all duration-300 shadow-xl">
-                <div class="flex justify-between items-center mb-2">
-                  <span class="text-2xl">🌌</span>
-                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="ai-cards-container">
+              <!-- Antigravity -->
+              <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-5 shadow-xl flex flex-col justify-between" id="card-antigravity">
+                <div>
+                  <div class="flex justify-between items-center mb-3">
+                    <span class="text-2xl">🌌</span>
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-400" id="badge-detect-antigravity">Taranıyor...</span>
+                  </div>
+                  <h4 class="font-semibold text-sm text-slate-200">Google Antigravity</h4>
+                  <p class="text-[11px] text-slate-500 mt-1 truncate">~/.gemini/antigravity</p>
                 </div>
-                <h4 class="font-semibold text-sm text-slate-200">Google Antigravity</h4>
-                <p class="text-[11px] text-slate-500 mt-1">~/.gemini/antigravity</p>
+                <div class="mt-4 pt-3 border-t border-slate-800/60 flex justify-between items-center">
+                  <span class="text-xs text-slate-400 font-medium" id="label-link-antigravity">Durum: -</span>
+                  <button onclick="toggleAILink('antigravity')" id="btn-link-antigravity" class="text-xs px-3 py-1.5 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all">
+                    Yükleniyor...
+                  </button>
+                </div>
               </article>
 
-              <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-4 hover:border-indigo-500/40 transition-all duration-300 shadow-xl">
-                <div class="flex justify-between items-center mb-2">
-                  <span class="text-2xl">🤖</span>
-                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
+              <!-- Claude Code -->
+              <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-5 shadow-xl flex flex-col justify-between" id="card-claude">
+                <div>
+                  <div class="flex justify-between items-center mb-3">
+                    <span class="text-2xl">🤖</span>
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-400" id="badge-detect-claude">Taranıyor...</span>
+                  </div>
+                  <h4 class="font-semibold text-sm text-slate-200">Claude Code</h4>
+                  <p class="text-[11px] text-slate-500 mt-1 truncate">~/.claude</p>
                 </div>
-                <h4 class="font-semibold text-sm text-slate-200">Claude Code</h4>
-                <p class="text-[11px] text-slate-500 mt-1">~/.claude</p>
+                <div class="mt-4 pt-3 border-t border-slate-800/60 flex justify-between items-center">
+                  <span class="text-xs text-slate-400 font-medium" id="label-link-claude">Durum: -</span>
+                  <button onclick="toggleAILink('claude')" id="btn-link-claude" class="text-xs px-3 py-1.5 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all">
+                    Yükleniyor...
+                  </button>
+                </div>
               </article>
 
-              <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-4 hover:border-indigo-500/40 transition-all duration-300 shadow-xl">
-                <div class="flex justify-between items-center mb-2">
-                  <span class="text-2xl">🖱️</span>
-                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
+              <!-- Cursor IDE -->
+              <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-5 shadow-xl flex flex-col justify-between" id="card-cursor">
+                <div>
+                  <div class="flex justify-between items-center mb-3">
+                    <span class="text-2xl">🖱️</span>
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-400" id="badge-detect-cursor">Taranıyor...</span>
+                  </div>
+                  <h4 class="font-semibold text-sm text-slate-200">Cursor IDE</h4>
+                  <p class="text-[11px] text-slate-500 mt-1 truncate">~/.cursor</p>
                 </div>
-                <h4 class="font-semibold text-sm text-slate-200">Cursor IDE</h4>
-                <p class="text-[11px] text-slate-500 mt-1">~/.cursor</p>
+                <div class="mt-4 pt-3 border-t border-slate-800/60 flex justify-between items-center">
+                  <span class="text-xs text-slate-400 font-medium" id="label-link-cursor">Durum: -</span>
+                  <button onclick="toggleAILink('cursor')" id="btn-link-cursor" class="text-xs px-3 py-1.5 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all">
+                    Yükleniyor...
+                  </button>
+                </div>
               </article>
 
-              <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-4 hover:border-indigo-500/40 transition-all duration-300 shadow-xl">
-                <div class="flex justify-between items-center mb-2">
-                  <span class="text-2xl">📜</span>
-                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
+              <!-- OpenAI Codex -->
+              <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-5 shadow-xl flex flex-col justify-between" id="card-codex">
+                <div>
+                  <div class="flex justify-between items-center mb-3">
+                    <span class="text-2xl">📜</span>
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-400" id="badge-detect-codex">Taranıyor...</span>
+                  </div>
+                  <h4 class="font-semibold text-sm text-slate-200">OpenAI Codex</h4>
+                  <p class="text-[11px] text-slate-500 mt-1 truncate">~/.codex</p>
                 </div>
-                <h4 class="font-semibold text-sm text-slate-200">OpenAI Codex</h4>
-                <p class="text-[11px] text-slate-500 mt-1">~/.codex</p>
+                <div class="mt-4 pt-3 border-t border-slate-800/60 flex justify-between items-center">
+                  <span class="text-xs text-slate-400 font-medium" id="label-link-codex">Durum: -</span>
+                  <button onclick="toggleAILink('codex')" id="btn-link-codex" class="text-xs px-3 py-1.5 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all">
+                    Yükleniyor...
+                  </button>
+                </div>
               </article>
             </div>
           </section>
@@ -211,20 +254,6 @@
               <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
                 <div>
                   <h4 class="text-base font-semibold text-white flex items-center gap-2">
-                    <span>🚀</span> Çoklu-AI Kurulum Yap
-                  </h4>
-                  <p class="text-xs text-slate-400 mt-2">
-                    Tüm skill ve komutları Antigravity, Claude, Cursor ve Codex asistanlarınıza otomatik bağlar.
-                  </p>
-                </div>
-                <button onclick="runAction('install')" class="mt-6 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg shadow-indigo-600/25 active:scale-[0.98] text-sm flex items-center justify-center gap-2">
-                  <span>🚀 Şimdi Kur & Bağla</span>
-                </button>
-              </div>
-
-              <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
-                <div>
-                  <h4 class="text-base font-semibold text-white flex items-center gap-2">
                     <span>🔄</span> Canlı Skill Güncelleme
                   </h4>
                   <p class="text-xs text-slate-400 mt-2">
@@ -232,23 +261,24 @@
                   </p>
                 </div>
                 <button onclick="runAction('update')" class="mt-6 w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg shadow-purple-600/25 active:scale-[0.98] text-sm flex items-center justify-center gap-2">
-                  <span>🔄 Skill'leri Güncelle</span>
+                  <span>🔄 Tüm Skill'leri Güncelle</span>
                 </button>
               </div>
 
-              <div class="md:col-span-2 bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl">
-                <h4 class="text-base font-semibold text-white flex items-center gap-2">
-                  <span>➕</span> Canlı Yeni GitHub Skill Reposu Ekle
-                </h4>
-                <p class="text-xs text-slate-400 mt-1">
-                  Herhangi bir GitHub repo URL'si yapıştırarak yeni yeteneği ekleyin ve sol menü ile tüm AI'larınıza canlı bağlayın.
-                </p>
-                
-                <div class="mt-4 flex flex-col sm:flex-row gap-3">
-                  <input type="url" id="repo-url-input" placeholder="https://github.com/kullanici/yeni-skill-repo.git" 
-                         class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors font-mono">
-                  <button onclick="addCustomSkill()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg shadow-emerald-600/25 active:scale-[0.98] whitespace-nowrap text-xs flex items-center justify-center gap-2">
-                    <span>➕ Ekle & Bağla</span>
+              <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                <div>
+                  <h4 class="text-base font-semibold text-white flex items-center gap-2">
+                    <span>➕</span> Canlı Yeni GitHub Skill Reposu Ekle
+                  </h4>
+                  <p class="text-xs text-slate-400 mt-1">
+                    Herhangi bir GitHub repo URL'si yapıştırarak yeni yetenek ekleyin.
+                  </p>
+                </div>
+                <div class="mt-4 flex flex-col sm:flex-row gap-2">
+                  <input type="url" id="repo-url-input" placeholder="https://github.com/user/repo.git" 
+                         class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono">
+                  <button onclick="addCustomSkill()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2 px-4 rounded-xl text-xs whitespace-nowrap">
+                    <span>➕ Ekle</span>
                   </button>
                 </div>
               </div>
@@ -278,8 +308,8 @@
             <span id="log-time" class="text-[10px]">Ready</span>
           </div>
           
-          <pre id="console-log" class="text-indigo-300 whitespace-pre-wrap max-h-72 overflow-y-auto leading-relaxed">⚡ Multi-AI Skill Hub Dashboard Görsel Arayüzü Hazır.
-Sol taraftaki menüden kategoriler arasında özgürce gezebilirsiniz.</pre>
+          <pre id="console-log" class="text-indigo-300 whitespace-pre-wrap max-h-72 overflow-y-auto leading-relaxed">⚡ Multi-AI Skill Hub Dashboard Hazır.
+Bilgisayarınızdaki AI asistanlarını istediğiniz gibi seçerek bağlayabilir veya bağsız bırakabilirsiniz.</pre>
         </div>
       </section>
 
@@ -288,6 +318,68 @@ Sol taraftaki menüden kategoriler arasında özgürce gezebilirsiniz.</pre>
 
   <!-- Dynamic Categories SPA Data & Interactive Navigation Script -->
   <script>
+    let currentAIStatus = {};
+
+    async function loadAIStatus() {
+      try {
+        const res = await fetch('/api/status');
+        currentAIStatus = await res.json();
+        renderAICards(currentAIStatus);
+      } catch (err) {
+        log(`❌ AI durum verisi alınamadı: ${err.message}`);
+      }
+    }
+
+    function renderAICards(status) {
+      for (const [aiKey, info] of Object.entries(status)) {
+        const badgeDetect = document.getElementById(`badge-detect-${aiKey}`);
+        const labelLink = document.getElementById(`label-link-${aiKey}`);
+        const btnLink = document.getElementById(`btn-link-${aiKey}`);
+        
+        if (!badgeDetect || !labelLink || !btnLink) continue;
+
+        if (info.installed) {
+          badgeDetect.textContent = "Yüklü";
+          badgeDetect.className = "text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+        } else {
+          badgeDetect.textContent = "Sistemde Yok";
+          badgeDetect.className = "text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-500";
+        }
+
+        if (info.linked) {
+          labelLink.textContent = "Bağlantı: ✅ Bağlı";
+          labelLink.className = "text-xs text-emerald-400 font-medium";
+          btnLink.textContent = "🔌 Bağlantıyı Kes";
+          btnLink.className = "text-xs px-3 py-1.5 rounded-lg font-semibold bg-rose-600/80 hover:bg-rose-500 text-white transition-all shadow-lg shadow-rose-600/20";
+        } else {
+          labelLink.textContent = "Bağlantı: ❌ Bağsız";
+          labelLink.className = "text-xs text-slate-500 font-medium";
+          btnLink.textContent = "🔗 Bağla";
+          btnLink.className = "text-xs px-3 py-1.5 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-lg shadow-indigo-600/20";
+        }
+      }
+    }
+
+    async function toggleAILink(aiKey) {
+      const isCurrentlyLinked = currentAIStatus[aiKey] ? currentAIStatus[aiKey].linked : false;
+      const newState = !isCurrentlyLinked;
+      
+      log(`⌛ [${aiKey}] için bağlantı durumu değiştiriliyor (${newState ? 'Bağlanıyor' : 'Kaldırılıyor'})...`);
+
+      try {
+        const res = await fetch('/api/toggle-link', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ai: aiKey, state: newState })
+        });
+        const data = await res.json();
+        log(data.message);
+        loadAIStatus(); // Refresh status
+      } catch (err) {
+        log(`❌ İşlem hatası: ${err.message}`);
+      }
+    }
+
     const categoryData = {
       core: {
         title: "🧠 Çekirdek Davranışlar (Core Behavior)",
@@ -297,20 +389,19 @@ Sol taraftaki menüden kategoriler arasında özgürce gezebilirsiniz.</pre>
         rules: [
           "Karpathy Guardrails: Kod yazmadan önce varsayımları doğrula ve kullanıcıya sor.",
           "Minimal Intervention: Sadece istenen bölgeye cerrahi müdahale yap, diğer kodları bozma.",
-          "Caveman Protocol: Boş dolgu cümlelerini (Certainly!, Great question!) sil, konuya gir.",
+          "Caveman Protocol: Boş dolgu cümlelerini sil, konuya gir.",
           "File-based Task Planning: 3+ adımlı karmaşık görevlerde hafıza dosyası tut."
         ]
       },
       web: {
         title: "🎨 Web & UI/UX Tasarım Mimarisi",
-        subtitle: "WCAG 2.2 AA/AAA, Design Tokens & 138 Component System",
+        subtitle: "WCAG 2.2 AA/AAA, Design Tokens & Component System",
         command: "/ux-ui",
         description: "Üretime hazır, erişilebilir ve modern web/UI arayüz tasarımları için kıdemli mimar kuralları.",
         rules: [
-          "Color Contrast: Metin kontrast oranı en az 4.5:1 (WCAG AA), UI elemanları min 3:1.",
+          "Color Contrast: Metin kontrast oranı en az 4.5:1 (WCAG AA).",
           "Touch Target: Dokunmatik buton yüksekliği en az 44x44px.",
-          "Tokens First: Sihirli sayı (magic number) kullanma, 4px/8px grid scale kullan.",
-          "Fluid Typography: Font boyutlarında clamp() ve responsive breakpoint'ler kullan."
+          "Tokens First: Sihirli sayı kullanma, 4px/8px grid scale kullan."
         ]
       },
       mobile: {
@@ -320,31 +411,28 @@ Sol taraftaki menüden kategoriler arasında özgürce gezebilirsiniz.</pre>
         description: "Yerel mobil platform kuralları ve Apple HIG / Material Design 3 kılavuzu.",
         rules: [
           "iOS/macOS: Apple Human Interface Guidelines (HIG) ve SwiftUI declarative state yapısı.",
-          "Android: Jetpack Compose, Material Design 3 ve Unidirectional Data Flow (UDF).",
-          "Dynamic Type: Sistem font ölçeklemesini (Accessibility scaling) destekle.",
-          "Main Thread Safety: Ağ ve veritabanı işlemlerini arka plan thread'lerine al."
+          "Android: Jetpack Compose, Material Design 3 ve Unidirectional Data Flow (UDF)."
         ]
       },
       game: {
         title: "🎮 Oyun Geliştirme Stüdyosu",
         subtitle: "GDD Şablonları, Engine Selection & Game Feel / Juice",
         command: "/game",
-        description: "49 farklı oyun geliştirici ajanından damıtılmış stüdyo workflow kuralları.",
+        description: "Oyun stüdyosu workflow kuralları.",
         rules: [
-          "Core Loop: Oyunun döngüsünü (Core -> Session -> Meta) net tanımla.",
-          "Performance: 60 FPS hedefi, Garbage Collection azaltımı ve Object Pooling.",
-          "Game Feel (Juice): Görsel ve işitsel geri bildirimler (screen shake, hit stop, particle)."
+          "Core Loop: Oyunun döngüsünü net tanımla.",
+          "Performance: 60 FPS hedefi, Object Pooling.",
+          "Game Feel: Görsel ve işitsel geri bildirimler."
         ]
       },
       security: {
         title: "🔐 Siber Güvenlik & Kod Denetimi",
-        subtitle: "OWASP Top 10, STRIDE Threat Modeling & Security Headers",
+        subtitle: "OWASP Top 10, STRIDE Threat Modeling",
         command: "/security",
         description: "Yazılım güvenlik açıkları tespiti ve savunma mimarisi rehberi.",
         rules: [
-          "OWASP Top 10: SQL Injection, XSS, CSRF ve güvensiz doğrudan nesne başvuruları taraması.",
-          "STRIDE Modeling: Spoofing, Tampering, Repudiation, Info Disclosure, DoS, Escalation.",
-          "HTTP Headers: Content-Security-Policy, Strict-Transport-Security, X-Frame-Options."
+          "OWASP Top 10: SQL Injection, XSS, CSRF taraması.",
+          "STRIDE Modeling: Threat Modeling denetimi."
         ]
       },
       planning: {
@@ -353,26 +441,23 @@ Sol taraftaki menüden kategoriler arasında özgürce gezebilirsiniz.</pre>
         command: "/planning",
         description: "Yazılım mimarisi kararlarını ve proje aşamalarını belgeleme kılavuzu.",
         rules: [
-          "PRD (Product Requirement Doc): İhtiyaçları ve veri akışlarını tanımla.",
-          "ADR (Architectural Decision Record): Alınan mimari kararları ve gerekçelerini kaydet.",
-          "Sprint Breakdown: Görevleri küçük, bağımsız ve test edilebilir parçalara böl."
+          "PRD: İhtiyaçları tanımla.",
+          "ADR: Alınan mimari kararları ve gerekçelerini kaydet."
         ]
       },
       marketing: {
         title: "📈 Pazarlama & ASO / CRO",
-        subtitle: "PAS/AIDA Copywriting, App Store Optimization & Landing CRO",
+        subtitle: "PAS/AIDA Copywriting, App Store Optimization",
         command: "/marketing",
-        description: "Dönüşüm oranlarını (Conversion) ve indirmeleri artıran büyüme rehberi.",
+        description: "Dönüşüm oranlarını ve indirmeleri artıran büyüme rehberi.",
         rules: [
-          "Copywriting: PAS (Problem-Agitate-Solution) ve AIDA (Attention-Interest-Desire-Action).",
-          "ASO: iOS App Store ve Google Play anahtar kelime, başlık ve ekran görüntüsü optimizasyonu.",
-          "Landing Page CRO: Açık değer teklifi (Value Prop), sosyal kanıt (Social Proof) ve tek CTA."
+          "Copywriting: PAS ve AIDA modelleri.",
+          "ASO: Anahtar kelime ve başlık optimizasyonu."
         ]
       }
     };
 
     function switchCategory(catKey) {
-      // 1. Navigation Button Styles Update
       const navButtons = document.querySelectorAll('#category-nav button');
       navButtons.forEach(btn => {
         btn.className = "w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition-all";
@@ -383,7 +468,6 @@ Sol taraftaki menüden kategoriler arasında özgürce gezebilirsiniz.</pre>
         activeNav.className = "w-full flex items-center justify-between px-3 py-2.5 text-xs font-semibold rounded-xl bg-indigo-600 text-white transition-all shadow-lg shadow-indigo-600/20";
       }
 
-      // 2. Render View
       const viewContent = document.getElementById('view-content');
       const viewTitle = document.getElementById('view-title');
       const viewSubtitle = document.getElementById('view-subtitle');
@@ -393,14 +477,13 @@ Sol taraftaki menüden kategoriler arasında özgürce gezebilirsiniz.</pre>
         const detailEl = document.getElementById('category-detail-panel');
         if (detailEl) detailEl.remove();
         viewTitle.textContent = "Yönetim Dashboard & AI Bağlantıları";
-        viewSubtitle.textContent = "Google Antigravity • Claude Code • Cursor IDE • OpenAI Codex";
+        viewSubtitle.textContent = "Canlı Sistem Taraması ve Seçmeli AI Bağlantı Yönetimi";
+        loadAIStatus();
         return;
       }
 
-      // Hide overview view
       document.getElementById('view-overview-content').style.display = 'none';
 
-      // Remove existing detail panel if any
       const existingPanel = document.getElementById('category-detail-panel');
       if (existingPanel) existingPanel.remove();
 
@@ -408,7 +491,6 @@ Sol taraftaki menüden kategoriler arasında özgürce gezebilirsiniz.</pre>
       viewTitle.textContent = cat.title;
       viewSubtitle.textContent = cat.subtitle;
 
-      // Build Interactive Category Detail Panel
       const panel = document.createElement('div');
       panel.id = 'category-detail-panel';
       panel.className = 'space-y-6';
@@ -466,6 +548,7 @@ Sol taraftaki menüden kategoriler arasında özgürce gezebilirsiniz.</pre>
         const res = await fetch(`/api/${action}`, { method: 'POST' });
         const data = await res.json();
         log(data.output || data.message);
+        loadAIStatus();
       } catch (err) {
         log(`❌ Hata oluştu: ${err.message}`);
       }
