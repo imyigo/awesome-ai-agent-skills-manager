@@ -80,7 +80,25 @@ if (Test-Path $cmdLink) {
     cmd /c "rmdir `"$cmdLink`""
 }
 cmd /c "mklink /J `"$cmdLink`" `"$cmdTarget`""
-Write-Host "   ✅ commands/ junction bağlandı" -ForegroundColor Green
+Write-Host "   ✅ Antigravity commands/ junction bağlandı" -ForegroundColor Green
+
+# 5. Claude Code (~/.claude) junction bağlarını kur
+Write-Host ""
+Write-Host "🔗 Claude Code (~/.claude) bağları kuruluyor..." -ForegroundColor Yellow
+$claudeDir = "$env:USERPROFILE\.claude"
+if (-not (Test-Path $claudeDir)) {
+    New-Item -ItemType Directory -Path $claudeDir -Force | Out-Null
+}
+
+$cSkills = "$claudeDir\skills"
+$cCmds   = "$claudeDir\commands"
+
+if (Test-Path $cSkills) { Remove-Item $cSkills -Recurse -Force -ErrorAction SilentlyContinue }
+cmd /c "mklink /J `"$cSkills`" `"$SyncDir\skills`""
+
+if (Test-Path $cCmds) { Remove-Item $cCmds -Recurse -Force -ErrorAction SilentlyContinue }
+cmd /c "mklink /J `"$cCmds`" `"$SyncDir\commands`""
+Write-Host "   ✅ Claude Code skills/ ve commands/ bağlandı" -ForegroundColor Green
 
 # 5. Git post-merge hook (mcp_config.json hardlink yenileyici)
 Write-Host ""
