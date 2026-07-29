@@ -240,6 +240,7 @@ function removeLinkTarget(targetPath) {
   }
 }
 
+// Windows ve Unix için Hatasız Link Bağlama Yardımcısı
 function toggleLink(aiKey, targetState, callback) {
   const targetDir = AI_PATHS[aiKey];
   if (!targetDir) return callback(new Error('Bilinmeyen AI aracı'));
@@ -252,21 +253,23 @@ function toggleLink(aiKey, targetState, callback) {
   const commandsDest = path.join(targetDir, 'commands');
 
   if (targetState === true) {
+    // 1. Önce eski bağları temizle
     removeLinkTarget(skillsDest);
     removeLinkTarget(commandsDest);
 
     if (isWin) {
       const winSrcSkills = path.join(SYNC_DIR, 'skills');
       const winSrcCmds = path.join(SYNC_DIR, 'commands');
-      const cmd = `cmd //c "mklink /J \\"${skillsDest}\\" \\"${winSrcSkills}\\""`;
-      exec(cmd, (err) => {
+
+      try {
+        execSync(`cmd /c "mklink /J "${skillsDest}" "${winSrcSkills}""`);
         if (fs.existsSync(winSrcCmds)) {
-          const cmd2 = `cmd //c "mklink /J \\"${commandsDest}\\" \\"${winSrcCmds}\\""`;
-          exec(cmd2, () => callback(null, `${aiKey} başarıyla bağlandı.`));
-        } else {
-          callback(null, `${aiKey} başarıyla bağlandı.`);
+          execSync(`cmd /c "mklink /J "${commandsDest}" "${winSrcCmds}""`);
         }
-      });
+        callback(null, `${aiKey} başarıyla bağlandı.`);
+      } catch (err) {
+        callback(err, `Bağlama Hatası: ${err.message}`);
+      }
     } else {
       exec(`ln -s "${path.join(SYNC_DIR, 'skills')}" "${skillsDest}" && ln -s "${path.join(SYNC_DIR, 'commands')}" "${commandsDest}"`, (err) => {
         callback(err, `${aiKey} başarıyla bağlandı.`);
