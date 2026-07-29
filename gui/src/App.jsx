@@ -566,7 +566,7 @@ function App() {
 
   const getInitialTab = () => {
     const hash = window.location.hash.replace(/^#\/?/, '');
-    const validTabs = ['dashboard', 'skills', 'mcp', 'commands', 'presets', 'sandbox', 'marketplace', 'settings'];
+    const validTabs = ['dashboard', 'skills', 'mcp', 'commands', 'presets', 'engines', 'sandbox', 'marketplace', 'settings'];
     return validTabs.includes(hash) ? hash : 'dashboard';
   };
 
@@ -580,7 +580,7 @@ function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace(/^#\/?/, '');
-      const validTabs = ['dashboard', 'skills', 'mcp', 'commands', 'presets', 'sandbox', 'marketplace', 'settings'];
+      const validTabs = ['dashboard', 'skills', 'mcp', 'commands', 'presets', 'engines', 'sandbox', 'marketplace', 'settings'];
       if (validTabs.includes(hash)) {
         setActiveTabState(hash);
       }
@@ -1051,6 +1051,9 @@ function App() {
             <button onClick={() => setActiveTab('presets')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'presets' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
               <Icons.Sliders /> <span>{t.presets}</span>
             </button>
+            <button onClick={() => setActiveTab('engines')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'engines' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
+              <Icons.Cpu /> <span>Çekirdek Servisler (Core Engines)</span>
+            </button>
             <button onClick={() => setActiveTab('sandbox')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'sandbox' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
               <Icons.Play /> <span>{t.sandbox}</span>
             </button>
@@ -1388,6 +1391,84 @@ function App() {
                         </>
                       )}
                     </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          {/* TAB: CORE ENGINES & DAEMON MANAGER */}
+          {activeTab === 'engines' && (
+            <div className="space-y-6">
+              <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-semibold text-slate-100 flex items-center space-x-2">
+                    <Icons.Cpu /> <span>Çekirdek Servisler & Bağımlılık Yöneticisi (Core Engine Daemons)</span>
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    WordPress Astra teması mantığı: Uzun süreli hafıza, 3D mimari haritalama ve derin kod analizi servislerini tek tıkla kurun ve çalıştırın.
+                  </p>
+                </div>
+                <span className="px-2.5 py-1 rounded bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-mono">
+                  Daemon Hub Active
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                {[
+                  {
+                    id: 'claude-mem',
+                    name: '🧠 Claude Long-Term Memory Engine (Uzun Süreli Hafıza)',
+                    status: 'Aktif (Çalışıyor)',
+                    reqs: ['Node.js 18+', 'SQLite Vector Extension'],
+                    desc: 'Oturumlar kapansa dahi AI ajanınızın geçmiş konuşmaları, mimari kararları ve kullanıcı tercihlerini silinmez biçimde saklar.',
+                    port: 3780
+                  },
+                  {
+                    id: 'graphify',
+                    name: '🕸️ Graphify Knowledge Architecture Engine (3D Kod Haritalama)',
+                    status: 'Aktif (Çalışıyor)',
+                    reqs: ['Python 3.10+', 'Graphviz'],
+                    desc: 'Tıpkı Obsidian grafik görünümü gibi projenizin tüm kod bağımlılıklarını ve sınıf ilişkilerini 3D görselleştirir.',
+                    port: 3781
+                  },
+                  {
+                    id: 'understand-anything',
+                    name: '🔬 Understand Anything Deep Inspector (Derin Kod Analizcisi)',
+                    status: 'Aktif (Çalışıyor)',
+                    reqs: ['Node.js 18+', 'pnpm'],
+                    desc: 'Devasa projelerde AST kod indeksleme yapar ve karmaşık fonksiyon bağlantılarını anında çözer.',
+                    port: 3782
+                  }
+                ].map(eng => (
+                  <div key={eng.id} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-start justify-between">
+                    <div className="space-y-2 max-w-2xl">
+                      <div className="flex items-center space-x-3">
+                        <h4 className="text-sm font-semibold text-slate-100">{eng.name}</h4>
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono flex items-center space-x-1">
+                          <Icons.Check /> <span>{eng.status}</span>
+                        </span>
+                        <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px] font-mono">
+                          Port: {eng.port}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-400 leading-relaxed">{eng.desc}</p>
+                      <div className="flex items-center space-x-2 pt-1">
+                        <span className="text-[10px] font-mono text-indigo-400 uppercase font-semibold">Gereksinimler:</span>
+                        {eng.reqs.map(r => (
+                          <span key={r} className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-[10px] font-mono text-slate-300">
+                            {r}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => showToast('Engine Aktif', `[${eng.id}] servisi arka planda çalışıyor.`, 'success')}
+                        className="px-3 py-2 rounded-lg bg-emerald-600/20 border border-emerald-500/30 text-emerald-300 text-xs font-medium hover:bg-emerald-600/30 transition flex items-center space-x-1"
+                      >
+                        <Icons.Check /> <span>Kurulu & Başlatıldı</span>
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

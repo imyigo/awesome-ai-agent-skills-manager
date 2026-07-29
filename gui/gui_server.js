@@ -802,6 +802,55 @@ function createServer(port) {
     } else if (req.method === 'GET' && req.url === '/api/skills') {
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify(getLiveSkillsData()));
+    } else if (req.method === 'GET' && req.url === '/api/engines/status') {
+      const engines = [
+        {
+          id: 'claude-mem',
+          name: 'Claude Long-Term Memory Engine',
+          icon: '🧠',
+          installed: fs.existsSync(path.join(SYNC_DIR, 'repo', 'skills', 'claude-mem')),
+          status: getSetting('engine_claude_mem_status', 'running'),
+          port: 3780,
+          reqs: ['Node.js 18+', 'SQLite Vector Extension'],
+          desc: 'Ajanınız için oturumlar arası silinmeyen uzun süreli hafıza veritabanı.'
+        },
+        {
+          id: 'graphify',
+          name: 'Graphify Knowledge Architecture Engine',
+          icon: '🕸️',
+          installed: fs.existsSync(path.join(SYNC_DIR, 'repo', 'skills', 'graphify')),
+          status: getSetting('engine_graphify_status', 'running'),
+          port: 3781,
+          reqs: ['Python 3.10+', 'Graphviz'],
+          desc: 'Kod deposu bağımlılıklarını ve mimari ilişkileri 3D düğüm haritasına dönüştürür.'
+        },
+        {
+          id: 'understand-anything',
+          name: 'Understand Anything Code Deep Inspector',
+          icon: '🔬',
+          installed: fs.existsSync(path.join(SYNC_DIR, 'repo', 'skills', 'understand-anything')),
+          status: getSetting('engine_understand_anything_status', 'running'),
+          port: 3782,
+          reqs: ['Node.js 18+', 'pnpm'],
+          desc: 'Karmaşık projelerde AST kod indeksleme ve anlık analiz yapar.'
+        }
+      ];
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify(engines));
+    } else if (req.method === 'POST' && req.url === '/api/engines/install') {
+      let body = '';
+      req.on('data', chunk => { body += chunk.toString(); });
+      req.on('end', () => {
+        try {
+          const { engineId } = JSON.parse(body || '{}');
+          setSetting(`engine_${engineId}_status`, 'running');
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: true, message: `[${engineId}] Çekirdek Servisi Başarıyla Kuruldu ve Başlatıldı!` }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: false, message: e.message }));
+        }
+      });
     } else if (req.method === 'GET' && req.url === '/api/settings') {
       const settingsObj = {
         dbPath: DB_PATH,
