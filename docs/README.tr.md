@@ -26,31 +26,24 @@
 
 ---
 
-## 🌟 Önemli Özellikler
+## 🎨 Kontrol Paneli & Görsel Web Dashboard
 
-* **🎨 Modern Görsel Web Dashboard:** Tarayıcınızda açılan görsel karanlık-mod kontrol paneli (`./gui.sh`) ile tek tıkla kurulum, canlı loglar ve durum rozetleri!
-* **🤖 Otomatik Çoklu-AI Tespiti:** Bilgisayarınızda yüklü AI araçlarını (Antigravity, Claude Code, Cursor IDE, OpenAI Codex) otomatik tespit eder ve sembolik bağları yönetir.
-* **🧠 Birleşik Süper-Skill (`unified-dev`):** Topluluğun en iyi 10+ skill'ini çakışmasız tek bir çatı altında toplar.
-* **⚡ %60-70 Token Tasarrufu:** 3 Katmanlı **Lazy-Load** mimarisi kullanır.
-* **🔄 Şeffaf GitHub Raporlama:** Güncelleme sırasında canlı GitHub repo URL'lerini, commit kodlarını ve geliştirici notlarını ekrana basar.
-* **➕ Canlı GitHub Skill Ekleme:** İstediğiniz herhangi bir GitHub skill reposunu tek tıkla ekleyip tüm AI'larınıza bağlama imkanı!
+Tüm işlemleri tek bir giriş noktasından (**`./control.sh`**) yönetebilirsiniz:
 
----
-
-## 🎨 Görsel Web Dashboard & CLI Seçenekleri
-
-Yeteneklerinizi **Görsel Web Dashboard** (`./gui.sh`) VEYA **İnteraktif CLI** (`./control.sh`) ile yönetebilirsiniz:
-
-### Seçenek A: Görsel Web Dashboard'u Başlat (Önerilen)
 ```bash
-./gui.sh
-# Tarayıcınızda http://localhost:3777 adresini otomatik açar!
-```
-
-### Seçenek B: İnteraktif Terminal Kontrol Paneli
-```bash
+cd ~/.gemini/claude-antigravity-best-skills
+chmod +x control.sh
 ./control.sh
 ```
+
+**`control.sh` İçindeki Seçenekler:**
+* **`[1]` 🚀 Kurulum Yap:** Antigravity, Claude Code, Cursor ve Codex bağlantılarını kurar.
+* **`[2]` 🔄 Güncelle:** Tüm canlı skill'leri şeffaf commit loglarıyla günceller.
+* **`[3]` 🔍 Sistem Durumu:** Yüklü AI asistanlarını tespit eder ve durum denetimi yapar.
+* **`[4]` ➕ Canlı Skill Ekle:** İstediğiniz GitHub skill reposunu tek tıkla ekler.
+* **`[5]` 🎨 Görsel Web Dashboard:** Tarayıcınızda `http://localhost:3777` adresinde **Görsel Web GUI** arayüzünü açar!
+* **`[6]` 🌐 Dil Değiştir:** Menü dilini anında değiştirir (Türkçe, English, Deutsch vb.).
+* **`[7]` ❌ Çıkış:** Kontrol panelinden çıkar.
 
 ```text
 ========================================================

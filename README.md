@@ -43,31 +43,24 @@
 
 ---
 
-## 🌟 Key Features
+## 🎨 Web GUI Dashboard & Interactive CLI
 
-* **🎨 Modern Web GUI Dashboard:** Launch a visual dark-mode web dashboard (`./gui.sh`) at `http://localhost:3777` with live status badges, interactive action buttons, and live log console!
-* **🤖 Multi-AI Assistant Auto-Detection:** Automatically detects installed AI agents (Antigravity, Claude Code, Cursor IDE, OpenAI Codex) and manages symlinks seamlessly.
-* **🧠 Unified Super-Skill (`unified-dev`):** Distills 10+ top community skills into a non-conflicting core framework.
-* **⚡ 60-70% Token Savings:** 3-Tier **Lazy-Load** architecture. Only loads specific domain references when triggered.
-* **🔄 Live Upstream Sync & Transparent Reporting:** Displays live GitHub repository URLs, commit hashes, and author change logs during updates.
-* **➕ Add Custom GitHub Skills:** Add any public GitHub skill repository on-the-fly and instantly link it across all detected AI assistants.
+Manage your skills using the **Interactive Dashboard & Control Panel**:
 
----
-
-## 🎨 Web GUI Dashboard & CLI Options
-
-You can manage your skills using the **Visual Web Dashboard** (`./gui.sh`) OR the **Interactive CLI** (`./control.sh`):
-
-### Option A: Launch Visual Web Dashboard (Recommended)
 ```bash
-./gui.sh
-# Opens http://localhost:3777 in your browser automatically!
-```
-
-### Option B: Interactive CLI Dashboard
-```bash
+cd ~/.gemini/claude-antigravity-best-skills
+chmod +x control.sh
 ./control.sh
 ```
+
+**Options in `control.sh`:**
+* **`[1]` 🚀 Install:** Links all skills, commands & MCP configs to Antigravity, Claude Code, Cursor & Codex.
+* **`[2]` 🔄 Update:** Upgrades all live skills from their upstream GitHub repositories with transparent commit logs.
+* **`[3]` 🔍 Status:** Auto-detects installed AI assistants and verifies connection health.
+* **`[4]` ➕ Add Skill:** Clones any custom GitHub skill repo on-the-fly and deploys it across all AI assistants.
+* **`[5]` 🎨 Web Dashboard:** Launches the **Visual Dark-Mode Web GUI** at `http://localhost:3777` with live log console!
+* **`[6]` 🌐 Language:** Toggle menu language (English, Türkçe, Deutsch, Русский, 中文, Français, Português).
+* **`[7]` ❌ Exit:** Exit the control panel.
 
 ```text
 ========================================================
