@@ -26,7 +26,7 @@
 * **⚡ 60-70% Token Savings:** Employs a 3-tier **Lazy-Load** architecture. Only loads specific domain references (Web, Mobile, Security, etc.) when triggered.
 * **🔄 Live Auto-Sync:** Linked directly to original open-source repos via **Git Submodules**. Update all skills with a single command!
 * **🛡️ Security & Zero-Leak Ready:** Public-safe configuration. No hardcoded credentials.
-* **🖥️ Multi-Machine Sync:** Complete cross-device sync setup script (`setup.ps1`).
+* **🖥️ Universal Cross-Platform Sync:** Single universal `.sh` setup script (`control/kurulum.sh`) for Windows, macOS, and Linux.
 
 ---
 
@@ -61,50 +61,27 @@
 
 ---
 
-## 🔄 Live Sync with Original Repos
-
-This framework maintains live links to original community repos via Git Submodules inside `skills/originals/`:
-
-* [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) — Token reduction communication style
-* [multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills) — Behavioral guardrails
-* [OthmanAdi/planning-with-files](https://github.com/OthmanAdi/planning-with-files) — Persistent file planning
-* [plugin87/ux-ui-agent-skills](https://github.com/plugin87/ux-ui-agent-skills) — Senior UI/UX & WCAG 2.2
-* [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills) — Marketing, ASO & CRO
-* [Donchitos/Claude-Code-Game-Studios](https://github.com/Donchitos/Claude-Code-Game-Studios) — Game dev framework
-* [Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify) — Codebase knowledge graph
-* [Egonex-AI/Understand-Anything](https://github.com/Egonex-AI/Understand-Anything) — Guided codebase tours
-* [VoltAgent/awesome-agent-skills](https://github.com/VoltAgent/awesome-agent-skills) — 1000+ Agent skills index
-
----
-
-## 🚀 Quick Setup (30 Seconds)
+## 🚀 Quick Setup (All Platforms: Windows, macOS, Linux)
 
 ### 1. Clone with Submodules
 ```bash
 git clone --recursive https://github.com/imyigo/claude-antigravity-skills.git ~/.gemini/claude-antigravity-best-skills
 ```
 
-### 2. Run Setup Script
+### 2. Run Universal Setup Script
 
-Setup and update scripts are located in the **`control/`** directory.
-
-**Windows (PowerShell):**
-```powershell
-cd ~/.gemini/claude-antigravity-best-skills
-.\control\kurulum-windows.ps1
-```
-
-**macOS / Linux (Bash/Zsh):**
+Run the universal setup script (in Git Bash / Terminal):
 ```bash
 cd ~/.gemini/claude-antigravity-best-skills
 chmod +x control/*.sh
-./control/kurulum-mac-linux.sh
+./control/kurulum.sh
 ```
 
 ### 3. One-Click Updates
-
-**Windows:** `.\control\guncelle-windows.ps1`
-**macOS / Linux:** `./control/guncelle-mac-linux.sh`
+To update all skills from live original GitHub sources:
+```bash
+./control/guncelle.sh
+```
 
 ---
 
