@@ -316,8 +316,35 @@ function App() {
   }, []);
 
   useEffect(() => {
+    // İlk yükleme — anlık veri çek
     fetchStatus();
     fetchSkills();
+
+    // SSE — Django Channels gibi sunucudan canlı push al
+    const es = new EventSource('/api/events');
+
+    es.addEventListener('connected', (e) => {
+      const data = JSON.parse(e.data);
+      addLog(`🔌 SSE Bağlantısı kuruldu — ${data.time.slice(11,19)} UTC`);
+    });
+
+    es.addEventListener('status_update', (e) => {
+      const data = JSON.parse(e.data);
+      setAiStatus(data);
+      addLog(`📡 [SSE] AI durumu güncellendi`);
+    });
+
+    es.addEventListener('skills_update', (e) => {
+      const data = JSON.parse(e.data);
+      setLiveSkills(data);
+      addLog(`📡 [SSE] Skill listesi güncellendi`);
+    });
+
+    es.onerror = () => {
+      addLog(`⚠️ [SSE] Bağlantı kesildi, yeniden bağlanılıyor...`);
+    };
+
+    return () => es.close();
   }, [fetchStatus, fetchSkills]);
 
   const handleToggleLink = async (aiKey) => {

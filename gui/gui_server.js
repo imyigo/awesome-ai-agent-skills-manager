@@ -8,6 +8,49 @@ const GUI_DIR = __dirname;
 const SYNC_DIR = path.join(GUI_DIR, '..');
 
 const isWin = process.platform === 'win32';
+
+// ============================================================
+// SSE (SERVER-SENT EVENTS) — Django Channels benzeri canlı push
+// ============================================================
+const sseClients = new Set(); // Bağlı React istemcileri
+
+function broadcast(eventName, data) {
+  const payload = `event: ${eventName}\ndata: ${JSON.stringify(data)}\n\n`;
+  for (const client of sseClients) {
+    try { client.write(payload); } catch (e) { sseClients.delete(client); }
+  }
+}
+
+function watchAIDirectories() {
+  const watched = [
+    ...Object.values(AI_PATHS),
+    path.join(homeDir, '.gemini', 'antigravity', 'skills'),
+    path.join(homeDir, '.claude', 'skills'),
+  ];
+
+  watched.forEach(dir => {
+    if (!fs.existsSync(dir)) return;
+    try {
+      fs.watch(dir, { persistent: false }, (eventType, filename) => {
+        console.log(`[FS WATCH] ${eventType}: ${dir}/${filename || ''}`);
+        // Değişiklik olunca AI durumunu hesaplayıp tüm React istemcilerine push et
+        broadcast('status_update', getAIStatus());
+      });
+    } catch (e) {}
+  });
+
+  // Skills klasörünü de izle
+  const skillsDir = path.join(SYNC_DIR, 'skills', 'originals');
+  if (fs.existsSync(skillsDir)) {
+    try {
+      fs.watch(skillsDir, { persistent: false }, () => {
+        broadcast('skills_update', getLiveSkillsData());
+      });
+    } catch (e) {}
+  }
+
+  console.log('[SSE] Filesystem watcher aktif — canlı push hazır.');
+}
 const homeDir = isWin ? process.env.USERPROFILE : process.env.HOME;
 
 const REACT_HTML_SHELL = `<!DOCTYPE html>
@@ -332,6 +375,41 @@ function toggleLink(aiKey, targetState, callback) {
 function createServer(port) {
   const server = http.createServer((req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    // SSE CANLI PUSH ENDPOINT
+    if (req.method === 'GET' && req.url === '/api/events') {
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'X-Accel-Buffering': 'no',
+      });
+
+      // İstemciyi kaydet
+      sseClients.add(res);
+      console.log(`[SSE] Yeni istemci bağlandı. Toplam: ${sseClients.size}`);
+
+      // Bağlanınca anlık durum gönder
+      res.write(`event: status_update\ndata: ${JSON.stringify(getAIStatus())}\n\n`);
+      res.write(`event: skills_update\ndata: ${JSON.stringify(getLiveSkillsData())}\n\n`);
+      res.write(`event: connected\ndata: ${JSON.stringify({ time: new Date().toISOString(), clients: sseClients.size })}\n\n`);
+
+      // Heartbeat — bağlantı kopmasın
+      const heartbeat = setInterval(() => {
+        try { res.write(': heartbeat\n\n'); } catch (e) { clearInterval(heartbeat); }
+      }, 15000);
+
+      // İstemci bağlantıyı kesince temizle
+      req.on('close', () => {
+        sseClients.delete(res);
+        clearInterval(heartbeat);
+        console.log(`[SSE] İstemci ayrıldı. Kalan: ${sseClients.size}`);
+      });
+      return;
+    }
 
     if (req.method === 'GET' && (req.url === '/' || req.url === '/index.html')) {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -363,6 +441,8 @@ function createServer(port) {
           toggleLink(ai, state, (err, message) => {
             res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
             res.end(JSON.stringify({ success: !err, message: message || (err && err.message) }));
+            // Bağlantı değişti — tüm açık React sekmelerine SSE push
+            if (!err) broadcast('status_update', getAIStatus());
           });
         } catch (e) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -373,6 +453,8 @@ function createServer(port) {
       exec('git submodule update --remote --merge', { cwd: SYNC_DIR }, (err, stdout, stderr) => {
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
         res.end(JSON.stringify({ success: !err, output: stdout || stderr || 'Tüm canlı skill repoları güncellendi!' }));
+        // Skill güncellemeleri bitti — tüm açık React sekmelerine SSE push
+        if (!err) broadcast('skills_update', getLiveSkillsData());
       });
     } else if (req.method === 'POST' && req.url === '/api/add-skill') {
       let body = '';
@@ -441,7 +523,11 @@ function createServer(port) {
     console.log(`\n====================================================`);
     console.log(` ⚡ Multi-AI Skill Hub Pure React Server`);
     console.log(` ⚛️ React 18 Entry: http://localhost:${port}`);
+    console.log(` 🔌 SSE Push:       http://localhost:${port}/api/events`);
     console.log(`====================================================\n`);
+
+    // Filesystem watcher'ı başlat
+    watchAIDirectories();
 
     if (!process.env.NO_OPEN) {
       const startCmd = isWin ? `start http://localhost:${port}` :
