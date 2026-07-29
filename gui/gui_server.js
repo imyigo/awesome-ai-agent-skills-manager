@@ -17,7 +17,6 @@ const AI_PATHS = {
   codex: path.join(homeDir, '.codex')
 };
 
-// IN-MEMORY REACT HTML SHELL (FİZİKİ INDEX.HTML GEREKTİRMEZ!)
 const REACT_HTML_SHELL = `<!DOCTYPE html>
 <html lang="tr" class="dark">
 <head>
@@ -48,7 +47,6 @@ const REACT_HTML_SHELL = `<!DOCTYPE html>
 </body>
 </html>`;
 
-// 1. CANLI AI İZLEME & BAĞLANTI TARAMASI
 function getAIStatus() {
   const result = {};
   for (const [key, dirPath] of Object.entries(AI_PATHS)) {
@@ -68,7 +66,6 @@ function getAIStatus() {
   return result;
 }
 
-// 2. CANLI SKILL & SUBMODULE TARAMASI (DİSKTEN NATIVE OKUMA)
 function getLiveSkillsData() {
   const skillsDir = path.join(SYNC_DIR, 'skills', 'originals');
   const unifiedDir = path.join(SYNC_DIR, 'skills', 'unified-dev');
@@ -182,9 +179,8 @@ function getLiveSkillsData() {
 
           const repoObj = { name: folder, url: gitUrl, tag: commitHash };
 
-          if (folder.includes("caveman") || folder.includes("karpathy") || folder.includes("planning")) {
+          if (folder.includes("caveman") || folder.includes("karpathy")) {
             liveData.core.repos.push(repoObj);
-            if (folder.includes("planning")) liveData.planning.repos.push(repoObj);
           } else if (folder.includes("ux-ui") || folder.includes("ui-ux")) {
             liveData.web.repos.push(repoObj);
           } else if (folder.includes("game")) {
@@ -193,6 +189,8 @@ function getLiveSkillsData() {
             liveData.marketing.repos.push(repoObj);
           } else if (folder.includes("security") || folder.includes("cybersecurity")) {
             liveData.security.repos.push(repoObj);
+          } else if (folder.includes("planning")) {
+            liveData.planning.repos.push(repoObj);
           } else {
             liveData.core.repos.push(repoObj);
           }
@@ -220,7 +218,6 @@ function getLiveSkillsData() {
   return liveData;
 }
 
-// Güvenli Bağlantı Silme Yardımcısı
 function removeLinkTarget(targetPath) {
   if (!fs.existsSync(targetPath)) return;
   try {
@@ -282,7 +279,7 @@ function toggleLink(aiKey, targetState, callback) {
   }
 }
 
-// 4. REACT SERVER & REST API
+// REST API SUNUCUSU
 function createServer(port) {
   const server = http.createServer((req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -333,17 +330,45 @@ function createServer(port) {
       req.on('data', chunk => { body += chunk.toString(); });
       req.on('end', () => {
         try {
-          const { url } = JSON.parse(body);
+          const { url, category, customRule } = JSON.parse(body);
           if (!url) throw new Error('URL eksik');
           const skillName = path.basename(url, '.git');
           const cmd = `git submodule add -f "${url}" "skills/originals/${skillName}" && git submodule update --init --recursive`;
+          
           exec(cmd, { cwd: SYNC_DIR }, (err, stdout, stderr) => {
+            if (customRule && customRule.trim()) {
+              const ruleFile = path.join(SYNC_DIR, 'skills', 'unified-dev', '01-core-behavior.md');
+              if (fs.existsSync(ruleFile)) {
+                fs.appendFileSync(ruleFile, `\n\n### Özel Kural [${skillName}]:\n- ${customRule}\n`);
+              }
+            }
             res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-            res.end(JSON.stringify({ success: !err, output: stdout || stderr || `[${skillName}] eklendi ve tüm AI'lara bağlandı!` }));
+            res.end(JSON.stringify({ success: !err, output: stdout || stderr || `[${skillName}] ${category || ''} kategorisine başarıyla eklendi!` }));
           });
         } catch (e) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
-          res.end(JSON.stringify({ success: false, output: 'Geçersiz veri veya Hata: ' + e.message }));
+          res.end(JSON.stringify({ success: false, output: 'Hata: ' + e.message }));
+        }
+      });
+    } else if (req.method === 'POST' && req.url === '/api/remove-skill') {
+      let body = '';
+      req.on('data', chunk => { body += chunk.toString(); });
+      req.on('end', () => {
+        try {
+          const { name } = JSON.parse(body);
+          if (!name) throw new Error('Skill adı eksik');
+          const relPath = `skills/originals/${name}`;
+          const cmd = `git submodule deinit -f "${relPath}" && git rm -f "${relPath}"`;
+          
+          exec(cmd, { cwd: SYNC_DIR }, (err, stdout, stderr) => {
+            const fullPath = path.join(SYNC_DIR, relPath);
+            removeLinkTarget(fullPath);
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ success: true, output: `[${name}] repnuzu ve submodule kaydı başarıyla silindi.` }));
+          });
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: false, output: 'Silme Hatası: ' + e.message }));
         }
       });
     } else {

@@ -2,7 +2,7 @@
 const { useState, useEffect, useCallback } = React;
 
 // 1. SIDEBAR COMPONENT
-function Sidebar({ activeCategory, onSelectCategory, liveSkills }) {
+function Sidebar({ activeCategory, onSelectCategory, liveSkills, onDeleteSkill }) {
   const allRepos = [];
   if (liveSkills) {
     Object.values(liveSkills).forEach(cat => {
@@ -63,7 +63,7 @@ function Sidebar({ activeCategory, onSelectCategory, liveSkills }) {
           </nav>
         </div>
 
-        {/* Live Repos List */}
+        {/* Live Repos List with Delete Action */}
         <div className="mb-6">
           <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 px-1 flex justify-between items-center">
             <span>🔗 Canlı Repolar</span>
@@ -73,15 +73,21 @@ function Sidebar({ activeCategory, onSelectCategory, liveSkills }) {
           </h3>
           <div className="space-y-1.5 font-mono text-[11px]">
             {allRepos.map(r => (
-              <a
-                key={r.name}
-                href={r.url}
-                target="_blank"
-                className="flex items-center justify-between p-2 rounded-lg bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 transition-all"
-              >
-                <span className="truncate">{r.name}</span>
-                <span className="text-[10px] text-emerald-400 font-mono">{r.tag}</span>
-              </a>
+              <div key={r.name} className="flex items-center justify-between p-2 rounded-lg bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/40 text-slate-300 transition-all group">
+                <a href={r.url} target="_blank" className="truncate hover:text-indigo-300 flex-1">
+                  {r.name}
+                </a>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] text-emerald-400 font-mono">{r.tag}</span>
+                  <button
+                    onClick={() => onDeleteSkill(r.name)}
+                    className="opacity-0 group-hover:opacity-100 text-[10px] text-rose-400 hover:text-rose-300 px-1.5 py-0.5 rounded bg-rose-500/10 hover:bg-rose-500/20 transition-all"
+                    title="Skill Reposunu Sil"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -154,7 +160,7 @@ function AICardsGrid({ status, onToggleLink }) {
 }
 
 // 3. CATEGORY DETAIL COMPONENT
-function CategoryDetail({ category, onBack }) {
+function CategoryDetail({ category, onBack, onDeleteSkill }) {
   if (!category) return null;
 
   return (
@@ -173,10 +179,21 @@ function CategoryDetail({ category, onBack }) {
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {category.repos.map(r => (
-              <a key={r.name} href={r.url} target="_blank" className="flex items-center justify-between p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 hover:border-indigo-500/50 transition-all group">
-                <span className="font-mono text-xs text-slate-200 group-hover:text-indigo-300 truncate">{r.name}</span>
-                <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono">{r.tag}</span>
-              </a>
+              <div key={r.name} className="flex items-center justify-between p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 hover:border-indigo-500/50 transition-all group">
+                <a href={r.url} target="_blank" className="font-mono text-xs text-slate-200 group-hover:text-indigo-300 truncate flex-1">
+                  {r.name}
+                </a>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono">{r.tag}</span>
+                  <button
+                    onClick={() => onDeleteSkill(r.name)}
+                    className="text-xs text-rose-400 hover:text-rose-300 px-2 py-1 rounded bg-rose-500/10 hover:bg-rose-500/20 transition-all"
+                    title="Sil"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -225,8 +242,12 @@ function App() {
   const [activeCategory, setActiveCategory] = useState('overview');
   const [aiStatus, setAiStatus] = useState({});
   const [liveSkills, setLiveSkills] = useState({});
-  const [logs, setLogs] = useState(["⚡ Saf React 18 (App.jsx) Component Mimarisi Başlatıldı."]);
-  const [newRepoUrl, setNewRepoUrl] = useState('');
+  const [logs, setLogs] = useState(["⚡ Gelişmiş React 18 Skill Yönetim Platformu Hazır."]);
+  
+  // Advanced Form State
+  const [repoUrl, setRepoUrl] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('core');
+  const [customRule, setCustomRule] = useState('');
 
   const addLog = (msg) => {
     setLogs(prev => [...prev, msg]);
@@ -291,22 +312,46 @@ function App() {
 
   const handleAddSkill = async (e) => {
     e.preventDefault();
-    if (!newRepoUrl.trim()) return alert("Lütfen geçerli bir GitHub URL girin!");
-    addLog(`⌛ Yeni repo ekleniyor: ${newRepoUrl}...`);
+    if (!repoUrl.trim()) return alert("Lütfen geçerli bir GitHub URL girin!");
+    addLog(`⌛ Yeni repo ekleniyor (${selectedCategory}): ${repoUrl}...`);
 
     try {
       const res = await fetch('/api/add-skill', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: newRepoUrl })
+        body: JSON.stringify({
+          url: repoUrl,
+          category: selectedCategory,
+          customRule: customRule
+        })
       });
       const data = await res.json();
       addLog(data.output);
-      setNewRepoUrl('');
+      setRepoUrl('');
+      setCustomRule('');
       fetchStatus();
       fetchSkills();
     } catch (err) {
       addLog(`❌ Ekleme Hatası: ${err.message}`);
+    }
+  };
+
+  const handleDeleteSkill = async (skillName) => {
+    if (!confirm(`[${skillName}] yetenek reposunu tamamen silmek istediğinize emin misiniz?`)) return;
+    addLog(`⌛ [${skillName}] repnuzu siliniyor...`);
+
+    try {
+      const res = await fetch('/api/remove-skill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: skillName })
+      });
+      const data = await res.json();
+      addLog(data.output);
+      fetchStatus();
+      fetchSkills();
+    } catch (err) {
+      addLog(`❌ Silme Hatası: ${err.message}`);
     }
   };
 
@@ -316,16 +361,17 @@ function App() {
         activeCategory={activeCategory}
         onSelectCategory={setActiveCategory}
         liveSkills={liveSkills}
+        onDeleteSkill={handleDeleteSkill}
       />
 
       <main className="flex-1 p-6 lg:p-10 max-w-5xl">
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-8 mb-8 border-b border-slate-800/80">
           <div>
             <h2 className="text-2xl font-extrabold tracking-tight text-white">
-              {activeCategory === 'overview' ? 'React 18 JSX Dashboard & AI Bağlantıları' : liveSkills[activeCategory]?.title}
+              {activeCategory === 'overview' ? 'React 18 Dashboard & AI Bağlantıları' : liveSkills[activeCategory]?.title}
             </h2>
             <p className="text-xs text-slate-400 mt-1">
-              {activeCategory === 'overview' ? 'React State & Node.js REST API canlı senkronizasyon' : liveSkills[activeCategory]?.subtitle}
+              {activeCategory === 'overview' ? 'Gelişmiş Kategori & Özel Kural Yönetimi' : liveSkills[activeCategory]?.subtitle}
             </p>
           </div>
 
@@ -335,7 +381,7 @@ function App() {
             </button>
             <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              React 18 JSX Engine
+              React 18 Platform
             </span>
           </div>
         </header>
@@ -345,46 +391,85 @@ function App() {
           <div>
             <AICardsGrid status={aiStatus} onToggleLink={handleToggleLink} />
 
-            {/* Management Actions */}
+            {/* Advanced Management & Add Skill Form Section */}
             <section className="mb-10">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Yönetim İşlemleri</h3>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Gelişmiş Yönetim & Özel Skill Tanımlama</h3>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
-                  <div>
-                    <h4 className="text-base font-semibold text-white flex items-center gap-2">
-                      <span>🔄</span> Canlı Skill Güncelleme
-                    </h4>
-                    <p className="text-xs text-slate-400 mt-2">
-                      Orijinal GitHub repolarından en son sürüm değişikliklerini çeker.
-                    </p>
-                  </div>
-                  <button onClick={handleUpdateSkills} className="mt-6 w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 px-4 rounded-xl transition-all text-sm flex items-center justify-center gap-2">
-                    <span>🔄 Tüm Skill'leri Güncelle</span>
-                  </button>
-                </div>
+                
+                {/* Advanced Add Skill Form Card */}
+                <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl">
+                  <h4 className="text-base font-semibold text-white flex items-center gap-2 mb-2">
+                    <span>➕</span> Canlı Yeni Skill & Özel Kural Ekle
+                  </h4>
+                  <p className="text-xs text-slate-400 mb-4">
+                    Reponuzu istediğiniz kategoriye bağlayın ve özel AI kuralı ekleyin.
+                  </p>
 
-                <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
-                  <div>
-                    <h4 className="text-base font-semibold text-white flex items-center gap-2">
-                      <span>➕</span> Canlı Yeni Skill Reposu Ekle
-                    </h4>
-                    <p className="text-xs text-slate-400 mt-1">
-                      Yeni bir GitHub repo URL'si girin.
-                    </p>
-                  </div>
-                  <form onSubmit={handleAddSkill} className="mt-4 flex flex-col sm:flex-row gap-2">
-                    <input
-                      type="url"
-                      value={newRepoUrl}
-                      onChange={(e) => setNewRepoUrl(e.target.value)}
-                      placeholder="https://github.com/user/repo.git"
-                      className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 font-mono"
-                    />
-                    <button type="submit" className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2 px-4 rounded-xl text-xs whitespace-nowrap">
-                      <span>➕ Ekle</span>
+                  <form onSubmit={handleAddSkill} className="space-y-3">
+                    <div>
+                      <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">GitHub Repo URL</label>
+                      <input
+                        type="url"
+                        value={repoUrl}
+                        onChange={(e) => setRepoUrl(e.target.value)}
+                        placeholder="https://github.com/user/custom-skill.git"
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 font-mono focus:border-indigo-500 focus:outline-none"
+                        required
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Kategori Seçimi</label>
+                        <select
+                          value={selectedCategory}
+                          onChange={(e) => setSelectedCategory(e.target.value)}
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-indigo-500 focus:outline-none"
+                        >
+                          <option value="core">🧠 Çekirdek (Core)</option>
+                          <option value="web">🎨 Web & UI/UX</option>
+                          <option value="mobile">📱 Mobil (iOS/Android)</option>
+                          <option value="game">🎮 Oyun Stüdyosu</option>
+                          <option value="security">🔐 Siber Güvenlik</option>
+                          <option value="planning">📐 Mimari Planlama</option>
+                          <option value="marketing">📈 Pazarlama & ASO</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Özel Kural (Opsiyonel)</label>
+                        <input
+                          type="text"
+                          value={customRule}
+                          onChange={(e) => setCustomRule(e.target.value)}
+                          placeholder="Örn: TS Strict Mode Zorunlu"
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:border-indigo-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 px-4 rounded-xl text-xs transition-all shadow-lg shadow-emerald-600/25 active:scale-[0.98]">
+                      <span>➕ Skill & Kuralı Ekle</span>
                     </button>
                   </form>
                 </div>
+
+                {/* Submodule Update Card */}
+                <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                  <div>
+                    <h4 className="text-base font-semibold text-white flex items-center gap-2">
+                      <span>🔄</span> Canlı Repoları Güncelle
+                    </h4>
+                    <p class="text-xs text-slate-400 mt-2">
+                      Orijinal GitHub repolarından en son sürüm değişikliklerini çeker ve submodule commit loglarını günceller.
+                    </p>
+                  </div>
+                  <button onClick={handleUpdateSkills} className="mt-6 w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 px-4 rounded-xl transition-all text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-600/25 active:scale-[0.98]">
+                    <span>🔄 Tüm Skill Repolarını Güncelle</span>
+                  </button>
+                </div>
+
               </div>
             </section>
           </div>
@@ -392,6 +477,7 @@ function App() {
           <CategoryDetail
             category={liveSkills[activeCategory]}
             onBack={() => setActiveCategory('overview')}
+            onDeleteSkill={handleDeleteSkill}
           />
         )}
 
@@ -414,6 +500,6 @@ function App() {
   );
 }
 
-// 5. REACT 18 MAIN ENTRY POINT (main.jsx)
+// 5. REACT 18 MAIN ENTRY POINT
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
