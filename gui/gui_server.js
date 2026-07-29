@@ -4,11 +4,12 @@ const path = require('path');
 const { exec } = require('child_process');
 
 const PORT = 3777;
-const SYNC_DIR = __dirname;
+const GUI_DIR = __dirname;
+const SYNC_DIR = path.join(GUI_DIR, '..');
 
 const server = http.createServer((req, res) => {
   if (req.method === 'GET' && req.url === '/') {
-    fs.readFile(path.join(SYNC_DIR, 'gui.html'), (err, data) => {
+    fs.readFile(path.join(GUI_DIR, 'gui.html'), (err, data) => {
       if (err) {
         res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
         return res.end('Sunucu Hatası: gui.html okunamadı.');
@@ -17,7 +18,7 @@ const server = http.createServer((req, res) => {
       res.end(data);
     });
   } else if (req.method === 'POST' && req.url === '/api/install') {
-    exec('bash control.sh', { cwd: SYNC_DIR }, (err, stdout, stderr) => {
+    exec('bash control.sh --auto-install', { cwd: SYNC_DIR }, (err, stdout, stderr) => {
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify({ success: !err, output: stdout || stderr || 'Kurulum tamamlandı.' }));
     });
