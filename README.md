@@ -1,4 +1,4 @@
-# ⚡ Claude & Antigravity Best Skills Framework
+# ⚡ Multi-AI Skill & Framework Hub (Claude • Antigravity • Cursor • Codex)
 
 <p align="center">
   <a href="README.md"><b>English</b></a> •
@@ -11,83 +11,59 @@
 </p>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Claude Code](https://img.shields.io/badge/Built%20For-Claude%20Code-5A67D8?logo=anthropic)](https://claude.ai)
-[![Google Antigravity](https://img.shields.io/badge/Compatible-Google%20Antigravity-4285F4?logo=google)](https://google.com)
+[![Claude Code](https://img.shields.io/badge/Supported-Claude%20Code-5A67D8?logo=anthropic)](https://claude.ai)
+[![Google Antigravity](https://img.shields.io/badge/Supported-Google%20Antigravity-4285F4?logo=google)](https://google.com)
+[![Cursor IDE](https://img.shields.io/badge/Supported-Cursor%20IDE-000000?logo=cursor)](https://cursor.com)
+[![OpenAI Codex](https://img.shields.io/badge/Supported-OpenAI%20Codex-00A67E?logo=openai)](https://openai.com)
 [![Token Optimized](https://img.shields.io/badge/Token%20Economy-Lazy--Load-brightgreen)](#-architecture--token-economy)
-[![Live Git Submodules](https://img.shields.io/badge/Sync-Git%20Submodules-orange)](#-live-sync-with-original-repos)
 
-> **The ultimate, token-optimized, 3-tier modular skill & MCP framework for Claude Code and Google Antigravity.** Combines 10+ top community skills into a unified, zero-conflict architecture with live Git submodule syncing.
+> **The ultimate multi-AI agent skill manager.** Auto-detects and connects 10+ top community skills to **Claude Code, Google Antigravity, Cursor IDE, and OpenAI Codex** with live Git Submodule syncing and transparent GitHub reporting.
 
 ---
 
 ## 🌟 Key Features
 
-* **🧠 Unified Super-Skill (`unified-dev`):** Distills 10+ top community skills into a non-conflicting, single core agent framework.
-* **⚡ 60-70% Token Savings:** Employs a 3-tier **Lazy-Load** architecture. Only loads specific domain references (Web, Mobile, Security, etc.) when triggered.
-* **🔄 Live Auto-Sync:** Linked directly to original open-source repos via **Git Submodules**. Update all skills with a single command!
-* **🛡️ Security & Zero-Leak Ready:** Public-safe configuration. No hardcoded credentials.
-* **🖥️ Universal Cross-Platform Sync:** Single universal `.sh` setup script (`control/kurulum.sh`) for Windows, macOS, and Linux.
+* **🤖 Multi-AI Assistant Auto-Detection:** Automatically detects installed AI agents (Antigravity, Claude Code, Cursor IDE, OpenAI Codex) and manages symlinks seamlessly.
+* **🧠 Unified Super-Skill (`unified-dev`):** Distills 10+ top community skills into a non-conflicting core framework.
+* **⚡ 60-70% Token Savings:** 3-Tier **Lazy-Load** architecture. Only loads specific domain references when triggered.
+* **🔄 Live Upstream Sync & Transparent Reporting:** Displays live GitHub repository URLs, commit hashes, and author change logs during updates.
+* **➕ Add Custom GitHub Skills:** Add any public GitHub skill repository on-the-fly and instantly link it across all detected AI assistants.
 
 ---
 
-## 🌳 Architecture & Token Economy
+## 🖥️ Interactive CLI Control Panel Options
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  TIER 0: Core Rules (Always Active - Low Token Footprint)│
-│  skills/unified-dev/SKILL.md                            │
-│  └── references/01-core-behavior.md                     │
-│       • Concise Output Style (Caveman protocol)         │
-│       • Karpathy Anti-Hallucination Guardrails          │
-│       • File-Based Task & Memory Planning               │
-└─────────────────────────────────────────────────────────┘
-              ↓ Lazy-Loaded on Demand
-┌─────────────────────────────────────────────────────────┐
-│  TIER 1: Domain References (Loaded Only When Needed)    │
-│  ├── references/02-web.md        (Web, UI/UX, WCAG 2.2)│
-│  ├── references/03-mobile.md     (iOS, Android, macOS) │
-│  ├── references/04-game.md       (Game Engines, GDD)   │
-│  ├── references/05-security.md   (OWASP Top 10, STRIDE)│
-│  ├── references/06-planning.md   (PRD, ADR, Sprint)    │
-│  └── references/07-marketing.md  (ASO, CRO, Copywriting)│
-└─────────────────────────────────────────────────────────┘
-              ↓ Explicit Tool Execution
-┌─────────────────────────────────────────────────────────┐
-│  TIER 2: External Tools & Daemons                       │
-│  ├── tools/graphify-install.md   (Knowledge Graph)      │
-│  └── tools/claude-mem-install.md (Persistent Memory)    │
-└─────────────────────────────────────────────────────────┘
+When you run `./control.sh`, the interactive CLI dashboard opens:
+
+```text
+========================================================
+  ⚡ MULTI-AI SKILL & FRAMEWORK HUB CONTROL PANEL
+  (Antigravity • Claude Code • Cursor IDE • OpenAI Codex)
+========================================================
+  [1] 🚀 Kurulum Yap & Tüm AI'ları Bağla (Install & Link)
+  [2] 🔄 Skill'leri Güncelle & GitHub Raporu Al (Update & Report)
+  [3] 🔍 AI Tespiti & Sistem Bağlantı Durumu (Auto-Detect Status)
+  [4] ➕ Canlı Yeni GitHub Skill Reposu Ekle (Add Custom Skill Repo)
+  [5] ⚙️ AI Bağlantı Hedef Ayarları (Toggle Target AIs)
+  [6] ❌ Çıkış (Exit)
+========================================================
 ```
 
 ---
 
-## 🚀 Interactive Control Panel (All Platforms: Windows, macOS, Linux)
+## 🚀 Quick Start (30 Seconds)
 
 ### 1. Clone with Submodules
 ```bash
 git clone --recursive https://github.com/imyigo/claude-antigravity-skills.git ~/.gemini/claude-antigravity-best-skills
 ```
 
-### 2. Run Control Panel
-
-Run the single interactive control panel (in Git Bash / Terminal):
+### 2. Launch Control Panel
 ```bash
 cd ~/.gemini/claude-antigravity-best-skills
 chmod +x control.sh
 ./control.sh
 ```
-
-**Panel Options:**
-* **`[1]` 🚀 Install:** Links all skills, commands & MCP configs to Antigravity & Claude Code.
-* **`[2]` 🔄 Update:** Upgrades all skills from their live upstream GitHub repositories.
-* **`[3]` 🔍 Status:** Verifies system symlinks, junctions, and directory integrity.
-* **`[4]` ❌ Exit:** Closes the control panel.
-
----
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/imyigo/claude-antigravity-skills/issues).
 
 ---
 

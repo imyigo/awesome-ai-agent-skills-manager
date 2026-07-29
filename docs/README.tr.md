@@ -1,40 +1,47 @@
-# ⚡ Claude & Antigravity Best Skills Framework
+# ⚡ Multi-AI Skill & Framework Hub (Claude • Antigravity • Cursor • Codex)
 
-> **Claude Code ve Google Antigravity için ultra optimize edilmiş, 3 katmanlı modüler yetenek (skill) ve MCP altyapısı.** 10+ popüler açık kaynak skill'i çakışmasız, canlı Git submodule bağlantılı tek bir mimaride birleştirir.
+> **Tüm AI kodlama asistanları için dünyanın ilk Çoklu-AI yetenek yöneticisi.** Bilgisayarınızda yüklü **Google Antigravity, Claude Code, Cursor IDE ve OpenAI Codex** asistanlarını otomatik tespit eder ve 10+ canlı açık kaynak yeteneği şeffaf GitHub raporlamasıyla bağlar.
 
 ---
 
 ## 🌟 Önemli Özellikler
 
-* **🧠 Birleşik Süper-Skill (`unified-dev`):** Topluluğun en iyi 10+ skill'ini çakışmasız ve tek bir çatı altında toplar.
-* **⚡ %60-70 Token Tasarrufu:** 3 Katmanlı **Lazy-Load** mimarisi kullanır. Yalnızca ilgili alan referanslarını (Web, Mobil, Güvenlik vb.) ihtiyaç anında yükler.
-* **🔄 Canlı Otomatik Senkronizasyon:** **Git Submodules** sayesinde orijinal repolara canlı bağlıdır. Tek bir komutla tüm skill'leri günceller!
-* **🛡️ %100 Güvenli & Public Uyumlu:** Gizli veri veya sert kodlanmış şifre içermez. Paylaşıma tamamen hazırdır.
-* **🖥️ Evrensel Çapraz Platform:** Windows, macOS ve Linux sistemlerini otomatik tanıyan tek evrensel `.sh` kurulum scripti (`control/kurulum.sh`).
+* **🤖 Otomatik Çoklu-AI Tespiti:** Bilgisayarınızda yüklü AI araçlarını (Antigravity, Claude Code, Cursor IDE, OpenAI Codex) otomatik tespit eder ve sembolik bağları yönetir.
+* **🧠 Birleşik Süper-Skill (`unified-dev`):** Topluluğun en iyi 10+ skill'ini çakışmasız tek bir çatı altında toplar.
+* **⚡ %60-70 Token Tasarrufu:** 3 Katmanlı **Lazy-Load** mimarisi kullanır.
+* **🔄 Şeffaf GitHub Raporlama:** Güncelleme sırasında canlı GitHub repo URL'lerini, commit kodlarını ve geliştirici notlarını ekrana basar.
+* **➕ Canlı GitHub Skill Ekleme:** İstediğiniz herhangi bir GitHub skill reposunu tek tıkla ekleyip tüm AI'larınıza bağlama imkanı!
 
 ---
 
-## 🚀 İnteraktif Kontrol Paneli (Tüm Platformlar: Windows, macOS, Linux)
+## 🖥️ İnteraktif Kontrol Paneli Seçenekleri
 
-### 1. Submodule'ler İle Klonlayın
-```bash
-git clone --recursive https://github.com/imyigo/claude-antigravity-skills.git ~/.gemini/claude-antigravity-best-skills
+`./control.sh` komutunu çalıştırdığınızda açılan menü:
+
+```text
+========================================================
+  ⚡ MULTI-AI SKILL & FRAMEWORK HUB CONTROL PANEL
+  (Antigravity • Claude Code • Cursor IDE • OpenAI Codex)
+========================================================
+  [1] 🚀 Kurulum Yap & Tüm AI'ları Bağla (Install & Link)
+  [2] 🔄 Skill'leri Güncelle & GitHub Raporu Al (Update & Report)
+  [3] 🔍 AI Tespiti & Sistem Bağlantı Durumu (Auto-Detect Status)
+  [4] ➕ Canlı Yeni GitHub Skill Reposu Ekle (Add Custom Skill Repo)
+  [5] ⚙️ AI Bağlantı Hedef Ayarları (Toggle Target AIs)
+  [6] ❌ Çıkış (Exit)
+========================================================
 ```
 
-### 2. Kontrol Panelini Çalıştırın
+---
 
-Terminal / Git Bash ekranında:
+## 🚀 Hızlı Kurulum
+
 ```bash
+git clone --recursive https://github.com/imyigo/claude-antigravity-skills.git ~/.gemini/claude-antigravity-best-skills
 cd ~/.gemini/claude-antigravity-best-skills
 chmod +x control.sh
 ./control.sh
 ```
-
-**Panel Seçenekleri:**
-* **`[1]` 🚀 Kurulum Yap:** Antigravity ve Claude Code bağlantılarını otomatik kurar.
-* **`[2]` 🔄 Güncelle:** Tüm canlı skill'leri GitHub kaynaklarından günceller.
-* **`[3]` 🔍 Sistem Durumu:** Bağlantıları ve dizin bütünlüğünü denetler.
-* **`[4]` ❌ Çıkış:** Kontrol panelinden çıkar.
 
 ---
 
