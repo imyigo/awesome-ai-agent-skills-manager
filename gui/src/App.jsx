@@ -15,6 +15,7 @@ const dict = {
     sandbox: "LLM Sandbox Test",
     updateAll: "Tüm Repoları Güncelle",
     providers: "AI Providers",
+    starterPacks: "Başlangıç Paketleri",
     installed: "Yüklü",
     notInstalled: "Algılanmadı",
     linked: "Bağlı",
@@ -53,6 +54,7 @@ const dict = {
     sandbox: "LLM Sandbox Test",
     updateAll: "Update All Repos",
     providers: "AI Providers",
+    starterPacks: "Starter Packs",
     installed: "Installed",
     notInstalled: "Not Detected",
     linked: "Linked",
@@ -1034,9 +1036,20 @@ function App() {
           </div>
 
           <nav className="p-2 space-y-1">
+            {/* --- CORE NAV --- */}
             <button onClick={() => setActiveTab('dashboard')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'dashboard' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
-              <Icons.Grid /> <span>{t.dashboard} ({installedCount}/19)</span>
+              <Icons.Grid /> <span>{t.dashboard}</span>
             </button>
+            <button onClick={() => setActiveTab('providers')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'providers' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
+              <Icons.Zap /> <span>{t.providers} ({installedCount}/19)</span>
+            </button>
+            <button onClick={() => setActiveTab('starterPacks')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'starterPacks' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
+              <Icons.ShoppingBag /> <span>{t.starterPacks}</span>
+            </button>
+            {/* --- DIVIDER --- */}
+            <div className="pt-1 pb-0.5 px-3">
+              <div className="border-t border-slate-800/80" />
+            </div>
             <button onClick={() => setActiveTab('skills')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'skills' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
               <Icons.Code /> <span>{t.skills}</span>
             </button>
@@ -1050,13 +1063,13 @@ function App() {
               <Icons.Sliders /> <span>{t.presets}</span>
             </button>
             <button onClick={() => setActiveTab('engines')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'engines' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
-              <Icons.Cpu /> <span>Çekirdek Servisler (Core Engines)</span>
+              <Icons.Cpu /> <span>Çekirdek Servisler</span>
             </button>
             <button onClick={() => setActiveTab('sandbox')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'sandbox' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
               <Icons.Play /> <span>{t.sandbox}</span>
             </button>
             <button onClick={() => setActiveTab('marketplace')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'marketplace' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
-              <Icons.ShoppingBag /> <span>{t.marketplace}</span>
+              <Icons.Search /> <span>{t.marketplace}</span>
             </button>
             <button onClick={() => setActiveTab('settings')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'settings' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
               <Icons.Settings /> <span>{t.settings}</span>
@@ -1085,8 +1098,150 @@ function App() {
         </header>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {activeTab === 'dashboard' && (
+          {/* ===== TAB: DASHBOARD (STATS REPORT) ===== */}
+          {activeTab === 'dashboard' && (() => {
+            const totalProviders = Object.keys(aiStatus).length;
+            const installedProviders = Object.values(aiStatus).filter(i => i.installed).length;
+            const linkedProviders = Object.values(aiStatus).filter(i => i.linked).length;
+            const allSkillRepos = Object.values(skillsData).flatMap(c => c.repos);
+            const activeSkillRepos = allSkillRepos.filter(r => !r.meta?.disabled);
+            const now = new Date();
+            return (
+              <div className="space-y-6">
+                {/* HEADER GREETING */}
+                <div className="p-5 rounded-2xl bg-gradient-to-br from-indigo-950/60 via-slate-900/80 to-slate-950 border border-indigo-500/20 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg font-bold text-white">🧠 Agent Brain Manager</h2>
+                    <p className="text-xs text-slate-400 mt-1">{now.toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} — Sistem durumu özeti</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-black text-indigo-400">{linkedProviders}<span className="text-base text-slate-500">/{totalProviders}</span></div>
+                    <div className="text-[10px] text-slate-400 font-mono uppercase tracking-wider">Provider Bağlı</div>
+                  </div>
+                </div>
+
+                {/* STAT CARDS */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { label: 'Yüklü AI Tool', value: installedProviders, total: totalProviders, icon: '🖥️', color: 'emerald', sub: `${totalProviders - installedProviders} algılanmadı` },
+                    { label: 'Bağlı Provider', value: linkedProviders, total: totalProviders, icon: '🔗', color: 'indigo', sub: `${totalProviders - linkedProviders} bağlantısız` },
+                    { label: 'Skill Reposu', value: allSkillRepos.length, total: null, icon: '📦', color: 'violet', sub: `${activeSkillRepos.length} aktif` },
+                    { label: 'MCP Sunucu', value: mcpServersList.length, total: null, icon: '⚡', color: 'amber', sub: 'Kayıtlı sunucu' },
+                  ].map(card => (
+                    <div key={card.label} className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xl">{card.icon}</span>
+                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                          card.color === 'emerald' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                          card.color === 'indigo' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' :
+                          card.color === 'violet' ? 'bg-violet-500/10 text-violet-400 border border-violet-500/20' :
+                          'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                        }`}>{card.sub}</span>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-black text-slate-100">
+                          {card.value}{card.total ? <span className="text-sm text-slate-500">/{card.total}</span> : ''}
+                        </div>
+                        <div className="text-[11px] text-slate-400 font-medium">{card.label}</div>
+                      </div>
+                      {card.total && (
+                        <div className="w-full bg-slate-800 rounded-full h-1">
+                          <div className={`h-1 rounded-full ${
+                            card.color === 'emerald' ? 'bg-emerald-500' : 'bg-indigo-500'
+                          }`} style={{ width: `${Math.round((card.value / card.total) * 100)}%` }} />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* PROVIDER STATUS QUICK VIEW */}
+                <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center space-x-2">
+                      <Icons.Zap /><span>AI Provider Durumu</span>
+                    </h3>
+                    <button onClick={() => setActiveTab('providers')} className="text-[11px] text-indigo-400 hover:text-indigo-300 font-mono transition">Tümünü Yönet →</button>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                    {Object.entries(aiStatus).map(([key, info]) => (
+                      <div key={key} className={`px-3 py-2 rounded-lg border flex items-center justify-between ${
+                        info.linked ? 'bg-emerald-950/30 border-emerald-500/20' :
+                        info.installed ? 'bg-slate-900 border-slate-700' :
+                        'bg-slate-950 border-slate-800 opacity-50'
+                      }`}>
+                        <span className="text-[11px] font-semibold text-slate-200 truncate">{info.name}</span>
+                        <span className={`w-2 h-2 rounded-full flex-shrink-0 ml-2 ${
+                          info.linked ? 'bg-emerald-400' : info.installed ? 'bg-amber-400' : 'bg-slate-600'
+                        }`} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* SKILL REPOS SUMMARY */}
+                <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center space-x-2">
+                      <Icons.Code /><span>Kurulu Skill Repoları</span>
+                    </h3>
+                    <button onClick={() => setActiveTab('skills')} className="text-[11px] text-indigo-400 hover:text-indigo-300 font-mono transition">Skills Hub →</button>
+                  </div>
+                  {allSkillRepos.length === 0 ? (
+                    <div className="text-center py-8 text-slate-500">
+                      <div className="text-3xl mb-2">📭</div>
+                      <p className="text-xs">Henüz kurulu repo yok.</p>
+                      <button onClick={() => setActiveTab('starterPacks')} className="mt-3 px-4 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition">Başlangıç Paketi Kur</button>
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5">
+                      {Object.entries(skillsData).map(([catKey, cat]) => cat.repos.length > 0 && (
+                        <div key={catKey} className="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-950 border border-slate-800">
+                          <span className="text-xs text-slate-300 font-medium">{cat.title}</span>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-[10px] font-mono text-slate-500">{cat.repos.filter(r => !r.meta?.disabled).length}/{cat.repos.length} aktif</span>
+                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* QUICK ACTIONS */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    { label: 'AI Providers Yönet', icon: <Icons.Zap />, tab: 'providers', color: 'indigo' },
+                    { label: 'Başlangıç Paketi Kur', icon: <Icons.ShoppingBag />, tab: 'starterPacks', color: 'violet' },
+                    { label: 'MCP Sunucu Ekle', icon: <Icons.Server />, tab: 'mcp', color: 'emerald' },
+                    { label: 'Preset Oluştur', icon: <Icons.Sliders />, tab: 'presets', color: 'amber' },
+                  ].map(a => (
+                    <button key={a.tab} onClick={() => setActiveTab(a.tab)} className={`p-3 rounded-xl border flex flex-col items-start space-y-2 transition hover:scale-[1.02] ${
+                      a.color === 'indigo' ? 'bg-indigo-950/30 border-indigo-500/20 hover:border-indigo-500/40' :
+                      a.color === 'violet' ? 'bg-violet-950/30 border-violet-500/20 hover:border-violet-500/40' :
+                      a.color === 'emerald' ? 'bg-emerald-950/30 border-emerald-500/20 hover:border-emerald-500/40' :
+                      'bg-amber-950/30 border-amber-500/20 hover:border-amber-500/40'
+                    }`}>
+                      <span className={`${
+                        a.color === 'indigo' ? 'text-indigo-400' :
+                        a.color === 'violet' ? 'text-violet-400' :
+                        a.color === 'emerald' ? 'text-emerald-400' : 'text-amber-400'
+                      }`}>{a.icon}</span>
+                      <span className="text-[11px] font-medium text-slate-200 text-left leading-tight">{a.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* ===== TAB: AI PROVIDERS ===== */}
+          {activeTab === 'providers' && (
             <div className="space-y-6">
+              <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+                <h3 className="text-sm font-semibold text-slate-100">AI Provider Bağlantıları</h3>
+                <p className="text-xs text-slate-400">Yüklü AI araçlarına skill klasörlerini bağlayın veya bağlantıyı kesin. Her provider için yol ve durum otomatik algılanır.</p>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {Object.entries(aiStatus).map(([key, info]) => (
                   <div key={key} className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition flex flex-col justify-between space-y-3">
@@ -1099,12 +1254,10 @@ function App() {
                         {info.installed ? t.installed : t.notInstalled}
                       </span>
                     </div>
-
                     <div className="flex items-center justify-between pt-2 border-t border-slate-800/60">
                       <span className={`text-xs flex items-center space-x-1 ${info.linked ? 'text-emerald-400' : 'text-slate-500'}`}>
                         {info.linked ? <><Icons.Link /> <span>{t.linked}</span></> : <><Icons.Unlink /> <span>{t.unlinked}</span></>}
                       </span>
-
                       <button onClick={() => handleToggleLink(key, info.linked)} disabled={loadingAction === `toggle-${key}`} className={`px-3 py-1 rounded text-xs font-medium transition ${info.linked ? 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20' : 'bg-indigo-600 text-white hover:bg-indigo-500'}`}>
                         {info.linked ? t.disconnect : t.connect}
                       </button>
@@ -1112,69 +1265,211 @@ function App() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
 
-              <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-4">
-                <div className="flex items-center justify-between">
+          {/* ===== TAB: STARTER PACKS ===== */}
+          {activeTab === 'starterPacks' && (() => {
+            const [installingPack, setInstallingPack] = React.useState(null);
+            const starterKits = [
+              {
+                id: 'fullstack-dev',
+                emoji: '🚀',
+                label: 'Full-Stack Geliştirici Paketi',
+                desc: 'Web, API ve UI/UX geliştirme için eksiksiz başlangıç seti. TDD, kod denetimi, tasarım standartları.',
+                badge: 'Önerilen',
+                badgeColor: 'indigo',
+                repos: [
+                  { name: 'obra/superpowers', label: 'Superpowers (TDD & Workflow)', url: 'https://github.com/obra/superpowers', tag: 'core' },
+                  { name: 'nextlevelbuilder/ui-ux-pro-max-skill', label: 'UI/UX Pro Max', url: 'https://github.com/nextlevelbuilder/ui-ux-pro-max-skill', tag: 'web' },
+                  { name: 'JuliusBrussee/caveman', label: 'Caveman (Token Tasarrufu)', url: 'https://github.com/JuliusBrussee/caveman', tag: 'core' },
+                  { name: 'multica-ai/andrej-karpathy-skills', label: 'Karpathy Guardrails', url: 'https://github.com/multica-ai/andrej-karpathy-skills', tag: 'core' },
+                ]
+              },
+              {
+                id: 'security-audit',
+                emoji: '🛡️',
+                label: 'Güvenlik & Denetim Paketi',
+                desc: 'OWASP Top 10, STRIDE tehdit modelleme ve siber güvenlik denetimi için kapsamlı set.',
+                badge: 'Güvenlik',
+                badgeColor: 'rose',
+                repos: [
+                  { name: 'mukul975/Anthropic-Cybersecurity-Skills', label: 'Cybersecurity Skills', url: 'https://github.com/mukul975/Anthropic-Cybersecurity-Skills', tag: 'security' },
+                  { name: 'K-Dense-AI/scientific-agent-skills', label: 'Scientific Agent Skills', url: 'https://github.com/K-Dense-AI/scientific-agent-skills', tag: 'core' },
+                  { name: 'obra/superpowers', label: 'Superpowers (TDD)', url: 'https://github.com/obra/superpowers', tag: 'core' },
+                ]
+              },
+              {
+                id: 'creative-studio',
+                emoji: '🎨',
+                label: 'Kreatif & Tasarım Stüdyosu',
+                desc: 'UI/UX, oyun geliştirme, marketing copywriting ve görsel içerik üretimi için hazır kit.',
+                badge: 'Kreatif',
+                badgeColor: 'violet',
+                repos: [
+                  { name: 'nextlevelbuilder/ui-ux-pro-max-skill', label: 'UI/UX Pro Max', url: 'https://github.com/nextlevelbuilder/ui-ux-pro-max-skill', tag: 'web' },
+                  { name: 'Donchitos/Claude-Code-Game-Studios', label: 'Game Studio', url: 'https://github.com/Donchitos/Claude-Code-Game-Studios', tag: 'game' },
+                  { name: 'coreyhaines31/marketingskills', label: 'Marketing Skills (PAS/AIDA)', url: 'https://github.com/coreyhaines31/marketingskills', tag: 'marketing' },
+                  { name: 'plugin87/ux-ui-agent-skills', label: 'UX Agent Skills', url: 'https://github.com/plugin87/ux-ui-agent-skills', tag: 'web' },
+                ]
+              },
+              {
+                id: 'ai-memory-engine',
+                emoji: '🧠',
+                label: 'AI Bellek & Bağlam Motoru',
+                desc: 'Uzun süreli bellek, bağlam yönetimi ve çoklu oturum sürekliliği için temel çekirdek bileşenler.',
+                badge: 'Çekirdek',
+                badgeColor: 'emerald',
+                repos: [
+                  { name: 'thedotmack/claude-mem', label: 'Claude-Mem (Kalıcı Bellek)', url: 'https://github.com/thedotmack/claude-mem', tag: 'core' },
+                  { name: 'OthmanAdi/planning-with-files', label: 'Planning With Files', url: 'https://github.com/OthmanAdi/planning-with-files', tag: 'core' },
+                  { name: 'garrytan/gstack', label: 'G-Stack', url: 'https://github.com/garrytan/gstack', tag: 'core' },
+                  { name: 'JuliusBrussee/caveman', label: 'Caveman (Token Tasarrufu)', url: 'https://github.com/JuliusBrussee/caveman', tag: 'core' },
+                ]
+              },
+              {
+                id: 'mobile-dev',
+                emoji: '📱',
+                label: 'Mobil Geliştirici Paketi',
+                desc: 'Flutter, React Native ve cross-platform mobil uygulama geliştirme için optimize edilmiş set.',
+                badge: 'Mobil',
+                badgeColor: 'amber',
+                repos: [
+                  { name: 'VoltAgent/awesome-agent-skills', label: 'Awesome Agent Skills', url: 'https://github.com/VoltAgent/awesome-agent-skills', tag: 'mobile' },
+                  { name: 'obra/superpowers', label: 'Superpowers (TDD)', url: 'https://github.com/obra/superpowers', tag: 'core' },
+                  { name: 'nextlevelbuilder/ui-ux-pro-max-skill', label: 'UI/UX Pro Max', url: 'https://github.com/nextlevelbuilder/ui-ux-pro-max-skill', tag: 'web' },
+                ]
+              },
+              {
+                id: 'data-science',
+                emoji: '📊',
+                label: 'Veri Bilimi & Araştırma Paketi',
+                desc: 'Bilimsel analiz, veri görselleştirme ve akademik araştırma için geliştirilmiş yetenek seti.',
+                badge: 'Bilim',
+                badgeColor: 'cyan',
+                repos: [
+                  { name: 'K-Dense-AI/scientific-agent-skills', label: 'Scientific Agent Skills', url: 'https://github.com/K-Dense-AI/scientific-agent-skills', tag: 'core' },
+                  { name: 'multica-ai/andrej-karpathy-skills', label: 'Karpathy Guardrails', url: 'https://github.com/multica-ai/andrej-karpathy-skills', tag: 'core' },
+                  { name: 'Egonex-AI/Understand-Anything', label: 'Understand Anything', url: 'https://github.com/Egonex-AI/Understand-Anything', tag: 'core' },
+                ]
+              },
+            ];
+
+            const handleInstallPack = async (kit) => {
+              setInstallingPack(kit.id);
+              for (const repo of kit.repos) {
+                try {
+                  await fetch('/api/skills/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: repo.url, category: repo.tag })
+                  });
+                } catch(e) { /* continue */ }
+              }
+              addLog(`✅ "${kit.label}" paketi kuruldu (${kit.repos.length} repo)`);
+              setInstallingPack(null);
+              fetchData();
+            };
+
+            return (
+              <div className="space-y-6">
+                <div className="p-5 rounded-xl bg-gradient-to-r from-violet-950/40 to-indigo-950/40 border border-violet-500/20 flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-semibold text-slate-100 flex items-center space-x-2">
-                      <Icons.Zap /> <span>Önerilen Başlangıç Paketleri & Çekirdek Repolar (Recommended Skill Packs)</span>
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      İsteğe bağlı: Tek tıkla topluluk tarafından en çok tercih edilen popüler yetenek repolarını kurun ve ajanınıza bağlayın.
-                    </p>
+                    <h3 className="text-sm font-bold text-white flex items-center space-x-2"><Icons.ShoppingBag /><span>Başlangıç Paketleri (Skill Kits)</span></h3>
+                    <p className="text-xs text-slate-400 mt-1">Her paket birden fazla uyumlu repoyu kapsar. Tek tıkla tüm paket kurulur.</p>
                   </div>
-                  <button
-                    onClick={() => setActiveTab('marketplace')}
-                    className="px-3 py-1.5 rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 text-xs font-medium hover:bg-indigo-600/30 transition flex items-center space-x-1"
-                  >
-                    <Icons.ShoppingBag /> <span>Tüm Marketplace Repoları</span>
+                  <button onClick={() => setActiveTab('marketplace')} className="px-3 py-1.5 rounded-lg bg-violet-600/20 border border-violet-500/30 text-violet-300 text-xs font-medium hover:bg-violet-600/30 transition flex items-center space-x-1">
+                    <Icons.Search /> <span>Marketplace'e Git</span>
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {[
-                    { name: 'anthropics/skills', label: 'Resmi Anthropic Yetenek Seti', stars: '98.5k', desc: 'Anthropic PDF, DOCX ve kod co-authoring yetenekleri.', url: 'https://github.com/anthropics/skills' },
-                    { name: 'obra/superpowers', label: 'Superpowers TDD & Workflow', stars: '89.8k', desc: 'AI için otonom planlama, TDD ve kod denetimi.', url: 'https://github.com/obra/superpowers' },
-                    { name: 'nextlevelbuilder/ui-ux-pro-max-skill', label: 'UI/UX Pro Max Tasarım Zekası', stars: '43.1k', desc: 'WCAG 2.2 AA erişilebilir tasarım standartları.', url: 'https://github.com/nextlevelbuilder/ui-ux-pro-max-skill' }
-                  ].map(pack => (
-                    <div key={pack.name} className="p-3.5 rounded-lg bg-slate-950 border border-slate-800 flex flex-col justify-between space-y-2">
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-xs font-semibold text-indigo-300">{pack.label}</h4>
-                          <span className="text-[10px] font-mono text-amber-400">★ {pack.stars}</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {starterKits.map(kit => (
+                    <div key={kit.id} className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition flex flex-col space-y-3">
+                      {/* Kit Header */}
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-2xl">{kit.emoji}</span>
+                          <div>
+                            <h4 className="text-xs font-bold text-slate-100 leading-tight">{kit.label}</h4>
+                            <span className={`inline-block mt-0.5 px-1.5 py-0.2 rounded text-[9px] font-mono font-semibold ${
+                              kit.badgeColor === 'indigo' ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/25' :
+                              kit.badgeColor === 'rose' ? 'bg-rose-500/15 text-rose-300 border border-rose-500/25' :
+                              kit.badgeColor === 'violet' ? 'bg-violet-500/15 text-violet-300 border border-violet-500/25' :
+                              kit.badgeColor === 'emerald' ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/25' :
+                              kit.badgeColor === 'amber' ? 'bg-amber-500/15 text-amber-300 border border-amber-500/25' :
+                              'bg-cyan-500/15 text-cyan-300 border border-cyan-500/25'
+                            }`}>{kit.badge}</span>
+                          </div>
                         </div>
-                        <p className="text-[11px] text-slate-400 mt-1 leading-snug">{pack.desc}</p>
+                        <span className="text-[10px] font-mono text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">{kit.repos.length} repo</span>
                       </div>
+
+                      <p className="text-[11px] text-slate-400 leading-snug">{kit.desc}</p>
+
+                      {/* Repo list */}
+                      <div className="space-y-1">
+                        {kit.repos.map(repo => (
+                          <div key={repo.name} className="flex items-center space-x-2 px-2 py-1.5 rounded bg-slate-950 border border-slate-800/80">
+                            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                              repo.tag === 'core' ? 'bg-indigo-400' :
+                              repo.tag === 'web' ? 'bg-emerald-400' :
+                              repo.tag === 'security' ? 'bg-rose-400' :
+                              repo.tag === 'game' ? 'bg-violet-400' :
+                              repo.tag === 'mobile' ? 'bg-amber-400' : 'bg-cyan-400'
+                            }`} />
+                            <span className="text-[10px] text-slate-300 font-mono truncate flex-1">{repo.label}</span>
+                            <span className={`text-[9px] px-1 rounded font-mono ${
+                              repo.tag === 'core' ? 'text-indigo-400' :
+                              repo.tag === 'web' ? 'text-emerald-400' :
+                              repo.tag === 'security' ? 'text-rose-400' :
+                              repo.tag === 'game' ? 'text-violet-400' :
+                              repo.tag === 'mobile' ? 'text-amber-400' : 'text-cyan-400'
+                            }`}>{repo.tag}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Install button */}
                       <button
-                        onClick={() => handleInstallMarketplaceRepo(pack.url, pack.name)}
-                        disabled={installingRepo === pack.url}
-                        className="w-full py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center justify-center space-x-1"
+                        onClick={() => handleInstallPack(kit)}
+                        disabled={installingPack === kit.id}
+                        className={`w-full py-2 rounded-lg text-xs font-semibold transition flex items-center justify-center space-x-2 ${
+                          installingPack === kit.id
+                            ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                            : 'bg-indigo-600 hover:bg-indigo-500 text-white'
+                        }`}
                       >
-                        <Icons.Plus /> <span>{installingRepo === pack.url ? 'Kuruluyor...' : 'Repoyu Kur'}</span>
+                        {installingPack === kit.id ? (
+                          <><Icons.Refresh /><span>Kuruluyor ({kit.repos.length} repo)...</span></>
+                        ) : (
+                          <><Icons.Plus /><span>Paketi Kur ({kit.repos.length} Repo)</span></>
+                        )}
                       </button>
                     </div>
                   ))}
                 </div>
-              </div>
 
-              <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-4">
-                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t.addSkill}</h3>
-                <form onSubmit={handleAddSkill} className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <input type="text" placeholder={t.repoUrl} value={newSkillUrl} onChange={e => setNewSkillUrl(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" required />
-                  <select value={newSkillCategory} onChange={e => setNewSkillCategory(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-                    <option value="core">Core</option>
-                    <option value="web">Web & UI/UX</option>
-                    <option value="mobile">Mobile</option>
-                    <option value="game">Game Studio</option>
-                    <option value="security">Security</option>
-                  </select>
-                  <button type="submit" disabled={loadingAction === 'add-skill'} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition flex items-center justify-center space-x-2">
-                    <Icons.Plus /> <span>{t.addBtn}</span>
-                  </button>
-                </form>
+                {/* MANUAL ADD */}
+                <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+                  <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t.addSkill}</h3>
+                  <form onSubmit={handleAddSkill} className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <input type="text" placeholder={t.repoUrl} value={newSkillUrl} onChange={e => setNewSkillUrl(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" required />
+                    <select value={newSkillCategory} onChange={e => setNewSkillCategory(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                      <option value="core">Core</option>
+                      <option value="web">Web & UI/UX</option>
+                      <option value="mobile">Mobile</option>
+                      <option value="game">Game Studio</option>
+                      <option value="security">Security</option>
+                    </select>
+                    <button type="submit" disabled={loadingAction === 'add-skill'} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition flex items-center justify-center space-x-2">
+                      <Icons.Plus /> <span>{t.addBtn}</span>
+                    </button>
+                  </form>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* TAB: SKILLS HUB WITH CATEGORY FILTERS & SEARCH BAR */}
           {activeTab === 'skills' && (
