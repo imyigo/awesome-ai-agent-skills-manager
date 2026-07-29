@@ -1,3 +1,9 @@
+# Veritabanı ve Kişisel Kullanıcı Ayarları (Özel — ASLA commit edilmez)
+db.sqlite
+db.sqlite-journal
+presets.json
+mcp_config.json
+
 # Gizli dosyalar — asla commit etme
 .env
 *.env.local
@@ -7,11 +13,9 @@
 *.log
 *.tmp
 
-# Windows
+# OS Özel
 Thumbs.db
 desktop.ini
-
-# macOS (diğer bilgisayar Mac ise)
 .DS_Store
 
 # İnceleme amaçlı örnek projeler — ASLA push edilmez
