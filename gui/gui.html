@@ -309,7 +309,7 @@
           </div>
           
           <pre id="console-log" class="text-indigo-300 whitespace-pre-wrap max-h-72 overflow-y-auto leading-relaxed">⚡ Multi-AI Skill Hub Dashboard Hazır.
-Sistemdeki AI asistanları canlı olarak tarandı ve bağ durumları yüklendi.</pre>
+Kategorileri tıklayarak ilişkili tüm GitHub repolarını ve skill dosyalarını inceleyebilirsiniz.</pre>
         </div>
       </section>
 
@@ -375,7 +375,7 @@ Sistemdeki AI asistanları canlı olarak tarandı ve bağ durumları yüklendi.<
         });
         const data = await res.json();
         log(data.message);
-        loadAIStatus(); // Refresh status
+        loadAIStatus();
       } catch (err) {
         log(`❌ İşlem hatası: ${err.message}`);
       }
@@ -392,7 +392,13 @@ Sistemdeki AI asistanları canlı olarak tarandı ve bağ durumları yüklendi.<
           "Minimal Intervention: Sadece istenen bölgeye cerrahi müdahale yap, diğer kodları bozma.",
           "Caveman Protocol: Boş dolgu cümlelerini sil, konuya gir.",
           "File-based Task Planning: 3+ adımlı karmaşık görevlerde hafıza dosyası tut."
-        ]
+        ],
+        repos: [
+          { name: "JuliusBrussee/caveman", url: "https://github.com/JuliusBrussee/caveman", tag: "v1.9.1" },
+          { name: "multica-ai/andrej-karpathy-skills", url: "https://github.com/multica-ai/andrej-karpathy-skills", tag: "main" },
+          { name: "OthmanAdi/planning-with-files", url: "https://github.com/OthmanAdi/planning-with-files", tag: "v3.8.2" }
+        ],
+        files: ["skills/unified-dev/SKILL.md", "skills/unified-dev/01-core-behavior.md"]
       },
       web: {
         title: "🎨 Web & UI/UX Tasarım Mimarisi",
@@ -403,7 +409,12 @@ Sistemdeki AI asistanları canlı olarak tarandı ve bağ durumları yüklendi.<
           "Color Contrast: Metin kontrast oranı en az 4.5:1 (WCAG AA).",
           "Touch Target: Dokunmatik buton yüksekliği en az 44x44px.",
           "Tokens First: Sihirli sayı kullanma, 4px/8px grid scale kullan."
-        ]
+        ],
+        repos: [
+          { name: "plugin87/ux-ui-agent-skills", url: "https://github.com/plugin87/ux-ui-agent-skills", tag: "v2.4.0" },
+          { name: "nextlevelbuilder/ui-ux-pro-max-skill", url: "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill", tag: "latest" }
+        ],
+        files: ["skills/unified-dev/02-web.md"]
       },
       mobile: {
         title: "📱 Mobil & Masaüstü Uygulama Mimari",
@@ -413,7 +424,11 @@ Sistemdeki AI asistanları canlı olarak tarandı ve bağ durumları yüklendi.<
         rules: [
           "iOS/macOS: Apple Human Interface Guidelines (HIG) ve SwiftUI declarative state yapısı.",
           "Android: Jetpack Compose, Material Design 3 ve Unidirectional Data Flow (UDF)."
-        ]
+        ],
+        repos: [
+          { name: "VoltAgent/awesome-agent-skills", url: "https://github.com/VoltAgent/awesome-agent-skills", tag: "main" }
+        ],
+        files: ["skills/unified-dev/03-mobile.md"]
       },
       game: {
         title: "🎮 Oyun Geliştirme Stüdyosu",
@@ -424,7 +439,11 @@ Sistemdeki AI asistanları canlı olarak tarandı ve bağ durumları yüklendi.<
           "Core Loop: Oyunun döngüsünü net tanımla.",
           "Performance: 60 FPS hedefi, Object Pooling.",
           "Game Feel: Görsel ve işitsel geri bildirimler."
-        ]
+        ],
+        repos: [
+          { name: "Donchitos/Claude-Code-Game-Studios", url: "https://github.com/Donchitos/Claude-Code-Game-Studios", tag: "v1.0.0" }
+        ],
+        files: ["skills/unified-dev/04-game.md"]
       },
       security: {
         title: "🔐 Siber Güvenlik & Kod Denetimi",
@@ -434,7 +453,11 @@ Sistemdeki AI asistanları canlı olarak tarandı ve bağ durumları yüklendi.<
         rules: [
           "OWASP Top 10: SQL Injection, XSS, CSRF taraması.",
           "STRIDE Modeling: Threat Modeling denetimi."
-        ]
+        ],
+        repos: [
+          { name: "mukul975/Anthropic-Cybersecurity-Skills", url: "https://github.com/mukul975/Anthropic-Cybersecurity-Skills", tag: "main" }
+        ],
+        files: ["skills/unified-dev/05-security.md"]
       },
       planning: {
         title: "📐 Proje & Mimari Planlama",
@@ -444,7 +467,11 @@ Sistemdeki AI asistanları canlı olarak tarandı ve bağ durumları yüklendi.<
         rules: [
           "PRD: İhtiyaçları tanımla.",
           "ADR: Alınan mimari kararları ve gerekçelerini kaydet."
-        ]
+        ],
+        repos: [
+          { name: "OthmanAdi/planning-with-files", url: "https://github.com/OthmanAdi/planning-with-files", tag: "v3.8.2" }
+        ],
+        files: ["skills/unified-dev/06-planning.md"]
       },
       marketing: {
         title: "📈 Pazarlama & ASO / CRO",
@@ -454,7 +481,11 @@ Sistemdeki AI asistanları canlı olarak tarandı ve bağ durumları yüklendi.<
         rules: [
           "Copywriting: PAS ve AIDA modelleri.",
           "ASO: Anahtar kelime ve başlık optimizasyonu."
-        ]
+        ],
+        repos: [
+          { name: "coreyhaines31/marketingskills", url: "https://github.com/coreyhaines31/marketingskills", tag: "v2.10" }
+        ],
+        files: ["skills/unified-dev/07-marketing.md"]
       }
     };
 
@@ -496,23 +527,62 @@ Sistemdeki AI asistanları canlı olarak tarandı ve bağ durumları yüklendi.<
       panel.id = 'category-detail-panel';
       panel.className = 'space-y-6';
       panel.innerHTML = `
-        <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl">
-          <div class="flex justify-between items-center mb-4">
-            <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Tetikleyici Slash Komutu</span>
-            <code class="bg-slate-950 text-indigo-300 px-3 py-1 rounded-lg border border-slate-800 font-mono text-xs">${cat.command}</code>
-          </div>
-          <p class="text-sm text-slate-300 mb-6">${cat.description}</p>
+        <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl space-y-6">
           
-          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Rehber Kuralları & Standartlar</h4>
-          <ul class="space-y-2.5 mb-6">
-            ${cat.rules.map(rule => `
-              <li class="flex items-start gap-2.5 text-xs text-slate-300">
-                <span class="text-emerald-400 font-bold">✓</span>
-                <span>${rule}</span>
-              </li>
-            `).join('')}
-          </ul>
+          <!-- Slash Trigger Command -->
+          <div class="flex justify-between items-center pb-4 border-b border-slate-800/60">
+            <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Tetikleyici Slash Komutu</span>
+            <code class="bg-slate-950 text-indigo-300 px-3 py-1.5 rounded-lg border border-slate-800 font-mono text-xs font-semibold">${cat.command}</code>
+          </div>
+          
+          <!-- Description -->
+          <p class="text-xs text-slate-300 leading-relaxed">${cat.description}</p>
+          
+          <!-- Linked Submodule Repositories -->
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+              <span>🔗</span> İletişimli Orijinal GitHub Skill Repoları
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              ${cat.repos.map(r => `
+                <a href="${r.url}" target="_blank" class="flex items-center justify-between p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 hover:border-indigo-500/50 transition-all group">
+                  <span class="font-mono text-xs text-slate-200 group-hover:text-indigo-300 truncate">${r.name}</span>
+                  <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono">${r.tag}</span>
+                </a>
+              `).join('')}
+            </div>
+          </div>
 
+          <!-- Included Skill Files -->
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+              <span>📄</span> İlgili Yetenek & Doküman Dosyaları
+            </h4>
+            <div class="flex flex-wrap gap-2">
+              ${cat.files.map(f => `
+                <span class="bg-slate-950 text-slate-300 font-mono text-[11px] px-3 py-1.5 rounded-lg border border-slate-800/80 flex items-center gap-1.5">
+                  <span class="text-indigo-400">#</span> ${f}
+                </span>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Rules List -->
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+              <span>📜</span> Rehber Kuralları & Standartlar
+            </h4>
+            <ul class="space-y-2.5">
+              ${cat.rules.map(rule => `
+                <li class="flex items-start gap-2.5 text-xs text-slate-300">
+                  <span class="text-emerald-400 font-bold">✓</span>
+                  <span>${rule}</span>
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+
+          <!-- Action Footer -->
           <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-800/60">
             <button onclick="log('💡 [${cat.title}] kuralları kopyalandı!')" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-xl text-xs transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2">
               <span>📋 Kuralları Kopyala</span>
