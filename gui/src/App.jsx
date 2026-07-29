@@ -1422,7 +1422,8 @@ function App() {
                     status: 'Aktif (Çalışıyor)',
                     reqs: ['Node.js 18+', 'SQLite Vector Extension'],
                     desc: 'Oturumlar kapansa dahi AI ajanınızın geçmiş konuşmaları, mimari kararları ve kullanıcı tercihlerini silinmez biçimde saklar.',
-                    port: 3780
+                    port: 3780,
+                    webUrl: 'http://localhost:3780'
                   },
                   {
                     id: 'graphify',
@@ -1430,7 +1431,8 @@ function App() {
                     status: 'Aktif (Çalışıyor)',
                     reqs: ['Python 3.10+', 'Graphviz'],
                     desc: 'Tıpkı Obsidian grafik görünümü gibi projenizin tüm kod bağımlılıklarını ve sınıf ilişkilerini 3D görselleştirir.',
-                    port: 3781
+                    port: 3781,
+                    webUrl: 'http://localhost:3781'
                   },
                   {
                     id: 'understand-anything',
@@ -1438,7 +1440,8 @@ function App() {
                     status: 'Aktif (Çalışıyor)',
                     reqs: ['Node.js 18+', 'pnpm'],
                     desc: 'Devasa projelerde AST kod indeksleme yapar ve karmaşık fonksiyon bağlantılarını anında çözer.',
-                    port: 3782
+                    port: 3782,
+                    webUrl: 'http://localhost:3782'
                   }
                 ].map(eng => (
                   <div key={eng.id} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-start justify-between">
@@ -1470,6 +1473,17 @@ function App() {
                       >
                         <Icons.Check /> <span>Kurulu & Başlatıldı</span>
                       </button>
+
+                      {eng.webUrl && (
+                        <a
+                          href={eng.webUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-1 shadow-md"
+                        >
+                          <Icons.Globe /> <span>Arayüzü Aç (Web UI)</span>
+                        </a>
+                      )}
                     </div>
                   </div>
                 ))}
