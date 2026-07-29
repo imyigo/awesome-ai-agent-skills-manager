@@ -8,11 +8,12 @@ const GUI_DIR = __dirname;
 const SYNC_DIR = path.join(GUI_DIR, '..');
 
 const isWin = process.platform === 'win32';
+const homeDir = isWin ? process.env.USERPROFILE : process.env.HOME;
 
 // ============================================================
-// SSE (SERVER-SENT EVENTS) — Django Channels benzeri canlı push
+// SSE (SERVER-SENT EVENTS) — Django Channels canlı push motoru
 // ============================================================
-const sseClients = new Set(); // Bağlı React istemcileri
+const sseClients = new Set();
 
 function broadcast(eventName, data) {
   const payload = `event: ${eventName}\ndata: ${JSON.stringify(data)}\n\n`;
@@ -21,25 +22,43 @@ function broadcast(eventName, data) {
   }
 }
 
+// ============================================================
+// 19 AI PROVIDER HARNESS CATALOG (Genişletilmiş Yol Tanımları)
+// ============================================================
+const AI_PATHS = {
+  antigravity: { name: "Google Antigravity", path: path.join(homeDir, '.gemini', 'antigravity'), skillsSub: 'skills', cmdSub: 'commands' },
+  claude:      { name: "Claude Code",        path: path.join(homeDir, '.claude'),             skillsSub: 'skills', cmdSub: 'commands' },
+  cursor:      { name: "Cursor IDE",         path: path.join(homeDir, '.cursor'),             skillsSub: 'rules',  cmdSub: 'rules' },
+  codex:       { name: "OpenAI Codex",       path: path.join(homeDir, '.codex'),              skillsSub: 'skills', cmdSub: 'prompts' },
+  windsurf:    { name: "Windsurf",           path: path.join(homeDir, '.windsurf'),           skillsSub: 'rules',  cmdSub: 'rules' },
+  cline:       { name: "Cline",              path: path.join(homeDir, 'Documents', 'Cline'),  skillsSub: 'Rules',  cmdSub: 'Rules' },
+  roocode:     { name: "Roo Code",           path: path.join(homeDir, '.roo'),                skillsSub: 'rules',  cmdSub: 'rules' },
+  continue:    { name: "Continue",           path: path.join(homeDir, '.continue'),           skillsSub: 'rules',  cmdSub: 'rules' },
+  copilot:     { name: "GitHub Copilot",     path: path.join(homeDir, '.github'),             skillsSub: 'instructions', cmdSub: 'instructions' },
+  aider:       { name: "Aider",              path: path.join(homeDir, '.aider'),              skillsSub: 'skills', cmdSub: 'skills' },
+  opencode:    { name: "OpenCode",           path: path.join(homeDir, '.config', 'opencode'), skillsSub: 'skills', cmdSub: 'commands' },
+  zed:         { name: "Zed Editor",         path: path.join(homeDir, '.config', 'zed'),      skillsSub: 'prompt_overrides', cmdSub: 'prompt_overrides' },
+  augment:     { name: "Augment",            path: path.join(homeDir, '.augment'),            skillsSub: 'rules',  cmdSub: 'rules' },
+  amp:         { name: "Amp",                path: path.join(homeDir, '.amp'),                skillsSub: 'skills', cmdSub: 'skills' },
+  gemini:      { name: "Gemini CLI",         path: path.join(homeDir, '.gemini'),             skillsSub: 'skills', cmdSub: 'skills' },
+  pi:          { name: "Pi Agent",           path: path.join(homeDir, '.pi'),                 skillsSub: 'skills', cmdSub: 'skills' },
+  hermes:      { name: "Hermes",             path: path.join(homeDir, '.hermes'),             skillsSub: 'skills', cmdSub: 'skills' },
+  openclaw:    { name: "OpenClaw",           path: path.join(homeDir, '.openclaw'),           skillsSub: 'skills', cmdSub: 'skills' },
+  agents:      { name: "Generic Agents",     path: path.join(homeDir, '.agents'),             skillsSub: 'skills', cmdSub: 'skills' },
+};
+
 function watchAIDirectories() {
-  const watched = [
-    ...Object.values(AI_PATHS),
-    path.join(homeDir, '.gemini', 'antigravity', 'skills'),
-    path.join(homeDir, '.claude', 'skills'),
-  ];
+  const watched = Object.values(AI_PATHS).map(p => p.path);
 
   watched.forEach(dir => {
     if (!fs.existsSync(dir)) return;
     try {
       fs.watch(dir, { persistent: false }, (eventType, filename) => {
-        console.log(`[FS WATCH] ${eventType}: ${dir}/${filename || ''}`);
-        // Değişiklik olunca AI durumunu hesaplayıp tüm React istemcilerine push et
         broadcast('status_update', getAIStatus());
       });
     } catch (e) {}
   });
 
-  // Skills klasörünü de izle
   const skillsDir = path.join(SYNC_DIR, 'skills', 'originals');
   if (fs.existsSync(skillsDir)) {
     try {
@@ -49,16 +68,15 @@ function watchAIDirectories() {
     } catch (e) {}
   }
 
-  console.log('[SSE] Filesystem watcher aktif — canlı push hazır.');
+  console.log('[SSE] 19 Provider Filesystem watcher aktif — canlı push hazır.');
 }
-const homeDir = isWin ? process.env.USERPROFILE : process.env.HOME;
 
 const REACT_HTML_SHELL = `<!DOCTYPE html>
 <html lang="tr" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>⚡ Multi-AI Skill Hub — Official React App</title>
+  <title>⚡ Multi-AI Skill Hub — Universal Control Center</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -83,66 +101,45 @@ const REACT_HTML_SHELL = `<!DOCTYPE html>
 </body>
 </html>`;
 
-const AI_PATHS = {
-  antigravity: path.join(homeDir, '.gemini', 'antigravity'),
-  claude: path.join(homeDir, '.claude'),
-  cursor: path.join(homeDir, '.cursor'),
-  codex: path.join(homeDir, '.codex')
-};
-
-// SIKI VE AKILLI AI YÜKLÜLÜK DENETİMİ (STRICT DETECTION)
+// STRIKT AI KURULUM VE BAĞLANTI DENETİMİ
 function checkAIInstalled(aiKey) {
+  const provider = AI_PATHS[aiKey];
+  if (!provider) return false;
+
   if (aiKey === 'antigravity') {
-    // Antigravity konfigürasyon dosyası veya klasörü var mı?
-    return fs.existsSync(AI_PATHS.antigravity) &&
-      fs.readdirSync(AI_PATHS.antigravity).length > 0;
+    return fs.existsSync(provider.path) && fs.readdirSync(provider.path).length > 0;
   }
-
   if (aiKey === 'claude') {
-    // Claude Code: gerçek ayar dosyası var mı?
-    return fs.existsSync(path.join(AI_PATHS.claude, 'settings.json')) ||
-           fs.existsSync(path.join(AI_PATHS.claude, 'CLAUDE.md'));
+    return fs.existsSync(path.join(provider.path, 'settings.json')) ||
+           fs.existsSync(path.join(provider.path, 'CLAUDE.md')) ||
+           fs.existsSync(provider.path);
   }
-
   if (aiKey === 'cursor') {
-    // Cursor IDE: gerçek uygulama binary'si var mı?
     if (isWin) {
       const cursorProg = path.join(process.env.LOCALAPPDATA || '', 'Programs', 'cursor');
       const cursorProg64 = 'C:\\Program Files\\Cursor';
-      return fs.existsSync(cursorProg) || fs.existsSync(cursorProg64);
-    } else {
-      return fs.existsSync('/Applications/Cursor.app');
+      return fs.existsSync(cursorProg) || fs.existsSync(cursorProg64) || fs.existsSync(provider.path);
     }
+    return fs.existsSync('/Applications/Cursor.app') || fs.existsSync(provider.path);
   }
-
   if (aiKey === 'codex') {
-    // OpenAI Codex CLI: npm wrapper scripti değil, gerçek binary var mı?
-    // npm global yüklemesi .ps1 veya .cmd wrapper bırakır — bunları hariç tut
     try {
       const result = spawnSync(isWin ? 'where' : 'which', ['codex'], { encoding: 'utf8' });
-      if (result.status !== 0 || !result.stdout) return false;
-      const codexPath = result.stdout.trim().split('\n')[0].trim();
-      // npm wrapper scriptleri (.ps1, .cmd) ise gerçek Codex CLI değil
-      if (isWin && (codexPath.endsWith('.ps1') || codexPath.endsWith('.cmd'))) {
-        // npm paketi olarak kurulu — bu gerçek OpenAI Codex
-        // config.toml veya resmi token dosyası var mı kontrol et
-        const codexConfig = path.join(AI_PATHS.codex, 'config.toml');
-        return fs.existsSync(codexConfig);
-      }
-      return true;
+      if (result.status === 0 && result.stdout) return true;
+      return fs.existsSync(provider.path);
     } catch (e) {
-      return false;
+      return fs.existsSync(provider.path);
     }
   }
 
-  return false;
+  return fs.existsSync(provider.path);
 }
 
 function getAIStatus() {
   const result = {};
-  for (const [key, dirPath] of Object.entries(AI_PATHS)) {
+  for (const [key, provider] of Object.entries(AI_PATHS)) {
     const installed = checkAIInstalled(key);
-    const skillsPath = path.join(dirPath, 'skills');
+    const skillsPath = path.join(provider.path, provider.skillsSub);
     let linked = false;
     if (fs.existsSync(skillsPath)) {
       try {
@@ -152,104 +149,99 @@ function getAIStatus() {
         linked = false;
       }
     }
-    result[key] = { installed, linked, path: dirPath };
+    result[key] = {
+      name: provider.name,
+      installed,
+      linked,
+      path: provider.path,
+      skillsSub: provider.skillsSub,
+      cmdSub: provider.cmdSub
+    };
   }
   return result;
+}
+
+// SKILL METADATA & FRONTMATTER PARSER
+function parseSkillMetadata(skillDir) {
+  const skillMdPath = path.join(skillDir, 'SKILL.md');
+  const claudeMdPath = path.join(skillDir, 'CLAUDE.md');
+  const targetPath = fs.existsSync(skillMdPath) ? skillMdPath : (fs.existsSync(claudeMdPath) ? claudeMdPath : null);
+
+  const meta = {
+    name: path.basename(skillDir),
+    description: "Açıklama belirtilmemiş",
+    version: "1.0.0",
+    tools: [],
+    author: "Bilinmiyor",
+    securityScore: 100,
+    findings: [],
+    hasFrontmatter: false
+  };
+
+  if (!targetPath) {
+    meta.findings.push({ severity: 'warning', message: 'SKILL.md veya CLAUDE.md bulunamadı.' });
+    meta.securityScore -= 20;
+    return meta;
+  }
+
+  try {
+    const content = fs.readFileSync(targetPath, 'utf8');
+    const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    if (fmMatch) {
+      meta.hasFrontmatter = true;
+      const yamlLines = fmMatch[1].split('\n');
+      yamlLines.forEach(line => {
+        const [k, ...v] = line.split(':');
+        if (k && v.length) {
+          const key = k.trim().toLowerCase();
+          const val = v.join(':').trim().replace(/^["']|["']$/g, '');
+          if (key === 'name') meta.name = val;
+          if (key === 'description') meta.description = val;
+          if (key === 'version') meta.version = val;
+          if (key === 'allowed-tools' || key === 'tools') meta.tools = val.split(/[\s,]+/);
+          if (key === 'author' || key === 'creator') meta.author = val;
+        }
+      });
+    }
+
+    // SECURITY SCANNER (AST & Pattern Checks)
+    if (/eval\s*\(|new\s+Function\s*\(/i.test(content)) {
+      meta.findings.push({ severity: 'high', message: 'Dinamik kod çalıştırma (eval / new Function) tespit edildi!' });
+      meta.securityScore -= 40;
+    }
+    if (/atob\s*\(|btoa\s*\(|base64\s*--decode/i.test(content)) {
+      meta.findings.push({ severity: 'medium', message: 'Gizlenmiş (base64) içerik/komut kullanımı tespit edildi.' });
+      meta.securityScore -= 20;
+    }
+    if (/sk-[a-zA-Z0-9]{32,}|ghp_[a-zA-Z0-9]{36,}|AKIA[0-9A-Z]{16}/.test(content)) {
+      meta.findings.push({ severity: 'critical', message: 'Hardcoded API Key / Secret sızıntısı riski!' });
+      meta.securityScore -= 50;
+    }
+    if (/rm\s+-rf\s+\/|format\s+c:|del\s+\/f\s+\/s/i.test(content)) {
+      meta.findings.push({ severity: 'critical', message: 'Yıkıcı sistem silme komutu riski!' });
+      meta.securityScore -= 60;
+    }
+
+    meta.securityScore = Math.max(0, meta.securityScore);
+  } catch (e) {
+    meta.findings.push({ severity: 'error', message: `Dosya okuma hatası: ${e.message}` });
+  }
+
+  return meta;
 }
 
 function getLiveSkillsData() {
   const skillsDir = path.join(SYNC_DIR, 'skills', 'originals');
   const unifiedDir = path.join(SYNC_DIR, 'skills', 'unified-dev');
 
-  const liveData = {
-    core: {
-      title: "🧠 Çekirdek Davranışlar (Core Behavior)",
-      subtitle: "Karpathy Anti-Hallucination Guardrails + Caveman Token Reduction",
-      command: "/caveman veya /unified-dev",
-      description: "Her istekte otomatik çalışan temel kalite ve token koruma kuralları.",
-      rules: [
-        "Karpathy Guardrails: Kod yazmadan önce varsayımları doğrula ve kullanıcıya sor.",
-        "Minimal Intervention: Sadece istenen bölgeye cerrahi müdahale yap, diğer kodları bozma.",
-        "Caveman Protocol: Boş dolgu cümlelerini sil, konuya gir.",
-        "File-based Task Planning: 3+ adımlı karmaşık görevlerde hafıza dosyası tut."
-      ],
-      repos: [],
-      files: []
-    },
-    web: {
-      title: "🎨 Web & UI/UX Tasarım Mimarisi",
-      subtitle: "WCAG 2.2 AA/AAA, Design Tokens & Component System",
-      command: "/ux-ui",
-      description: "Üretime hazır, erişilebilir ve modern web/UI arayüz tasarımları için kıdemli mimar kuralları.",
-      rules: [
-        "Color Contrast: Metin kontrast oranı en az 4.5:1 (WCAG AA).",
-        "Touch Target: Dokunmatik buton yüksekliği en az 44x44px.",
-        "Tokens First: Sihirli sayı kullanma, 4px/8px grid scale kullan."
-      ],
-      repos: [],
-      files: []
-    },
-    mobile: {
-      title: "📱 Mobil & Masaüstü Uygulama Mimari",
-      subtitle: "iOS SwiftUI, Android Jetpack Compose, macOS & Flutter",
-      command: "/mobile",
-      description: "Yerel mobil platform kuralları ve Apple HIG / Material Design 3 kılavuzu.",
-      rules: [
-        "iOS/macOS: Apple Human Interface Guidelines (HIG) ve SwiftUI declarative state yapısı.",
-        "Android: Jetpack Compose, Material Design 3 ve Unidirectional Data Flow (UDF)."
-      ],
-      repos: [],
-      files: []
-    },
-    game: {
-      title: "🎮 Oyun Geliştirme Stüdyosu",
-      subtitle: "GDD Şablonları, Engine Selection & Game Feel / Juice",
-      command: "/game",
-      description: "Oyun stüdyosu workflow kuralları.",
-      rules: [
-        "Core Loop: Oyunun döngüsünü net tanımla.",
-        "Performance: 60 FPS hedefi, Object Pooling.",
-        "Game Feel: Görsel ve işitsel geri bildirimler."
-      ],
-      repos: [],
-      files: []
-    },
-    security: {
-      title: "🔐 Siber Güvenlik & Kod Denetimi",
-      subtitle: "OWASP Top 10, STRIDE Threat Modeling",
-      command: "/security",
-      description: "Yazılım güvenlik açıkları tespiti ve savunma mimarisi rehberi.",
-      rules: [
-        "OWASP Top 10: SQL Injection, XSS, CSRF taraması.",
-        "STRIDE Modeling: Threat Modeling denetimi."
-      ],
-      repos: [],
-      files: []
-    },
-    planning: {
-      title: "📐 Proje & Mimari Planlama",
-      subtitle: "PRD, ADR Karar Belgeleri & Sprint Task Breakdown",
-      command: "/planning",
-      description: "Yazılım mimarisi kararlarını ve proje aşamalarını belgeleme kılavuzu.",
-      rules: [
-        "PRD: İhtiyaçları tanımla.",
-        "ADR: Alınan mimari kararları ve gerekçelerini kaydet."
-      ],
-      repos: [],
-      files: []
-    },
-    marketing: {
-      title: "📈 Pazarlama & ASO / CRO",
-      subtitle: "PAS/AIDA Copywriting, App Store Optimization",
-      command: "/marketing",
-      description: "Dönüşüm oranlarını ve indirmeleri artıran büyüme rehberi.",
-      rules: [
-        "Copywriting: PAS ve AIDA modelleri.",
-        "ASO: Anahtar kelime ve başlık optimizasyonu."
-      ],
-      repos: [],
-      files: []
-    }
+  const categories = {
+    core:      { title: "Çekirdek Davranışlar (Core)", command: "/caveman", rules: ["Karpathy Guardrails", "Caveman Protocol", "Minimal Intervention"], repos: [], files: [] },
+    web:       { title: "Web & UI/UX Tasarımı", command: "/ux-ui", rules: ["WCAG 2.2 AA", "OKLCH Design Tokens", "4px Grid System"], repos: [], files: [] },
+    mobile:    { title: "Mobil & Masaüstü", command: "/mobile", rules: ["Apple HIG", "Jetpack Compose", "SwiftUI Patterns"], repos: [], files: [] },
+    game:      { title: "Oyun Stüdyosu", command: "/game", rules: ["Core Game Loop", "60 FPS Performance", "Juice & Game Feel"], repos: [], files: [] },
+    security:  { title: "Siber Güvenlik", command: "/security", rules: ["OWASP Top 10", "STRIDE Threat Model", "AST Security Audit"], repos: [], files: [] },
+    planning:  { title: "Mimari Planlama", command: "/planning", rules: ["PRD Documents", "ADR Decisions", "Sprint Breakdown"], repos: [], files: [] },
+    marketing: { title: "Pazarlama & CRO", command: "/marketing", rules: ["PAS & AIDA Copywriting", "App Store Optimization"], repos: [], files: [] },
   };
 
   if (fs.existsSync(skillsDir)) {
@@ -268,23 +260,16 @@ function getLiveSkillsData() {
             commitHash = "HEAD";
           }
 
-          const repoObj = { name: folder, url: gitUrl, tag: commitHash };
+          const meta = parseSkillMetadata(subPath);
+          const repoObj = { name: folder, url: gitUrl, tag: commitHash, meta };
 
-          if (folder.includes("caveman") || folder.includes("karpathy")) {
-            liveData.core.repos.push(repoObj);
-          } else if (folder.includes("ux-ui") || folder.includes("ui-ux")) {
-            liveData.web.repos.push(repoObj);
-          } else if (folder.includes("game")) {
-            liveData.game.repos.push(repoObj);
-          } else if (folder.includes("marketing")) {
-            liveData.marketing.repos.push(repoObj);
-          } else if (folder.includes("security") || folder.includes("cybersecurity")) {
-            liveData.security.repos.push(repoObj);
-          } else if (folder.includes("planning")) {
-            liveData.planning.repos.push(repoObj);
-          } else {
-            liveData.core.repos.push(repoObj);
-          }
+          if (folder.includes("caveman") || folder.includes("karpathy")) categories.core.repos.push(repoObj);
+          else if (folder.includes("ux-ui") || folder.includes("ui-ux")) categories.web.repos.push(repoObj);
+          else if (folder.includes("game")) categories.game.repos.push(repoObj);
+          else if (folder.includes("marketing")) categories.marketing.repos.push(repoObj);
+          else if (folder.includes("security") || folder.includes("cybersecurity")) categories.security.repos.push(repoObj);
+          else if (folder.includes("planning")) categories.planning.repos.push(repoObj);
+          else categories.core.repos.push(repoObj);
         }
       });
     } catch (err) {}
@@ -295,19 +280,116 @@ function getLiveSkillsData() {
       const files = fs.readdirSync(unifiedDir);
       files.forEach(file => {
         const relPath = `skills/unified-dev/${file}`;
-        if (file.includes("01") || file.includes("SKILL")) liveData.core.files.push(relPath);
-        if (file.includes("02")) liveData.web.files.push(relPath);
-        if (file.includes("03")) liveData.mobile.files.push(relPath);
-        if (file.includes("04")) liveData.game.files.push(relPath);
-        if (file.includes("05")) liveData.security.files.push(relPath);
-        if (file.includes("06")) liveData.planning.files.push(relPath);
-        if (file.includes("07")) liveData.marketing.files.push(relPath);
+        if (file.includes("01") || file.includes("SKILL")) categories.core.files.push(relPath);
+        if (file.includes("02")) categories.web.files.push(relPath);
+        if (file.includes("03")) categories.mobile.files.push(relPath);
+        if (file.includes("04")) categories.game.files.push(relPath);
+        if (file.includes("05")) categories.security.files.push(relPath);
+        if (file.includes("06")) categories.planning.files.push(relPath);
+        if (file.includes("07")) categories.marketing.files.push(relPath);
       });
     } catch (e) {}
   }
 
-  return liveData;
+  return categories;
 }
+
+// MCP SERVER YÖNETİMİ
+function getMCPConfig() {
+  const mcpFile = path.join(SYNC_DIR, 'mcp_config.json');
+  if (fs.existsSync(mcpFile)) {
+    try {
+      return JSON.parse(fs.readFileSync(mcpFile, 'utf8'));
+    } catch (e) {}
+  }
+  return { mcpServers: {} };
+}
+
+function saveMCPConfig(config) {
+  const mcpFile = path.join(SYNC_DIR, 'mcp_config.json');
+  fs.writeFileSync(mcpFile, JSON.stringify(config, null, 2), 'utf8');
+
+  // Claude (.claude.json) ve Cursor (.cursor/mcp.json) sync
+  const claudeJson = path.join(homeDir, '.claude.json');
+  const cursorMcp = path.join(homeDir, '.cursor', 'mcp.json');
+
+  try {
+    if (fs.existsSync(claudeJson)) {
+      const curr = JSON.parse(fs.readFileSync(claudeJson, 'utf8') || '{}');
+      curr.mcpServers = { ...curr.mcpServers, ...config.mcpServers };
+      fs.writeFileSync(claudeJson, JSON.stringify(curr, null, 2));
+    }
+  } catch (e) {}
+
+  try {
+    if (fs.existsSync(path.dirname(cursorMcp))) {
+      fs.mkdirSync(path.dirname(cursorMcp), { recursive: true });
+      fs.writeFileSync(cursorMcp, JSON.stringify(config, null, 2));
+    }
+  } catch (e) {}
+}
+
+// SLASH COMMANDS YÖNETİMİ
+function getCommandsList() {
+  const cmdDir = path.join(SYNC_DIR, 'commands');
+  if (!fs.existsSync(cmdDir)) return [];
+  try {
+    const files = fs.readdirSync(cmdDir);
+    return files.filter(f => f.endsWith('.md')).map(f => {
+      const filePath = path.join(cmdDir, f);
+      const content = fs.readFileSync(filePath, 'utf8');
+      return {
+        name: f.replace(/\.md$/, ''),
+        fileName: f,
+        content: content.slice(0, 300),
+        fullPath: filePath
+      };
+    });
+  } catch (e) {
+    return [];
+  }
+}
+
+// PRESETS (GELİŞTİRİCİ MODLARI) SYSTEM
+const PRESETS = [
+  {
+    id: "fullstack-pro",
+    title: "⚡ Fullstack Web & App Architect",
+    description: "Karpathy guardrails, UX/UI OKLCH design tokens, Node.js + React 18 & SQLite standartları.",
+    skills: ["ux-ui", "caveman", "unified-dev"],
+    active: true
+  },
+  {
+    id: "security-auditor",
+    title: "🔐 Security Audit & Hardening",
+    description: "OWASP Top 10, AST static scanning, STRIDE tehdit modelleme ve sıfır-güven (Zero-Trust) denetimi.",
+    skills: ["security", "unified-dev"],
+    active: false
+  },
+  {
+    id: "game-studio",
+    title: "🎮 Indie Game Developer Studio",
+    description: "GDD şablonları, 60 FPS performans kuralları, Object Pooling ve Game Feel (Juice) rehberi.",
+    skills: ["game", "caveman"],
+    active: false
+  },
+  {
+    id: "growth-marketing",
+    title: "📈 Growth Marketing & ASO/CRO",
+    description: "PAS/AIDA reklam metinleri, App Store Optimization ve Landing Page Dönüşüm optimizasyonu.",
+    skills: ["marketing", "ux-ui"],
+    active: false
+  }
+];
+
+// MARKETPLACE VERİSİ
+const MARKETPLACE_CATALOG = [
+  { name: "anthropics/skills", label: "Official Anthropic Agent Skills", stars: "95.9k", desc: "Anthropic resmi agent skill koleksiyonu.", url: "https://github.com/anthropics/skills" },
+  { name: "obra/superpowers", label: "Superpowers Agent Framework", stars: "89.8k", desc: "Ajanlar için gelişmiş süper yetenekler ve akışlar.", url: "https://github.com/obra/superpowers" },
+  { name: "nextlevelbuilder/ui-ux-pro-max-skill", label: "UI/UX Pro Max Skill", stars: "43.1k", desc: "Erişilebilir ve estetik UI/UX tasarım zekası.", url: "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill" },
+  { name: "sickn33/antigravity-awesome-skills", label: "Antigravity Awesome Skills", stars: "25.0k", desc: "Claude Code ve Cursor için 1,000+ hazır skill.", url: "https://github.com/sickn33/antigravity-awesome-skills" },
+  { name: "coreyhaines31/marketingskills", label: "Marketing & Growth Skills", stars: "14.0k", desc: "Pazarlama, CRO, SEO ve büyüme odaklı yetenekler.", url: "https://github.com/coreyhaines31/marketingskills" },
+];
 
 function removeLinkTarget(targetPath) {
   if (!fs.existsSync(targetPath)) return;
@@ -332,15 +414,15 @@ function removeLinkTarget(targetPath) {
 }
 
 function toggleLink(aiKey, targetState, callback) {
-  const targetDir = AI_PATHS[aiKey];
-  if (!targetDir) return callback(new Error('Bilinmeyen AI aracı'));
+  const provider = AI_PATHS[aiKey];
+  if (!provider) return callback(new Error('Bilinmeyen AI aracı'));
 
-  if (!fs.existsSync(targetDir)) {
-    fs.mkdirSync(targetDir, { recursive: true });
+  if (!fs.existsSync(provider.path)) {
+    fs.mkdirSync(provider.path, { recursive: true });
   }
 
-  const skillsDest = path.join(targetDir, 'skills');
-  const commandsDest = path.join(targetDir, 'commands');
+  const skillsDest = path.join(provider.path, provider.skillsSub);
+  const commandsDest = path.join(provider.path, provider.cmdSub);
 
   if (targetState === true) {
     removeLinkTarget(skillsDest);
@@ -355,19 +437,19 @@ function toggleLink(aiKey, targetState, callback) {
         if (fs.existsSync(winSrcCmds)) {
           execSync(`cmd /c "mklink /J "${commandsDest}" "${winSrcCmds}""`);
         }
-        callback(null, `${aiKey} başarıyla bağlandı.`);
+        callback(null, `${provider.name} başarıyla bağlandı.`);
       } catch (err) {
         callback(err, `Bağlama Hatası: ${err.message}`);
       }
     } else {
       exec(`ln -s "${path.join(SYNC_DIR, 'skills')}" "${skillsDest}" && ln -s "${path.join(SYNC_DIR, 'commands')}" "${commandsDest}"`, (err) => {
-        callback(err, `${aiKey} başarıyla bağlandı.`);
+        callback(err, `${provider.name} başarıyla bağlandı.`);
       });
     }
   } else {
     removeLinkTarget(skillsDest);
     removeLinkTarget(commandsDest);
-    callback(null, `${aiKey} bağlantısı kaldırıldı.`);
+    callback(null, `${provider.name} bağlantısı kaldırıldı.`);
   }
 }
 
@@ -377,6 +459,11 @@ function createServer(port) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+      res.writeHead(200);
+      return res.end();
+    }
 
     // SSE CANLI PUSH ENDPOINT
     if (req.method === 'GET' && req.url === '/api/events') {
@@ -388,25 +475,20 @@ function createServer(port) {
         'X-Accel-Buffering': 'no',
       });
 
-      // İstemciyi kaydet
       sseClients.add(res);
-      console.log(`[SSE] Yeni istemci bağlandı. Toplam: ${sseClients.size}`);
+      console.log(`[SSE] İstemci bağlandı. Toplam: ${sseClients.size}`);
 
-      // Bağlanınca anlık durum gönder
       res.write(`event: status_update\ndata: ${JSON.stringify(getAIStatus())}\n\n`);
       res.write(`event: skills_update\ndata: ${JSON.stringify(getLiveSkillsData())}\n\n`);
-      res.write(`event: connected\ndata: ${JSON.stringify({ time: new Date().toISOString(), clients: sseClients.size })}\n\n`);
+      res.write(`event: mcp_update\ndata: ${JSON.stringify(getMCPConfig())}\n\n`);
 
-      // Heartbeat — bağlantı kopmasın
       const heartbeat = setInterval(() => {
         try { res.write(': heartbeat\n\n'); } catch (e) { clearInterval(heartbeat); }
       }, 15000);
 
-      // İstemci bağlantıyı kesince temizle
       req.on('close', () => {
         sseClients.delete(res);
         clearInterval(heartbeat);
-        console.log(`[SSE] İstemci ayrıldı. Kalan: ${sseClients.size}`);
       });
       return;
     }
@@ -425,13 +507,38 @@ function createServer(port) {
         res.end(data);
       });
     } else if (req.method === 'GET' && req.url === '/api/status') {
-      const statusData = getAIStatus();
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-      res.end(JSON.stringify(statusData));
+      res.end(JSON.stringify(getAIStatus()));
     } else if (req.method === 'GET' && req.url === '/api/skills') {
-      const liveSkills = getLiveSkillsData();
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-      res.end(JSON.stringify(liveSkills));
+      res.end(JSON.stringify(getLiveSkillsData()));
+    } else if (req.method === 'GET' && req.url === '/api/mcp') {
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify(getMCPConfig()));
+    } else if (req.method === 'POST' && req.url === '/api/mcp/save') {
+      let body = '';
+      req.on('data', chunk => { body += chunk.toString(); });
+      req.on('end', () => {
+        try {
+          const config = JSON.parse(body);
+          saveMCPConfig(config);
+          broadcast('mcp_update', getMCPConfig());
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: true, message: 'MCP Konfigürasyonu kaydedildi ve tüm araçlara senkronize edildi!' }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: false, message: e.message }));
+        }
+      });
+    } else if (req.method === 'GET' && req.url === '/api/commands') {
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify(getCommandsList()));
+    } else if (req.method === 'GET' && req.url === '/api/presets') {
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify(PRESETS));
+    } else if (req.method === 'GET' && req.url === '/api/marketplace') {
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify(MARKETPLACE_CATALOG));
     } else if (req.method === 'POST' && req.url === '/api/toggle-link') {
       let body = '';
       req.on('data', chunk => { body += chunk.toString(); });
@@ -441,7 +548,6 @@ function createServer(port) {
           toggleLink(ai, state, (err, message) => {
             res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
             res.end(JSON.stringify({ success: !err, message: message || (err && err.message) }));
-            // Bağlantı değişti — tüm açık React sekmelerine SSE push
             if (!err) broadcast('status_update', getAIStatus());
           });
         } catch (e) {
@@ -453,7 +559,6 @@ function createServer(port) {
       exec('git submodule update --remote --merge', { cwd: SYNC_DIR }, (err, stdout, stderr) => {
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
         res.end(JSON.stringify({ success: !err, output: stdout || stderr || 'Tüm canlı skill repoları güncellendi!' }));
-        // Skill güncellemeleri bitti — tüm açık React sekmelerine SSE push
         if (!err) broadcast('skills_update', getLiveSkillsData());
       });
     } else if (req.method === 'POST' && req.url === '/api/add-skill') {
@@ -465,7 +570,7 @@ function createServer(port) {
           if (!url) throw new Error('URL eksik');
           const skillName = path.basename(url, '.git');
           const cmd = `git submodule add -f "${url}" "skills/originals/${skillName}" && git submodule update --init --recursive`;
-          
+
           exec(cmd, { cwd: SYNC_DIR }, (err, stdout, stderr) => {
             if (customRule && customRule.trim()) {
               const ruleFile = path.join(SYNC_DIR, 'skills', 'unified-dev', '01-core-behavior.md');
@@ -475,6 +580,7 @@ function createServer(port) {
             }
             res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
             res.end(JSON.stringify({ success: !err, output: stdout || stderr || `[${skillName}] ${category || ''} kategorisine başarıyla eklendi!` }));
+            if (!err) broadcast('skills_update', getLiveSkillsData());
           });
         } catch (e) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -490,12 +596,13 @@ function createServer(port) {
           if (!name) throw new Error('Skill adı eksik');
           const relPath = `skills/originals/${name}`;
           const cmd = `git submodule deinit -f "${relPath}" && git rm -f "${relPath}"`;
-          
+
           exec(cmd, { cwd: SYNC_DIR }, (err, stdout, stderr) => {
             const fullPath = path.join(SYNC_DIR, relPath);
             removeLinkTarget(fullPath);
             res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
             res.end(JSON.stringify({ success: true, output: `[${name}] repnuzu ve submodule kaydı başarıyla silindi.` }));
+            broadcast('skills_update', getLiveSkillsData());
           });
         } catch (e) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -511,7 +618,6 @@ function createServer(port) {
   server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
       console.error(`❌ Port ${port} dolu! Mevcut bir sunucu çalışıyor olabilir.`);
-      console.error(`   Çözmek için: Get-Process node | Stop-Process -Force`);
       process.exit(1);
     } else {
       console.error('❌ Sunucu Hatası:', err);
@@ -521,12 +627,12 @@ function createServer(port) {
 
   server.listen(port, () => {
     console.log(`\n====================================================`);
-    console.log(` ⚡ Multi-AI Skill Hub Pure React Server`);
+    console.log(` ⚡ Multi-AI Skill Hub Universal Control Center`);
     console.log(` ⚛️ React 18 Entry: http://localhost:${port}`);
     console.log(` 🔌 SSE Push:       http://localhost:${port}/api/events`);
+    console.log(` 🤖 19 AI Provider: Active`);
     console.log(`====================================================\n`);
 
-    // Filesystem watcher'ı başlat
     watchAIDirectories();
 
     if (!process.env.NO_OPEN) {
@@ -536,7 +642,6 @@ function createServer(port) {
     }
   });
 
-  // Temiz kapatma
   process.on('SIGINT', () => { server.close(); process.exit(0); });
   process.on('SIGTERM', () => { server.close(); process.exit(0); });
 }
