@@ -25,3 +25,15 @@
 [submodule "skills/originals/awesome-agent-skills"]
 	path = skills/originals/awesome-agent-skills
 	url = https://github.com/VoltAgent/awesome-agent-skills.git
+[submodule "skills/originals/skills"]
+	path = skills/originals/skills
+	url = https://github.com/anthropics/skills
+[submodule "skills/originals/ui-ux-pro-max-skill"]
+	path = skills/originals/ui-ux-pro-max-skill
+	url = https://github.com/nextlevelbuilder/ui-ux-pro-max-skill
+[submodule "skills/originals/superpowers"]
+	path = skills/originals/superpowers
+	url = https://github.com/obra/superpowers
+[submodule "skills/originals/antigravity-awesome-skills"]
+	path = skills/originals/antigravity-awesome-skills
+	url = https://github.com/sickn33/antigravity-awesome-skills

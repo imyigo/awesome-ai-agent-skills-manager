@@ -38,6 +38,19 @@ try {
       auth_value TEXT,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
+    CREATE TABLE IF NOT EXISTS installed_skills (
+      name TEXT PRIMARY KEY,
+      url TEXT,
+      category TEXT,
+      custom_rule TEXT,
+      disabled INTEGER DEFAULT 0,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS mcp_servers (
+      key TEXT PRIMARY KEY,
+      config_json TEXT,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
     CREATE TABLE IF NOT EXISTS activity_logs (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       time TEXT,
@@ -333,13 +346,28 @@ function getLiveSkillsData() {
           const meta = parseSkillMetadata(subPath);
           const repoObj = { name: folder, url: gitUrl, tag: commitHash, meta };
 
-          if (folder.includes("caveman") || folder.includes("karpathy")) categories.core.repos.push(repoObj);
-          else if (folder.includes("ux-ui") || folder.includes("ui-ux")) categories.web.repos.push(repoObj);
-          else if (folder.includes("game")) categories.game.repos.push(repoObj);
-          else if (folder.includes("marketing")) categories.marketing.repos.push(repoObj);
-          else if (folder.includes("security") || folder.includes("cybersecurity")) categories.security.repos.push(repoObj);
-          else if (folder.includes("planning")) categories.planning.repos.push(repoObj);
-          else categories.core.repos.push(repoObj);
+          const folderLower = folder.toLowerCase();
+          const descLower = (meta.description || '').toLowerCase();
+          const contentLower = (meta.content || '').substring(0, 500).toLowerCase();
+          const combinedText = `${folderLower} ${descLower} ${contentLower}`;
+
+          if (combinedText.includes("caveman") || combinedText.includes("karpathy") || combinedText.includes("core") || combinedText.includes("behavior")) {
+            categories.core.repos.push(repoObj);
+          } else if (combinedText.includes("ux-ui") || combinedText.includes("ui-ux") || combinedText.includes("web") || combinedText.includes("css") || combinedText.includes("frontend") || combinedText.includes("design")) {
+            categories.web.repos.push(repoObj);
+          } else if (combinedText.includes("game") || combinedText.includes("unity") || combinedText.includes("unreal") || combinedText.includes("godot")) {
+            categories.game.repos.push(repoObj);
+          } else if (combinedText.includes("marketing") || combinedText.includes("seo") || combinedText.includes("growth") || combinedText.includes("copywriting")) {
+            categories.marketing.repos.push(repoObj);
+          } else if (combinedText.includes("security") || combinedText.includes("cyber") || combinedText.includes("owasp") || combinedText.includes("audit") || combinedText.includes("vulnerability")) {
+            categories.security.repos.push(repoObj);
+          } else if (combinedText.includes("plan") || combinedText.includes("architecture") || combinedText.includes("prd") || combinedText.includes("design-doc")) {
+            categories.planning.repos.push(repoObj);
+          } else if (combinedText.includes("mobile") || combinedText.includes("swift") || combinedText.includes("flutter") || combinedText.includes("android") || combinedText.includes("ios")) {
+            categories.mobile.repos.push(repoObj);
+          } else {
+            categories.core.repos.push(repoObj);
+          }
         }
       });
     } catch (err) {}
@@ -367,6 +395,14 @@ function getLiveSkillsData() {
 // CUSTOM PRESETS CRUD SYSTEM (SQLITE + FILE BACKUP)
 function getPresetsConfig() {
   const defaults = [
+    {
+      id: "auto-agent",
+      title: "🤖 Auto Agent (Otomatik Akıllı Modlandırma)",
+      description: "AI ajanın görevin içeriğine göre tüm yetenekleri (Core, UI/UX, Güvenlik, Oyun, Pazarlama) dinamik ve otonom seçmesine izin verir.",
+      skills: [],
+      autoAgent: true,
+      custom: false
+    },
     {
       id: "fullstack-pro",
       title: "Fullstack Web & App Architect",
@@ -407,7 +443,7 @@ function getPresetsConfig() {
         title: r.title,
         description: r.description,
         skills: r.skills ? JSON.parse(r.skills) : [],
-        custom: true
+        custom: Boolean(r.custom)
       }));
     } catch (e) {}
   }
@@ -418,25 +454,61 @@ function getPresetsConfig() {
     try { jsonPresets = JSON.parse(fs.readFileSync(presetsFile, 'utf8')); } catch (e) {}
   }
 
-  const mergedCustoms = [...sqlitePresets];
-  jsonPresets.forEach(jp => {
-    if (!mergedCustoms.some(cp => cp.id === jp.id)) {
-      mergedCustoms.push(jp);
+  const activePresetId = String(getSetting('activePresetId', '')).trim();
+
+  // Calculate currently active skills on disk
+  const activeSkillsOnDisk = new Set();
+  const skillsDir = path.join(SYNC_DIR, 'skills', 'originals');
+  if (fs.existsSync(skillsDir)) {
+    try {
+      const subFolders = fs.readdirSync(skillsDir);
+      subFolders.forEach(folder => {
+        const activeFile = path.join(skillsDir, folder, 'SKILL.md');
+        if (fs.existsSync(activeFile)) activeSkillsOnDisk.add(folder);
+      });
+    } catch (e) {}
+  }
+
+  const checkIsActive = (preset) => {
+    if (activePresetId && String(preset.id).trim() === activePresetId) {
+      return true;
+    }
+    if (!activePresetId && preset.skills && preset.skills.length > 0) {
+      return preset.skills.every(s => activeSkillsOnDisk.has(s));
+    }
+    return false;
+  };
+
+  // Merge overrides
+  const result = defaults.map(def => {
+    const override = sqlitePresets.find(p => p.id === def.id) || jsonPresets.find(p => p.id === def.id);
+    const item = override ? { ...def, ...override } : def;
+    return { ...item, active: checkIsActive(item) };
+  });
+
+  sqlitePresets.forEach(cp => {
+    if (!result.some(p => p.id === cp.id)) {
+      result.push({ ...cp, active: checkIsActive(cp) });
     }
   });
 
-  return [...defaults, ...mergedCustoms];
+  jsonPresets.forEach(jp => {
+    if (!result.some(p => p.id === jp.id)) {
+      result.push({ ...jp, active: checkIsActive(jp) });
+    }
+  });
+
+  return result;
 }
 
 function saveCustomPreset(preset) {
-  preset.custom = true;
   if (!preset.id) preset.id = 'preset-' + Date.now();
   if (!Array.isArray(preset.skills)) preset.skills = [];
 
   if (db) {
     try {
-      const stmt = db.prepare('INSERT INTO custom_presets (id, title, description, skills, custom) VALUES (?, ?, ?, ?, 1) ON CONFLICT(id) DO UPDATE SET title=excluded.title, description=excluded.description, skills=excluded.skills');
-      stmt.run(preset.id, preset.title, preset.description || '', JSON.stringify(preset.skills));
+      const stmt = db.prepare('INSERT INTO custom_presets (id, title, description, skills, custom) VALUES (?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, description=excluded.description, skills=excluded.skills, custom=excluded.custom');
+      stmt.run(preset.id, preset.title, preset.description || '', JSON.stringify(preset.skills), preset.custom !== undefined ? (preset.custom ? 1 : 0) : 1);
     } catch (e) { console.error('[SQLite Preset Save Error]:', e.message); }
   }
 
@@ -536,11 +608,18 @@ function getCommandsList() {
 }
 
 const MARKETPLACE_CATALOG = [
-  { name: "anthropics/skills", label: "Official Anthropic Agent Skills", stars: "95.9k", desc: "Anthropic resmi agent skill koleksiyonu.", url: "https://github.com/anthropics/skills" },
-  { name: "obra/superpowers", label: "Superpowers Agent Framework", stars: "89.8k", desc: "Ajanlar için gelişmiş süper yetenekler ve akışlar.", url: "https://github.com/obra/superpowers" },
-  { name: "nextlevelbuilder/ui-ux-pro-max-skill", label: "UI/UX Pro Max Skill", stars: "43.1k", desc: "Erişilebilir ve estetik UI/UX tasarım zekası.", url: "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill" },
-  { name: "sickn33/antigravity-awesome-skills", label: "Antigravity Awesome Skills", stars: "25.0k", desc: "Claude Code ve Cursor için 1,000+ hazır skill.", url: "https://github.com/sickn33/antigravity-awesome-skills" },
-  { name: "coreyhaines31/marketingskills", label: "Marketing & Growth Skills", stars: "14.0k", desc: "Pazarlama, CRO, SEO ve büyüme odaklı yetenekler.", url: "https://github.com/coreyhaines31/marketingskills" },
+  { name: "anthropics/skills", label: "Official Anthropic Agent Skills", stars: "98.5k", category: "official", desc: "Anthropic'in ürettiği resmi docx, pptx, pdf ve kod co-authoring yetenekleri.", url: "https://github.com/anthropics/skills", tags: ["Official", "Document", "PDF", "Anthropic"] },
+  { name: "obra/superpowers", label: "Superpowers Agent Framework", stars: "89.8k", category: "workflow", desc: "AI ajanları için TDD, kod inceleme, hata ayıklama ve otonom planlama yetenekleri.", url: "https://github.com/obra/superpowers", tags: ["TDD", "Debugging", "Workflow"] },
+  { name: "nextlevelbuilder/ui-ux-pro-max-skill", label: "UI/UX Pro Max Skill", stars: "43.1k", category: "frontend", desc: "Erişilebilir, estetik, WCAG 2.2 ve OKLCH renk paletli UI/UX tasarım zekası.", url: "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill", tags: ["UI/UX", "Design", "CSS", "WCAG"] },
+  { name: "thedotmack/claude-mem", label: "Claude Mem - Agent Long-Term Memory", stars: "38.2k", category: "memory", desc: "AI ajana projeler arası uzun vadeli hafıza ve bağlam (context) yönetimi kazandırır.", url: "https://github.com/thedotmack/claude-mem", tags: ["Memory", "Context", "Persistence"] },
+  { name: "JuliusBrussee/caveman", label: "Caveman Protocol - Token Saver", stars: "31.4k", category: "core", desc: "%40-60 token tasarrufu sağlayan özlü ve doğrudan AI iletişim protokolü.", url: "https://github.com/JuliusBrussee/caveman", tags: ["Core", "Token Saver", "Efficiency"] },
+  { name: "mukul975/Anthropic-Cybersecurity-Skills", label: "Cybersecurity & Threat Audit Skills", stars: "28.9k", category: "security", desc: "OWASP Top 10, STRIDE tehdit modelleme ve kod güvenlik açığı tarama yetenekleri.", url: "https://github.com/mukul975/Anthropic-Cybersecurity-Skills", tags: ["Security", "OWASP", "Audit"] },
+  { name: "sickn33/antigravity-awesome-skills", label: "Antigravity Awesome Skills Collection", stars: "25.0k", category: "all", desc: "Claude Code, Cursor ve Antigravity için 1,000+ topluluk yeteneği.", url: "https://github.com/sickn33/antigravity-awesome-skills", tags: ["Collection", "Awesome"] },
+  { name: "garrytan/gstack", label: "gstack - Founder & Dev Workflow Stack", stars: "22.5k", category: "workflow", desc: "Yalın ürün geliştirme, sürüm kontrol ve sprint planlama mimarisi.", url: "https://github.com/garrytan/gstack", tags: ["Architecture", "Startup", "DevOps"] },
+  { name: "Egonex-AI/Understand-Anything", label: "Understand Anything - Deep Code Inspector", stars: "19.8k", category: "analysis", desc: "Karmaşık kod depolarını, bağımlılıkları ve mimari şemaları saniyeler içinde çözen araç.", url: "https://github.com/Egonex-AI/Understand-Anything", tags: ["Code Analysis", "Architecture"] },
+  { name: "coreyhaines31/marketingskills", label: "Marketing & Growth Copywriting Skills", stars: "14.0k", category: "growth", desc: "PAS & AIDA reklam metinleri, SEO, ASO ve açılış sayfası dönüşüm optimizasyonu.", url: "https://github.com/coreyhaines31/marketingskills", tags: ["Marketing", "Growth", "SEO"] },
+  { name: "Donchitos/Claude-Code-Game-Studios", label: "Claude Code Game Studios Framework", stars: "11.7k", category: "game", desc: "Unity, Godot ve Unreal için 60 FPS performans kuralları, GDD ve Juice oyun hissi.", url: "https://github.com/Donchitos/Claude-Code-Game-Studios", tags: ["Game Dev", "60 FPS", "Juice"] },
+  { name: "OthmanAdi/planning-with-files", label: "Planning With Files - PRD & Spec Generator", stars: "9.3k", category: "planning", desc: "PRD belgeleri, ADR kararları ve teknik mimari planı oluşturan rehber.", url: "https://github.com/OthmanAdi/planning-with-files", tags: ["Planning", "PRD", "Specs"] }
 ];
 
 function removeLinkTarget(targetPath) {
@@ -558,6 +637,20 @@ function removeLinkTarget(targetPath) {
   } catch (e) {}
 }
 
+function copyRecursiveSync(src, dest) {
+  if (!fs.existsSync(src)) return;
+  const stat = fs.statSync(src);
+  if (stat.isDirectory()) {
+    if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+    fs.readdirSync(src).forEach(child => {
+      copyRecursiveSync(path.join(src, child), path.join(dest, child));
+    });
+  } else {
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.copyFileSync(src, dest);
+  }
+}
+
 function toggleLink(aiKey, targetState, callback) {
   const provider = AI_PATHS[aiKey];
   if (!provider) return callback(new Error('Bilinmeyen AI aracı'));
@@ -569,25 +662,38 @@ function toggleLink(aiKey, targetState, callback) {
   const skillsDest = path.join(provider.path, provider.skillsSub);
   const commandsDest = path.join(provider.path, provider.cmdSub);
 
+  const currentLinkMode = getSetting('linkMode', isWin ? 'junction' : 'symlink');
+
   if (targetState === true) {
     removeLinkTarget(skillsDest);
     removeLinkTarget(commandsDest);
 
-    if (isWin) {
-      const winSrcSkills = path.join(SYNC_DIR, 'skills');
-      const winSrcCmds = path.join(SYNC_DIR, 'commands');
+    const winSrcSkills = path.join(SYNC_DIR, 'skills');
+    const winSrcCmds = path.join(SYNC_DIR, 'commands');
 
+    if (currentLinkMode === 'copy') {
       try {
-        execSync(`cmd /c "mklink /J "${skillsDest}" "${winSrcSkills}""`);
+        copyRecursiveSync(winSrcSkills, skillsDest);
         if (fs.existsSync(winSrcCmds)) {
-          execSync(`cmd /c "mklink /J "${commandsDest}" "${winSrcCmds}""`);
+          copyRecursiveSync(winSrcCmds, commandsDest);
         }
-        callback(null, `${provider.name} başarıyla bağlandı.`);
+        callback(null, `${provider.name} başarıyla dosya kopyalama (Copy) yöntemiyle bağlandı.`);
+      } catch (err) {
+        callback(err, `Kopyalama Hatası: ${err.message}`);
+      }
+    } else if (isWin) {
+      const linkFlag = currentLinkMode === 'symlink' ? '/D' : '/J';
+      try {
+        execSync(`cmd /c "mklink ${linkFlag} "${skillsDest}" "${winSrcSkills}""`);
+        if (fs.existsSync(winSrcCmds)) {
+          execSync(`cmd /c "mklink ${linkFlag} "${commandsDest}" "${winSrcCmds}""`);
+        }
+        callback(null, `${provider.name} başarıyla [${currentLinkMode.toUpperCase()}] yöntemiyle bağlandı.`);
       } catch (err) {
         callback(err, `Bağlama Hatası: ${err.message}`);
       }
     } else {
-      exec(`ln -s "${path.join(SYNC_DIR, 'skills')}" "${skillsDest}" && ln -s "${path.join(SYNC_DIR, 'commands')}" "${commandsDest}"`, (err) => {
+      exec(`ln -s "${winSrcSkills}" "${skillsDest}" && ln -s "${winSrcCmds}" "${commandsDest}"`, (err) => {
         callback(err, `${provider.name} başarıyla bağlandı.`);
       });
     }
@@ -719,6 +825,74 @@ function createServer(port) {
           res.end(JSON.stringify({ success: false, message: e.message }));
         }
       });
+    } else if (req.method === 'GET' && req.url === '/api/db/export') {
+      try {
+        const dumpData = {
+          timestamp: new Date().toISOString(),
+          settings: db ? db.prepare('SELECT * FROM settings').all() : [],
+          custom_presets: db ? db.prepare('SELECT * FROM custom_presets').all() : [],
+          mcp_auth: db ? db.prepare('SELECT * FROM mcp_auth').all() : [],
+          installed_skills: db ? db.prepare('SELECT * FROM installed_skills').all() : [],
+          mcp_servers: db ? db.prepare('SELECT * FROM mcp_servers').all() : [],
+          mcp_config: getMCPConfig()
+        };
+        res.writeHead(200, {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Content-Disposition': 'attachment; filename="skills_hub_backup.sql.json"'
+        });
+        res.end(JSON.stringify(dumpData, null, 2));
+      } catch (e) {
+        res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ success: false, message: e.message }));
+      }
+    } else if (req.method === 'POST' && req.url === '/api/db/import') {
+      let body = '';
+      req.on('data', chunk => { body += chunk.toString(); });
+      req.on('end', async () => {
+        try {
+          const dump = JSON.parse(body || '{}');
+          if (db) {
+            if (Array.isArray(dump.settings)) {
+              const stmt = db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value');
+              dump.settings.forEach(row => stmt.run(row.key, row.value));
+            }
+            if (Array.isArray(dump.custom_presets)) {
+              const stmt = db.prepare('INSERT INTO custom_presets (id, title, description, skills, custom) VALUES (?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, description=excluded.description, skills=excluded.skills, custom=excluded.custom');
+              dump.custom_presets.forEach(row => stmt.run(row.id, row.title, row.description, row.skills, row.custom));
+            }
+            if (Array.isArray(dump.mcp_auth)) {
+              const stmt = db.prepare('INSERT INTO mcp_auth (server_key, env_key, auth_value) VALUES (?, ?, ?) ON CONFLICT(server_key) DO UPDATE SET env_key=excluded.env_key, auth_value=excluded.auth_value');
+              dump.mcp_auth.forEach(row => stmt.run(row.server_key, row.env_key, row.auth_value));
+            }
+            if (Array.isArray(dump.installed_skills)) {
+              const stmt = db.prepare('INSERT INTO installed_skills (name, url, category, custom_rule, disabled) VALUES (?, ?, ?, ?, ?) ON CONFLICT(name) DO UPDATE SET url=excluded.url, category=excluded.category, disabled=excluded.disabled');
+              dump.installed_skills.forEach(row => {
+                stmt.run(row.name, row.url, row.category || 'core', row.custom_rule || '', row.disabled || 0);
+                if (row.url) {
+                  const skillName = path.basename(row.url, '.git');
+                  const targetDir = path.join(SYNC_DIR, 'skills', 'originals', skillName);
+                  if (!fs.existsSync(targetDir)) {
+                    try {
+                      execSync(`git submodule add -f "${row.url}" "skills/originals/${skillName}"`, { cwd: SYNC_DIR });
+                    } catch (err) {}
+                  }
+                }
+              });
+            }
+          }
+          if (dump.mcp_config) {
+            saveMCPConfig(dump.mcp_config);
+          }
+          broadcast('skills_update', getLiveSkillsData());
+          broadcast('presets_update', getPresetsConfig());
+          broadcast('mcp_update', getMCPConfig());
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: true, message: 'SQLite Veritabanı ve Tüm Sistem Başarıyla Geri Yüklendi!' }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: false, message: 'Yükleme Hatası: ' + e.message }));
+        }
+      });
     } else if (req.method === 'GET' && req.url === '/api/mcp') {
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify(getMCPConfig()));
@@ -786,7 +960,95 @@ function createServer(port) {
           if (!preset.id) preset.id = 'preset-' + Date.now();
           saveCustomPreset(preset);
           res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-          res.end(JSON.stringify({ success: true, message: `Preset [${preset.title}] başarıyla kaydedildi!` }));
+          res.end(JSON.stringify({ success: true, message: `Preset [${preset.title}] kaydedildi!` }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: false, message: e.message }));
+        }
+      });
+    } else if (req.method === 'POST' && req.url === '/api/presets/activate') {
+      let body = '';
+      req.on('data', chunk => { body += chunk.toString(); });
+      req.on('end', () => {
+        try {
+          const { presetId } = JSON.parse(body || '{}');
+          const skillsDir = path.join(SYNC_DIR, 'skills', 'originals');
+
+          if (presetId === 'all') {
+            setSetting('activePresetId', '');
+            if (fs.existsSync(skillsDir)) {
+              const subFolders = fs.readdirSync(skillsDir);
+              subFolders.forEach(folder => {
+                const subPath = path.join(skillsDir, folder);
+                if (fs.statSync(subPath).isDirectory()) {
+                  const activeFile = path.join(subPath, 'SKILL.md');
+                  const disabledFile = path.join(subPath, 'SKILL.md.disabled');
+                  if (fs.existsSync(disabledFile)) {
+                    fs.renameSync(disabledFile, activeFile);
+                  }
+                }
+              });
+            }
+            broadcast('skills_update', getLiveSkillsData());
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+            return res.end(JSON.stringify({ success: true, message: 'Mod kapatıldı. Tüm yetenekler aktifleştirildi!' }));
+          }
+
+          const allPresets = getPresetsConfig();
+          const targetPreset = allPresets.find(p => p.id === presetId);
+          if (!targetPreset) throw new Error('Preset bulunamadı');
+
+          const activeSkills = targetPreset.skills || [];
+          setSetting('activePresetId', presetId);
+
+          if (fs.existsSync(skillsDir)) {
+            const subFolders = fs.readdirSync(skillsDir);
+            subFolders.forEach(folder => {
+              const subPath = path.join(skillsDir, folder);
+              if (fs.statSync(subPath).isDirectory()) {
+                const activeFile = path.join(subPath, 'SKILL.md');
+                const disabledFile = path.join(subPath, 'SKILL.md.disabled');
+
+                const shouldBeActive = activeSkills.length === 0 || activeSkills.includes(folder);
+
+                if (shouldBeActive && fs.existsSync(disabledFile)) {
+                  fs.renameSync(disabledFile, activeFile);
+                } else if (!shouldBeActive && fs.existsSync(activeFile)) {
+                  fs.renameSync(activeFile, disabledFile);
+                }
+              }
+            });
+          }
+
+          broadcast('skills_update', getLiveSkillsData());
+          broadcast('presets_update', getPresetsConfig());
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: true, message: `Mod [${targetPreset.title}] uygulandı! (${activeSkills.length} skill aktifleştirildi)` }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: false, message: e.message }));
+        }
+      });
+    } else if (req.method === 'POST' && req.url === '/api/presets/delete') {
+      let body = '';
+      req.on('data', chunk => { body += chunk.toString(); });
+      req.on('end', () => {
+        try {
+          const { presetId } = JSON.parse(body || '{}');
+          if (db) {
+            const stmt = db.prepare('DELETE FROM custom_presets WHERE id = ?');
+            stmt.run(presetId);
+          }
+          const presetsFile = path.join(SYNC_DIR, 'presets.json');
+          if (fs.existsSync(presetsFile)) {
+            try {
+              let customList = JSON.parse(fs.readFileSync(presetsFile, 'utf8'));
+              customList = customList.filter(p => p.id !== presetId);
+              fs.writeFileSync(presetsFile, JSON.stringify(customList, null, 2));
+            } catch (e) {}
+          }
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: true, message: 'Preset silindi!' }));
         } catch (e) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
           res.end(JSON.stringify({ success: false, message: e.message }));
@@ -960,7 +1222,7 @@ function createServer(port) {
 
   server.listen(port, () => {
     console.log(`\n====================================================`);
-    console.log(` Multi-AI Skill Hub Universal Control Center`);
+    console.log(` Awesome Universal Agent Brain Manager (v2.5)`);
     console.log(` SQLite Database: active (node:sqlite)`);
     console.log(` React 18 Entry: http://localhost:${port}`);
     console.log(` SSE Push:       http://localhost:${port}/api/events`);
@@ -972,7 +1234,7 @@ function createServer(port) {
     if (!process.env.NO_OPEN) {
       const startCmd = isWin ? `start http://localhost:${port}` :
                        process.platform === 'darwin' ? `open http://localhost:${port}` : `xdg-open http://localhost:${port}`;
-      exec(startCmd);
+      exec(startCmd, () => {});
     }
   });
 

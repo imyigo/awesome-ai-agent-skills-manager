@@ -28,7 +28,8 @@ const dict = {
     diffView: "Kod Görünümü / Düzenle",
     disableSkill: "Pasifleştir",
     enableSkill: "Aktifleştir",
-    createPreset: "Özel Preset Oluştur (Skills Seçmeli)",
+    createPreset: "Yeni Preset Oluştur",
+    editPreset: "Preset Düzenle",
     testPrompt: "Test İstemini Girin",
     runTest: "Sandbox Simülasyonu Çalıştır",
     addMcp: "Yeni MCP Server Ekle (Local Stdio & Remote HTTP/SSE)",
@@ -38,7 +39,8 @@ const dict = {
     searchGithub: "GitHub Repolarında Ara (Örn: mcp-server, claude-skills)",
     saveSettings: "Ayarları SQLite Veritabanına Kaydet",
     setAuthSecret: "Auth Key Kaydet",
-    editMcp: "MCP Sunucusunu Düzenle"
+    editMcp: "MCP Sunucusunu Düzenle",
+    allCategories: "Tüm Kategoriler"
   },
   en: {
     dashboard: "Dashboard",
@@ -64,7 +66,8 @@ const dict = {
     diffView: "View / Edit Code",
     disableSkill: "Disable",
     enableSkill: "Enable",
-    createPreset: "Create Custom Preset (Select Skills)",
+    createPreset: "Create Custom Preset",
+    editPreset: "Edit Preset",
     testPrompt: "Enter Test Prompt",
     runTest: "Run Sandbox Simulation",
     addMcp: "Add New MCP Server (Local Stdio & Remote HTTP/SSE)",
@@ -74,7 +77,8 @@ const dict = {
     searchGithub: "Search GitHub Repositories (e.g. mcp-server, claude-skills)",
     saveSettings: "Save Settings to SQLite Database",
     setAuthSecret: "Save Auth Secret",
-    editMcp: "Edit MCP Server"
+    editMcp: "Edit MCP Server",
+    allCategories: "All Categories"
   }
 };
 
@@ -105,9 +109,32 @@ const Icons = {
   Search: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
   Lock: () => <svg className="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
   Database: () => <svg className="w-4 h-4 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>,
+  Filter: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>,
+  CheckCircle: () => <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
+  AlertTriangle: () => <svg className="w-5 h-5 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
 };
 
-// LIVE CODE EDITOR & PREVIEW MODAL
+// FLOATING TOAST NOTIFICATION CONTAINER
+function ToastContainer({ toasts, onDismiss }) {
+  return (
+    <div className="fixed top-5 right-5 z-[100] space-y-2 max-w-sm w-full pointer-events-none">
+      {toasts.map(t => (
+        <div key={t.id} className={`pointer-events-auto p-4 rounded-xl border shadow-2xl flex items-start space-x-3 transition-all duration-300 transform translate-y-0 ${t.type === 'error' ? 'bg-slate-900/95 border-rose-500/40 text-slate-100' : 'bg-slate-900/95 border-emerald-500/40 text-slate-100'}`}>
+          <div className="mt-0.5">
+            {t.type === 'error' ? <Icons.AlertTriangle /> : <Icons.CheckCircle />}
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="text-xs font-semibold text-white">{t.title}</h4>
+            <p className="text-xs text-slate-400 mt-0.5 leading-snug">{t.message}</p>
+          </div>
+          <button onClick={() => onDismiss(t.id)} className="text-slate-500 hover:text-white text-xs">x</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// LIVE CODE EDITOR MODAL
 function CodeEditorModal({ title, fileName, initialContent, onSave, onClose }) {
   const [content, setContent] = useState(initialContent || '');
 
@@ -143,11 +170,114 @@ function CodeEditorModal({ title, fileName, initialContent, onSave, onClose }) {
 function McpEditorModal({ serverKey, serverData, onSave, onClose }) {
   const [key, setKey] = useState(serverKey || '');
   const [mcpType, setMcpType] = useState(serverData?.url ? 'remote' : 'stdio');
-  const [cmd, setCmd] = useState(serverData?.command || '');
+  const [cmd, setCmd] = useState(serverData?.command || 'npx');
   const [argsStr, setArgsStr] = useState((serverData?.args || []).join(' '));
   const [url, setUrl] = useState(serverData?.url || '');
   const [headerKey, setHeaderKey] = useState(serverData?.headers ? Object.keys(serverData.headers)[0] || 'x-api-key' : 'x-api-key');
   const [headerVal, setHeaderVal] = useState(serverData?.headers ? Object.values(serverData.headers)[0] || '' : '');
+  const [envVars, setEnvVars] = useState(() => {
+    const existing = serverData?.env || {};
+    const keyLower = (serverKey || '').toLowerCase();
+    if (keyLower.includes('n8n') && Object.keys(existing).length === 0) {
+      return { N8N_HOST: 'http://localhost:5678', N8N_API_KEY: '' };
+    }
+    if (keyLower.includes('github') && Object.keys(existing).length === 0) {
+      return { GITHUB_PERSONAL_ACCESS_TOKEN: '' };
+    }
+    if (keyLower.includes('slack') && Object.keys(existing).length === 0) {
+      return { SLACK_BOT_TOKEN: '', SLACK_TEAM_ID: '' };
+    }
+    return existing;
+  });
+
+  // Dynamic placeholders based on MCP server type
+  const mcpProfile = useMemo(() => {
+    const k = key.toLowerCase();
+    if (k.includes('n8n')) {
+      return {
+        title: '⚡ n8n Workflow Automation MCP Configuration',
+        cmdPlaceholder: 'npx',
+        argsPlaceholder: '-y n8n-mcp@latest',
+        recommendedEnv: ['N8N_HOST', 'N8N_API_KEY'],
+        desc: 'n8n otomasyon sunucunuza bağlanır. N8N_HOST (örn: http://localhost:5678) ve N8N_API_KEY girilmelidir.'
+      };
+    }
+    if (k.includes('sqlite')) {
+      return {
+        title: '🗄️ SQLite Database MCP Configuration',
+        cmdPlaceholder: 'npx',
+        argsPlaceholder: '-y @modelcontextprotocol/server-sqlite C:/data/db.sqlite',
+        desc: 'Yerel SQLite veritabanı dosyanızın yolunu args alanına yazın.'
+      };
+    }
+    if (k.includes('postgres')) {
+      return {
+        title: '🐘 PostgreSQL MCP Configuration',
+        cmdPlaceholder: 'npx',
+        argsPlaceholder: '-y @modelcontextprotocol/server-postgres postgresql://user:pass@localhost:5432/db',
+        desc: 'PostgreSQL bağlantı dizesini args alanına yazın.'
+      };
+    }
+    return {
+      title: `⚙️ ${key || 'Custom'} MCP Server Configuration`,
+      cmdPlaceholder: 'npx',
+      argsPlaceholder: '-y @package/mcp-server@latest',
+      desc: 'Local stdio veya remote HTTP/SSE MCP sunucu konfigürasyonu.'
+    };
+  }, [key]);
+
+  const handleApplyPreset = (presetType) => {
+    if (presetType === 'n8n') {
+      setKey(serverKey || 'n8n');
+      setMcpType('stdio');
+      setCmd('npx');
+      setArgsStr('-y n8n-mcp@latest');
+      setEnvVars({
+        N8N_HOST: 'http://localhost:5678',
+        N8N_API_KEY: 'n8n_api_key_here'
+      });
+    } else if (presetType === 'sqlite') {
+      setKey(serverKey || 'sqlite');
+      setMcpType('stdio');
+      setCmd('npx');
+      setArgsStr('-y @modelcontextprotocol/server-sqlite C:/path/to/database.db');
+    } else if (presetType === 'postgres') {
+      setKey(serverKey || 'postgres');
+      setMcpType('stdio');
+      setCmd('npx');
+      setArgsStr('-y @modelcontextprotocol/server-postgres postgresql://user:pass@localhost:5432/dbname');
+    } else if (presetType === 'puppeteer') {
+      setKey(serverKey || 'puppeteer');
+      setMcpType('stdio');
+      setCmd('npx');
+      setArgsStr('-y @modelcontextprotocol/server-puppeteer');
+    } else if (presetType === '21st') {
+      setKey(serverKey || '21st');
+      setMcpType('remote');
+      setUrl('https://21st.dev/api/mcp');
+      setHeaderKey('x-api-key');
+      setHeaderVal('$API_KEY_21ST');
+    }
+  };
+
+  const handleUpdateEnv = (k, val) => {
+    setEnvVars(prev => ({ ...prev, [k]: val }));
+  };
+
+  const handleAddEnvRow = () => {
+    const k = prompt('Yeni Environment Key adı (Örn: N8N_API_KEY):');
+    if (k && k.trim()) {
+      setEnvVars(prev => ({ ...prev, [k.trim()]: '' }));
+    }
+  };
+
+  const handleRemoveEnvRow = (k) => {
+    setEnvVars(prev => {
+      const copy = { ...prev };
+      delete copy[k];
+      return copy;
+    });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -160,37 +290,64 @@ function McpEditorModal({ serverKey, serverData, onSave, onClose }) {
     } else {
       configObj = {
         command: cmd,
-        args: argsStr ? argsStr.split(' ') : []
+        args: argsStr ? argsStr.split(' ').filter(Boolean) : []
       };
     }
-    if (serverData?.env) configObj.env = serverData.env;
+    if (Object.keys(envVars).length > 0) {
+      configObj.env = envVars;
+    }
     onSave(key, configObj);
   };
 
   return (
     <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-      <div className="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-lg overflow-hidden shadow-2xl space-y-4 p-6">
+      <div className="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-xl overflow-hidden shadow-2xl space-y-4 p-6 max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <h3 className="text-sm font-semibold text-white flex items-center space-x-2">
-            <Icons.Server /> <span>{serverKey ? `Edit MCP Server [${serverKey}]` : 'Add New MCP Server'}</span>
-          </h3>
-          <button onClick={onClose} className="text-xs text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-800">Close</button>
+          <div>
+            <h3 className="text-sm font-semibold text-white flex items-center space-x-2">
+              <Icons.Server /> <span>{mcpProfile.title}</span>
+            </h3>
+            <p className="text-[11px] text-slate-400 mt-0.5">{mcpProfile.desc}</p>
+          </div>
+          <button onClick={onClose} className="text-xs text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-800">Kapat</button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* READY PRESET TEMPLATE CHIPS */}
+        <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-2">
+          <span className="text-[10px] font-mono text-indigo-400 uppercase font-semibold block">Sık Kullanılan Sunucular İçin Hızlı Konfigürasyon:</span>
+          <div className="flex flex-wrap gap-1.5">
+            <button type="button" onClick={() => handleApplyPreset('n8n')} className="px-2 py-1 rounded bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-mono transition">
+              ⚡ n8n MCP Server
+            </button>
+            <button type="button" onClick={() => handleApplyPreset('sqlite')} className="px-2 py-1 rounded bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-300 text-xs font-mono transition">
+              🗄️ SQLite MCP
+            </button>
+            <button type="button" onClick={() => handleApplyPreset('postgres')} className="px-2 py-1 rounded bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-mono transition">
+              🐘 Postgres MCP
+            </button>
+            <button type="button" onClick={() => handleApplyPreset('puppeteer')} className="px-2 py-1 rounded bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-mono transition">
+              🌐 Puppeteer Scraper
+            </button>
+            <button type="button" onClick={() => handleApplyPreset('21st')} className="px-2 py-1 rounded bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-mono transition">
+              🚀 21st.dev Remote HTTP
+            </button>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto pr-1">
           <div>
-            <label className="text-xs font-mono text-slate-400 block mb-1">Server Key / ID</label>
+            <label className="text-xs font-mono text-slate-400 block mb-1">Server ID / Adı (Örn: n8n, sqlite)</label>
             <input type="text" value={key} onChange={e => setKey(e.target.value)} disabled={!!serverKey} className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" required />
           </div>
 
           <div>
-            <label className="text-xs font-mono text-slate-400 block mb-1">Server Protocol Type</label>
+            <label className="text-xs font-mono text-slate-400 block mb-1">Sunucu İletişim Protokolü</label>
             <div className="grid grid-cols-2 gap-2">
               <button type="button" onClick={() => setMcpType('stdio')} className={`py-2 rounded text-xs font-mono transition ${mcpType === 'stdio' ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/50' : 'bg-slate-950 text-slate-400 border border-slate-800'}`}>
-                Local Stdio (Command)
+                Local Stdio (Komut Çıktısı)
               </button>
               <button type="button" onClick={() => setMcpType('remote')} className={`py-2 rounded text-xs font-mono transition ${mcpType === 'remote' ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/50' : 'bg-slate-950 text-slate-400 border border-slate-800'}`}>
-                Remote HTTP / SSE (URL)
+                Remote HTTP / SSE (URL Web)
               </button>
             </div>
           </div>
@@ -198,37 +355,202 @@ function McpEditorModal({ serverKey, serverData, onSave, onClose }) {
           {mcpType === 'stdio' ? (
             <>
               <div>
-                <label className="text-xs font-mono text-slate-400 block mb-1">Command (npx, docker, python)</label>
+                <label className="text-xs font-mono text-slate-400 block mb-1">Çalıştırma Komutu (command)</label>
                 <input type="text" value={cmd} onChange={e => setCmd(e.target.value)} placeholder="npx" className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" required />
               </div>
               <div>
-                <label className="text-xs font-mono text-slate-400 block mb-1">Arguments (space separated)</label>
-                <input type="text" value={argsStr} onChange={e => setArgsStr(e.target.value)} placeholder="-y @wix/mcp-server@latest" className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" />
+                <label className="text-xs font-mono text-slate-400 block mb-1">Komut Parametreleri (args)</label>
+                <input type="text" value={argsStr} onChange={e => setArgsStr(e.target.value)} placeholder="-y n8n-mcp@latest" className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" />
               </div>
             </>
           ) : (
             <>
               <div>
-                <label className="text-xs font-mono text-slate-400 block mb-1">Remote SSE / HTTP Endpoint URL</label>
+                <label className="text-xs font-mono text-slate-400 block mb-1">Remote SSE Endpoint URL</label>
                 <input type="url" value={url} onChange={e => setUrl(e.target.value)} placeholder="https://21st.dev/api/mcp" className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" required />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-xs font-mono text-slate-400 block mb-1">Header Name</label>
+                  <label className="text-xs font-mono text-slate-400 block mb-1">Header Anahtarı</label>
                   <input type="text" value={headerKey} onChange={e => setHeaderKey(e.target.value)} placeholder="x-api-key" className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" />
                 </div>
                 <div>
-                  <label className="text-xs font-mono text-slate-400 block mb-1">Header Value / Env Variable</label>
+                  <label className="text-xs font-mono text-slate-400 block mb-1">Header Değeri</label>
                   <input type="text" value={headerVal} onChange={e => setHeaderVal(e.target.value)} placeholder="$API_KEY_21ST" className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" />
                 </div>
               </div>
             </>
           )}
 
+          {/* DYNAMIC ENVIRONMENT VARIABLES (ENV) EDITOR */}
+          <div className="p-3.5 rounded-lg bg-slate-950 border border-slate-800 space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-mono text-amber-400 font-semibold flex items-center space-x-1">
+                <Icons.Lock /> <span>Environment Değişkenleri & API Key'ler ({Object.keys(envVars).length})</span>
+              </label>
+              <button type="button" onClick={handleAddEnvRow} className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 text-[10px] font-mono transition">
+                + Env Ekle
+              </button>
+            </div>
+
+            {Object.keys(envVars).length === 0 ? (
+              <p className="text-[11px] text-slate-500 italic">n8n, Slack veya GitHub API Key gibi özel değişkenler gerekiyorsa yukarıdaki "+ Env Ekle" butonuna tıklayın.</p>
+            ) : (
+              <div className="space-y-2">
+                {Object.entries(envVars).map(([ek, ev]) => (
+                  <div key={ek} className="flex items-center space-x-2">
+                    <span className="text-xs font-mono text-slate-300 w-1/3 truncate">{ek}:</span>
+                    <input
+                      type="text"
+                      placeholder={`${ek} değerini girin`}
+                      value={ev}
+                      onChange={e => handleUpdateEnv(ek, e.target.value)}
+                      className="flex-1 p-2 rounded bg-slate-900 border border-slate-800 text-xs font-mono text-indigo-300 focus:outline-none focus:border-indigo-500"
+                    />
+                    <button type="button" onClick={() => handleRemoveEnvRow(ek)} className="text-rose-400 hover:text-rose-300 text-xs px-1.5 py-1">x</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="pt-3 flex justify-end space-x-2 border-t border-slate-800">
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded bg-slate-800 text-xs text-slate-300">İptal</button>
+            <button type="submit" className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-1">
+              <Icons.Check /> <span>MCP Sunucusunu Kaydet</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// PRESET EDITOR MODAL
+function PresetEditorModal({ preset, availableSkills, onSave, onClose }) {
+  const [title, setTitle] = useState(preset?.title || '');
+  const [desc, setDesc] = useState(preset?.description || '');
+  const [skills, setSkills] = useState(preset?.skills || []);
+  const [catFilter, setCatFilter] = useState('all');
+
+  const toggleSkill = (s) => {
+    setSkills(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
+  };
+
+  const getSkillCategory = (s) => {
+    const name = s.toLowerCase();
+    if (name.includes('sec') || name.includes('audit')) return 'security';
+    if (name.includes('ux') || name.includes('ui') || name.includes('css') || name.includes('web')) return 'web';
+    if (name.includes('game') || name.includes('3d')) return 'game';
+    if (name.includes('market') || name.includes('growth') || name.includes('seo')) return 'marketing';
+    return 'core';
+  };
+
+  const filteredSkills = availableSkills.filter(s => {
+    if (catFilter === 'all') return true;
+    return getSkillCategory(s) === catFilter;
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave({
+      id: preset?.id || 'preset-' + Date.now(),
+      title,
+      description: desc,
+      skills,
+      custom: true
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+      <div className="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-lg overflow-hidden shadow-2xl space-y-4 p-6 max-h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h3 className="text-sm font-semibold text-white flex items-center space-x-2">
+            <Icons.Sliders /> <span>{preset ? `Preset Düzenle [${preset.title}]` : 'Yeni Preset Oluştur'}</span>
+          </h3>
+          <button onClick={onClose} className="text-xs text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-800">Kapat</button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto pr-1">
+          <div>
+            <label className="text-xs font-mono text-slate-400 block mb-1">Preset Başlığı</label>
+            <input type="text" value={title} onChange={e => setTitle(e.target.value)} className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500" required />
+          </div>
+
+          <div>
+            <label className="text-xs font-mono text-slate-400 block mb-1">Açıklama</label>
+            <input type="text" value={desc} onChange={e => setDesc(e.target.value)} className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500" />
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-mono text-indigo-300 font-semibold">Eklenecek / Çıkarılacak Yetenekler ({skills.length} Seçili):</label>
+            </div>
+
+            {/* CATEGORY FILTER TABS FOR PRESET EDITOR */}
+            <div className="flex flex-wrap gap-1 mb-2">
+              {[
+                { id: 'all', label: 'Tümü' },
+                { id: 'core', label: 'Core & Agent' },
+                { id: 'web', label: 'Web & UI/UX' },
+                { id: 'security', label: 'Güvenlik' },
+                { id: 'game', label: 'Oyun Dev' },
+                { id: 'marketing', label: 'Pazarlama' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setCatFilter(tab.id)}
+                  className={`px-2 py-1 rounded text-[10px] font-mono transition ${catFilter === tab.id ? 'bg-indigo-600 text-white font-bold' : 'bg-slate-950 text-slate-400 hover:text-slate-200 border border-slate-800'}`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="space-y-2 max-h-56 overflow-y-auto p-3 rounded-lg bg-slate-950 border border-slate-800">
+              {filteredSkills.map(s => {
+                const isSelected = skills.includes(s);
+                return (
+                  <div
+                    key={s}
+                    onClick={() => toggleSkill(s)}
+                    className={`p-2.5 rounded-lg border transition cursor-pointer flex items-start justify-between ${isSelected ? 'bg-indigo-600/20 border-indigo-500/50 text-indigo-200' : 'bg-slate-900/60 border-slate-800/80 text-slate-400 hover:border-slate-700 hover:text-slate-200'}`}
+                  >
+                    <div className="flex items-start space-x-2.5 min-w-0">
+                      <span className={`mt-0.5 font-mono text-xs ${isSelected ? 'text-indigo-400 font-bold' : 'text-slate-600'}`}>
+                        {isSelected ? '[x]' : '[ ]'}
+                      </span>
+                      <div className="min-w-0">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs font-mono font-semibold block text-slate-200">{s}</span>
+                          <span className="px-1.5 py-0.2 rounded bg-slate-800 text-[9px] font-mono text-indigo-300 uppercase">
+                            {getSkillCategory(s)}
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-slate-400 block leading-tight truncate mt-0.5">
+                          {s.includes('ux-ui') ? 'WCAG 2.2 AA erişilebilirlik & OKLCH renk sistemli UI/UX tasarım standartları' :
+                           s.includes('caveman') ? 'Minimalist ve özlü AI iletişim protokolü (%40-60 token tasarrufu)' :
+                           s.includes('karpathy') ? 'Kod değişikliği yapmadan önce varsayımları doğrulayan muhafazakar guardrails' :
+                           s.includes('security') ? 'OWASP Top 10 ve STRIDE tehdit analizi ile kod güvenlik denetimi' :
+                           s.includes('game') ? '60 FPS performans, Object Pooling ve Juice oyun geliştirme rehberi' :
+                           s.includes('marketing') ? 'PAS & AIDA reklam metin yazarlığı, ASO ve CRO optimizasyonları' :
+                           s.includes('planning') ? 'PRD belgeleri ve ADR mimari karar kayıtları oluşturan rehber' :
+                           'AI ajanı için geliştirilmiş özel yetenek ve davranış seti.'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="pt-3 flex justify-end space-x-2 border-t border-slate-800">
             <button type="button" onClick={onClose} className="px-4 py-2 rounded bg-slate-800 text-xs text-slate-300">Cancel</button>
             <button type="submit" className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-1">
-              <Icons.Check /> <span>Save Server</span>
+              <Icons.Check /> <span>Save Preset</span>
             </button>
           </div>
         </form>
@@ -242,7 +564,35 @@ function App() {
   const [lang, setLang] = useState('tr');
   const t = dict[lang];
 
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const getInitialTab = () => {
+    const hash = window.location.hash.replace(/^#\/?/, '');
+    const validTabs = ['dashboard', 'skills', 'mcp', 'commands', 'presets', 'sandbox', 'marketplace', 'settings'];
+    return validTabs.includes(hash) ? hash : 'dashboard';
+  };
+
+  const [activeTab, setActiveTabState] = useState(getInitialTab);
+
+  const setActiveTab = (tab) => {
+    setActiveTabState(tab);
+    window.location.hash = `/${tab}`;
+  };
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace(/^#\/?/, '');
+      const validTabs = ['dashboard', 'skills', 'mcp', 'commands', 'presets', 'sandbox', 'marketplace', 'settings'];
+      if (validTabs.includes(hash)) {
+        setActiveTabState(hash);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handleHashChange);
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', handleHashChange);
+    };
+  }, []);
+
   const [aiStatus, setAiStatus] = useState({});
   const [skillsData, setSkillsData] = useState({});
   const [mcpConfig, setMcpConfig] = useState({ mcpServers: {} });
@@ -251,23 +601,38 @@ function App() {
   const [marketplace, setMarketplace] = useState([]);
   const [settingsData, setSettingsData] = useState({});
   const [sseConnected, setSseConnected] = useState(false);
+
+  // Toast Notifications
+  const [toasts, setToasts] = useState([]);
+  const showToast = (title, message, type = 'success') => {
+    const id = Date.now() + Math.random();
+    setToasts(prev => [...prev, { id, title, message, type }]);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 4000);
+  };
+
   const [logs, setLogs] = useState([]);
   const [isConsoleOpen, setIsConsoleOpen] = useState(false);
   const [editorModal, setEditorModal] = useState(null);
 
-  // MCP UI View Mode & Modal
+  // Skills Hub Category & Search Filter
+  const [skillsCategoryFilter, setSkillsCategoryFilter] = useState('all');
+  const [skillsSearchQuery, setSkillsSearchQuery] = useState('');
+
+  // MCP UI View Mode & Modals
   const [mcpViewMode, setMcpViewMode] = useState('cards');
   const [editingMcpServer, setEditingMcpServer] = useState(null);
   const [mcpAuthInputs, setMcpAuthInputs] = useState({});
 
-  // Marketplace GitHub Search
+  // Marketplace GitHub Search & Installation
+  const [marketplaceMode, setMarketplaceMode] = useState('skills'); // 'skills' | 'mcp'
   const [githubQuery, setGithubQuery] = useState('agent-skills');
   const [isSearchingGithub, setIsSearchingGithub] = useState(false);
+  const [installingRepo, setInstallingRepo] = useState(null);
 
-  // Presets Multi-Select Skills
-  const [newPresetTitle, setNewPresetTitle] = useState('');
-  const [newPresetDesc, setNewPresetDesc] = useState('');
-  const [selectedSkillsForPreset, setSelectedSkillsForPreset] = useState(['ux-ui', 'caveman']);
+  // Presets State & Modal
+  const [editingPreset, setEditingPreset] = useState(null);
 
   // Sandbox Tester states
   const [sandboxPrompt, setSandboxPrompt] = useState('Review this React component for accessibility issues.');
@@ -295,6 +660,7 @@ function App() {
     es.onopen = () => { setSseConnected(true); addLog('SSE Connected (Live Sync Active)', 'success'); };
     es.addEventListener('status_update', (e) => { try { setAiStatus(JSON.parse(e.data)); } catch (err) {} });
     es.addEventListener('skills_update', (e) => { try { setSkillsData(JSON.parse(e.data)); } catch (err) {} });
+    es.addEventListener('presets_update', (e) => { try { setPresetsList(JSON.parse(e.data)); } catch (err) {} });
     es.addEventListener('mcp_update', (e) => {
       try {
         const d = JSON.parse(e.data);
@@ -334,6 +700,22 @@ function App() {
 
   useEffect(() => { fetchData(); }, []);
 
+  const handleUpdateAllRepos = async () => {
+    setLoadingAction('update-all');
+    try {
+      const res = await fetch('/api/update', { method: 'POST' });
+      const data = await res.json();
+      addLog(data.output || 'Repos update triggered', data.success ? 'success' : 'error');
+      showToast(data.success ? 'Git Update Successful' : 'Update Failed', data.output || 'Tüm submodule repoları GitHub üzerinden güncellendi.', data.success ? 'success' : 'error');
+      fetchData();
+    } catch (e) {
+      addLog('Update error: ' + e.message, 'error');
+      showToast('Update Failed', e.message, 'error');
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
   const allInstalledSkillsList = useMemo(() => {
     const list = [];
     Object.values(skillsData).forEach(cat => {
@@ -352,6 +734,7 @@ function App() {
       });
       const data = await res.json();
       addLog(data.message, data.success ? 'success' : 'error');
+      showToast(data.success ? 'Success' : 'Error', data.message, data.success ? 'success' : 'error');
       fetchData();
     } catch (e) {
       addLog('Error: ' + e.message, 'error');
@@ -370,6 +753,7 @@ function App() {
       });
       const data = await res.json();
       addLog(data.message, data.success ? 'success' : 'error');
+      showToast(data.success ? 'Skill Toggle' : 'Error', data.message, data.success ? 'success' : 'error');
       fetchData();
     } catch (e) {
       addLog('Error: ' + e.message, 'error');
@@ -379,7 +763,7 @@ function App() {
   };
 
   const handleAddSkill = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!newSkillUrl) return;
     setLoadingAction('add-skill');
     try {
@@ -390,6 +774,7 @@ function App() {
       });
       const data = await res.json();
       addLog(data.output, data.success ? 'success' : 'error');
+      showToast(data.success ? 'Submodule Added' : 'Error', data.output, data.success ? 'success' : 'error');
       setNewSkillUrl('');
       setNewSkillRule('');
       fetchData();
@@ -397,6 +782,27 @@ function App() {
       addLog('Error: ' + e.message, 'error');
     } finally {
       setLoadingAction(null);
+    }
+  };
+
+  const handleMarketplaceInstallSubmodule = async (repoUrl) => {
+    setInstallingRepo(repoUrl);
+    try {
+      const res = await fetch('/api/add-skill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: repoUrl, category: 'web' })
+      });
+      const data = await res.json();
+      addLog(data.output, data.success ? 'success' : 'error');
+      showToast(data.success ? 'Marketplace Install' : 'Error', data.output, data.success ? 'success' : 'error');
+      fetchData();
+      setActiveTab('skills');
+    } catch (e) {
+      addLog('Install error: ' + e.message, 'error');
+      showToast('Install Failed', e.message, 'error');
+    } finally {
+      setInstallingRepo(null);
     }
   };
 
@@ -411,6 +817,7 @@ function App() {
       });
       const data = await res.json();
       addLog(data.output, data.success ? 'success' : 'error');
+      showToast(data.success ? 'Submodule Removed' : 'Error', data.output, data.success ? 'success' : 'error');
       fetchData();
     } catch (e) {
       addLog('Error: ' + e.message, 'error');
@@ -429,6 +836,7 @@ function App() {
         const items = await res.json();
         setMarketplace(items);
         addLog(`GitHub search completed for "${githubQuery}" (${items.length} repos found)`, 'success');
+        showToast('GitHub Search', `Found ${items.length} repositories for "${githubQuery}"`, 'success');
       }
     } catch (e) {
       addLog('GitHub Search error: ' + e.message, 'error');
@@ -448,6 +856,7 @@ function App() {
       });
       const data = await res.json();
       addLog(data.message, data.success ? 'success' : 'error');
+      showToast('Auth Secret Saved', data.message, 'success');
       fetchData();
     } catch (e) {
       addLog('Auth save error: ' + e.message, 'error');
@@ -484,37 +893,64 @@ function App() {
       });
       const data = await res.json();
       addLog(data.message, data.success ? 'success' : 'error');
+      showToast('MCP Saved', data.message, 'success');
       fetchData();
     } catch (e) {
       addLog('MCP Error: ' + e.message, 'error');
     }
   };
 
-  const handleTogglePresetSkillSelection = (skillName) => {
-    setSelectedSkillsForPreset(prev =>
-      prev.includes(skillName) ? prev.filter(s => s !== skillName) : [...prev, skillName]
-    );
+  const handleActivatePreset = async (preset) => {
+    setLoadingAction(`preset-${preset.id}`);
+    try {
+      const isDeactivating = preset.active;
+      const res = await fetch('/api/presets/activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ presetId: isDeactivating ? 'all' : preset.id })
+      });
+      const data = await res.json();
+      addLog(data.message, data.success ? 'success' : 'error');
+      showToast(data.success ? (isDeactivating ? 'Mod Devre Dışı' : 'Mod Aktifleştirildi') : 'Hata', data.message, data.success ? 'success' : 'error');
+      fetchData();
+    } catch (e) {
+      addLog('Preset error: ' + e.message, 'error');
+    } finally {
+      setLoadingAction(null);
+    }
   };
 
-  const handleCreatePreset = async (e) => {
-    e.preventDefault();
-    if (!newPresetTitle) return;
+  const handleSavePresetObj = async (presetObj) => {
     try {
       const res = await fetch('/api/presets/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: newPresetTitle,
-          description: newPresetDesc,
-          skills: selectedSkillsForPreset
-        })
+        body: JSON.stringify(presetObj)
       });
       const data = await res.json();
       addLog(data.message, data.success ? 'success' : 'error');
-      setNewPresetTitle(''); setNewPresetDesc('');
+      showToast('Preset Saved', data.message, 'success');
+      setEditingPreset(null);
       fetchData();
     } catch (e) {
-      addLog('Preset error: ' + e.message, 'error');
+      addLog('Save preset error: ' + e.message, 'error');
+    }
+  };
+
+  const handleDeletePreset = async (presetId) => {
+    if (!confirm('Delete this preset?')) return;
+    try {
+      const res = await fetch('/api/presets/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ presetId })
+      });
+      const data = await res.json();
+      addLog(data.message, data.success ? 'success' : 'error');
+      showToast('Preset Deleted', data.message, 'success');
+      fetchData();
+    } catch (e) {
+      addLog('Delete preset error: ' + e.message, 'error');
     }
   };
 
@@ -528,6 +964,7 @@ function App() {
       });
       const data = await res.json();
       addLog(data.message, data.success ? 'success' : 'error');
+      showToast('Settings Saved', data.message, 'success');
       fetchData();
     } catch (e) {
       addLog('Settings save error: ' + e.message, 'error');
@@ -545,6 +982,7 @@ function App() {
       const data = await res.json();
       setSandboxResult(data);
       addLog('Sandbox test executed for ' + sandboxSkill, 'success');
+      showToast('Sandbox Completed', `Tokens generated: ${data.tokenCount}`, 'success');
     } catch (e) {
       addLog('Sandbox error: ' + e.message, 'error');
     } finally {
@@ -561,6 +999,7 @@ function App() {
       });
       const data = await res.json();
       addLog(data.message, data.success ? 'success' : 'error');
+      showToast('Command Saved', data.message, 'success');
       setEditorModal(null);
       fetchData();
     } catch (e) {
@@ -574,6 +1013,8 @@ function App() {
 
   return (
     <div className="flex h-screen bg-slate-950 text-slate-100 font-sans overflow-hidden">
+      <ToastContainer toasts={toasts} onDismiss={id => setToasts(prev => prev.filter(t => t.id !== id))} />
+
       {/* SIDEBAR */}
       <aside className="w-64 border-r border-slate-800 bg-slate-900/60 flex flex-col justify-between">
         <div>
@@ -583,8 +1024,10 @@ function App() {
                 <Icons.Zap />
               </div>
               <div>
-                <h1 className="font-semibold text-sm tracking-tight text-white">Skill Hub</h1>
-                <p className="text-[11px] text-slate-400 font-mono">19 AI Providers</p>
+                <h1 className="font-semibold text-sm tracking-tight text-white flex items-center space-x-1">
+                  <span>🧠 Awesome Brain Manager</span>
+                </h1>
+                <p className="text-[10px] text-indigo-400 font-mono">Universal Agent Engine (19 Providers)</p>
               </div>
             </div>
             <button onClick={() => setLang(l => l === 'tr' ? 'en' : 'tr')} className="px-2 py-1 rounded bg-slate-800 text-[10px] font-mono text-indigo-300 hover:bg-slate-700 transition flex items-center space-x-1">
@@ -635,8 +1078,8 @@ function App() {
             <h2 className="text-sm font-semibold text-white capitalize">{t[activeTab] || activeTab}</h2>
             <span className="text-xs text-slate-500 font-mono">| {linkedCount} Provider {t.linked}</span>
           </div>
-          <button onClick={fetchData} className="px-3 py-1.5 rounded-md bg-indigo-600/20 border border-indigo-500/30 hover:bg-indigo-600/30 text-indigo-300 text-xs font-medium flex items-center space-x-2 transition">
-            <Icons.Refresh /> <span>{t.updateAll}</span>
+          <button onClick={handleUpdateAllRepos} disabled={loadingAction === 'update-all'} className="px-3 py-1.5 rounded-md bg-indigo-600/20 border border-indigo-500/30 hover:bg-indigo-600/30 text-indigo-300 text-xs font-medium flex items-center space-x-2 transition">
+            <Icons.Refresh /> <span>{loadingAction === 'update-all' ? 'Güncelleniyor...' : t.updateAll}</span>
           </button>
         </header>
 
@@ -688,49 +1131,98 @@ function App() {
             </div>
           )}
 
+          {/* TAB: SKILLS HUB WITH CATEGORY FILTERS & SEARCH BAR */}
           {activeTab === 'skills' && (
             <div className="space-y-6">
-              {Object.entries(skillsData).map(([catKey, cat]) => (
-                <div key={catKey} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-base font-semibold text-slate-100">{cat.title}</h3>
-                      <p className="text-xs text-indigo-400 font-mono mt-0.5">{cat.command}</p>
-                    </div>
-                    <span className="px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs font-mono text-slate-300">{cat.repos.length} Repos</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {cat.repos.map(r => (
-                      <div key={r.name} className={`p-3 rounded-lg border flex items-center justify-between transition ${r.meta?.disabled ? 'bg-slate-950/40 border-slate-900 opacity-60' : 'bg-slate-950 border-slate-800'}`}>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <span className="font-mono text-xs font-semibold text-indigo-300">{r.name}</span>
-                            <span className="px-1.5 py-0.2 rounded bg-slate-800 text-[10px] font-mono text-slate-400">{r.tag}</span>
-                            {r.meta?.disabled && <span className="px-1.5 py-0.2 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-mono text-[10px]">Disabled</span>}
-                          </div>
-                          <p className="text-[11px] text-slate-500 truncate max-w-xs mt-1">{r.url}</p>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <button onClick={() => handleToggleSkillDisabled(r.name)} className={`p-1.5 rounded transition ${r.meta?.disabled ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20' : 'bg-slate-800 text-slate-400 hover:text-white'}`} title={r.meta?.disabled ? t.enableSkill : t.disableSkill}>
-                            <Icons.Power />
-                          </button>
-                          <button onClick={() => setEditorModal({ title: r.name, fileName: 'SKILL.md', initialContent: r.meta?.content || `# ${r.name}` })} className="p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition" title={t.diffView}>
-                            <Icons.Eye />
-                          </button>
-                          <button onClick={() => handleRemoveSkill(r.name)} className="p-1.5 rounded hover:bg-rose-500/20 text-rose-400 transition" title="Delete">
-                            <Icons.Trash />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+              {/* FILTER BAR */}
+              <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <button onClick={() => setSkillsCategoryFilter('all')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${skillsCategoryFilter === 'all' ? 'bg-indigo-600 text-white' : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'}`}>
+                    {t.allCategories}
+                  </button>
+                  {Object.entries(skillsData).map(([catKey, cat]) => (
+                    <button key={catKey} onClick={() => setSkillsCategoryFilter(catKey)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${skillsCategoryFilter === catKey ? 'bg-indigo-600 text-white' : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'}`}>
+                      {cat.title} ({cat.repos.length})
+                    </button>
+                  ))}
                 </div>
-              ))}
+
+                <div className="relative w-full md:w-64">
+                  <input
+                    type="text"
+                    placeholder="Skill Ara / Search..."
+                    value={skillsSearchQuery}
+                    onChange={e => setSkillsSearchQuery(e.target.value)}
+                    className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500"
+                  />
+                  <div className="absolute left-2.5 top-2 text-slate-500"><Icons.Search /></div>
+                </div>
+              </div>
+
+              {/* CATEGORIES GRID */}
+              {Object.entries(skillsData)
+                .filter(([catKey]) => skillsCategoryFilter === 'all' || skillsCategoryFilter === catKey)
+                .map(([catKey, cat]) => {
+                  const filteredRepos = cat.repos.filter(r =>
+                    !skillsSearchQuery ||
+                    r.name.toLowerCase().includes(skillsSearchQuery.toLowerCase()) ||
+                    r.tag.toLowerCase().includes(skillsSearchQuery.toLowerCase())
+                  );
+
+                  if (filteredRepos.length === 0 && skillsSearchQuery) return null;
+
+                  return (
+                    <div key={catKey} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-base font-semibold text-slate-100">{cat.title}</h3>
+                          <p className="text-xs text-indigo-400 font-mono mt-0.5">{cat.command}</p>
+                        </div>
+                        <span className="px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs font-mono text-slate-300">{filteredRepos.length} Repos</span>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {filteredRepos.map(r => (
+                          <div key={r.name} className={`p-3.5 rounded-lg border flex items-center justify-between transition ${r.meta?.disabled ? 'bg-slate-950/40 border-slate-900 opacity-60' : 'bg-slate-950 border-slate-800 hover:border-slate-700'}`}>
+                            <div>
+                              <div className="flex items-center space-x-2">
+                                <span className="font-mono text-xs font-semibold text-indigo-300">{r.name}</span>
+                                <span className="px-1.5 py-0.2 rounded bg-slate-800 text-[10px] font-mono text-slate-400">{r.tag}</span>
+                                {r.meta?.disabled && <span className="px-1.5 py-0.2 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-mono text-[10px]">Disabled</span>}
+                              </div>
+                              <p className="text-xs text-slate-300 mt-1 leading-snug font-sans max-w-sm line-clamp-2">
+                                {r.meta?.description && r.meta.description !== 'Açıklama belirtilmemiş' ? r.meta.description :
+                                 r.name.includes('ux-ui') ? 'WCAG 2.2 AA ve OKLCH renk paletli UI/UX tasarım standartları.' :
+                                 r.name.includes('caveman') ? 'Minimalist AI iletişim protokolü (%40-60 token tasarrufu).' :
+                                 r.name.includes('karpathy') ? 'Kod geliştirmede muhafazakar Karpathy guardrails doğrulaması.' :
+                                 r.name.includes('security') ? 'OWASP Top 10 ve STRIDE tehdit denetim motoru.' :
+                                 r.name.includes('game') ? '60 FPS performans ve Juice oyun geliştirme şablonları.' :
+                                 r.name.includes('marketing') ? 'PAS/AIDA metin yazarlığı, ASO ve CRO optimizasyonu.' :
+                                 'AI ajanı için geliştirilmiş özel yetenek seti.'}
+                              </p>
+                              <p className="text-[10px] font-mono text-indigo-400/80 truncate max-w-xs mt-1">{r.url}</p>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <button onClick={() => handleToggleSkillDisabled(r.name)} className={`p-1.5 rounded transition ${r.meta?.disabled ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20' : 'bg-slate-800 text-slate-400 hover:text-white'}`} title={r.meta?.disabled ? t.enableSkill : t.disableSkill}>
+                                <Icons.Power />
+                              </button>
+                              <button onClick={() => setEditorModal({ title: r.name, fileName: 'SKILL.md', initialContent: r.meta?.content || `# ${r.name}` })} className="p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition" title={t.diffView}>
+                                <Icons.Eye />
+                              </button>
+                              <button onClick={() => handleRemoveSkill(r.name)} className="p-1.5 rounded hover:bg-rose-500/20 text-rose-400 transition" title="Delete">
+                                <Icons.Trash />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
             </div>
           )}
 
-          {/* TAB: MCP SERVERS WITH REMOTE URL + HEADERS & EDIT MODAL */}
+          {/* TAB: MCP SERVERS */}
           {activeTab === 'mcp' && (
             <div className="space-y-6">
               <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
@@ -780,7 +1272,6 @@ function App() {
                         </div>
                       </div>
 
-                      {/* REMOTE HEADERS SECTION */}
                       {srv.headers && (
                         <div className="p-3 rounded bg-slate-950 border border-slate-800 font-mono text-[11px] text-slate-300 space-y-1">
                           <span className="text-[10px] text-indigo-400 uppercase font-semibold block">Headers Configuration:</span>
@@ -793,7 +1284,6 @@ function App() {
                         </div>
                       )}
 
-                      {/* LOCAL ENV SECRETS INPUT SECTION */}
                       {srv.env && (
                         <div className="p-3 rounded bg-slate-950 border border-slate-800 space-y-2">
                           <div className="flex items-center justify-between">
@@ -832,101 +1322,71 @@ function App() {
             </div>
           )}
 
-          {/* TAB: PRESETS WITH MULTI-SELECT SKILLS */}
+          {/* TAB: PRESETS WITH ACTIVATION ENGINE & EDIT MODAL */}
           {activeTab === 'presets' && (
             <div className="space-y-6">
-              <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-4">
-                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t.createPreset}</h3>
-                <form onSubmit={handleCreatePreset} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <input type="text" placeholder="Preset Title (e.g. Fullstack Security Mode)" value={newPresetTitle} onChange={e => setNewPresetTitle(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500" required />
-                    <input type="text" placeholder="Description..." value={newPresetDesc} onChange={e => setNewPresetDesc(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500" />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-mono text-indigo-300 block mb-2">Select Skills Attached to this Preset:</label>
-                    <div className="flex flex-wrap gap-2 p-3 rounded-lg bg-slate-950 border border-slate-800">
-                      {allInstalledSkillsList.map(skill => (
-                        <button
-                          key={skill}
-                          type="button"
-                          onClick={() => handleTogglePresetSkillSelection(skill)}
-                          className={`px-3 py-1 rounded-md text-xs font-mono transition flex items-center space-x-1 border ${selectedSkillsForPreset.includes(skill) ? 'bg-indigo-600/30 text-indigo-300 border-indigo-500/50' : 'bg-slate-900 text-slate-400 border-slate-800'}`}
-                        >
-                          <span>{selectedSkillsForPreset.includes(skill) ? '[x]' : '[ ]'}</span>
-                          <span>{skill}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <button type="submit" className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-2">
-                    <Icons.Plus /> <span>Save Preset to SQLite</span>
-                  </button>
-                </form>
+              <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-semibold text-slate-100">Presets & Workflow Modes</h3>
+                  <p className="text-xs text-slate-400 mt-1">Activate curated skill configurations or create custom workflow modes saved into SQLite.</p>
+                </div>
+                <button onClick={() => setEditingPreset({ id: '', title: '', description: '', skills: [] })} className="px-3 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium flex items-center space-x-1 transition">
+                  <Icons.Plus /> <span>{t.createPreset}</span>
+                </button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {presetsList.map(p => (
-                  <div key={p.id} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between space-y-4">
+                  <div key={p.id} className={`p-5 rounded-xl flex flex-col justify-between space-y-4 transition ${p.active ? 'bg-slate-900/90 border-emerald-500/50 shadow-emerald-950/20 shadow-xl' : 'bg-slate-900/80 border-slate-800'}`}>
                     <div>
                       <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-semibold text-slate-200">{p.title}</h4>
-                        {p.custom && <span className="px-2 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-mono">SQLite Custom</span>}
+                        <div className="flex items-center space-x-2">
+                          <h4 className="text-sm font-semibold text-slate-200">{p.title}</h4>
+                          {p.active && (
+                            <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono flex items-center space-x-1">
+                              <Icons.Check /> <span>Aktif Mod</span>
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <button onClick={() => setEditingPreset(p)} className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition" title="Skill ve Preset Düzenle">
+                            <Icons.Edit />
+                          </button>
+                          {p.custom && (
+                            <button onClick={() => handleDeletePreset(p.id)} className="p-1 rounded hover:bg-rose-500/20 text-rose-400 transition" title="Preset Sil">
+                              <Icons.Trash />
+                            </button>
+                          )}
+                          {p.custom ? (
+                            <span className="px-2 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-mono">SQLite Custom</span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px] font-mono">System Preset</span>
+                          )}
+                        </div>
                       </div>
                       <p className="text-xs text-slate-400 mt-1">{p.description}</p>
                       <div className="flex flex-wrap gap-1 mt-3">
                         {(p.skills || []).map(sk => (
-                          <span key={sk} className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] font-mono text-indigo-300">{sk}</span>
+                          <span key={sk} className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] font-mono text-indigo-300">
+                            {sk}
+                          </span>
                         ))}
                       </div>
                     </div>
-                    <button onClick={() => addLog(`Preset [${p.title}] activated across all AI tools!`, 'success')} className="w-full py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition">Activate Preset</button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
-          {/* TAB: DEEP DYNAMIC GITHUB MARKETPLACE */}
-          {activeTab === 'marketplace' && (
-            <div className="space-y-6">
-              <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-4">
-                <div>
-                  <h3 className="text-base font-semibold text-slate-100">Live GitHub Skill Search & Marketplace</h3>
-                  <p className="text-xs text-slate-400 mt-1">Dynamically query real GitHub repositories and install any skill repo as a submodule with one click.</p>
-                </div>
-
-                <form onSubmit={handleSearchGithubMarketplace} className="flex items-center space-x-3">
-                  <div className="relative flex-1">
-                    <input
-                      type="text"
-                      placeholder={t.searchGithub}
-                      value={githubQuery}
-                      onChange={e => setGithubQuery(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500"
-                    />
-                    <div className="absolute left-3 top-3 text-slate-500"><Icons.Search /></div>
-                  </div>
-                  <button type="submit" disabled={isSearchingGithub} className="px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-2">
-                    <Icons.Search /> <span>{isSearchingGithub ? 'Searching...' : 'Search GitHub'}</span>
-                  </button>
-                </form>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {marketplace.map(item => (
-                  <div key={item.name} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between space-y-3">
-                    <div>
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-semibold text-slate-200 truncate">{item.label || item.name}</h4>
-                        <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-mono">★ {item.stars || '1.2k'}</span>
-                      </div>
-                      <p className="text-xs text-slate-400 mt-1.5 leading-relaxed line-clamp-2">{item.desc}</p>
-                      <p className="text-[10px] font-mono text-indigo-400 mt-2 truncate">{item.url}</p>
-                    </div>
-                    <button onClick={() => { setNewSkillUrl(item.url); setActiveTab('dashboard'); }} className="py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition flex items-center justify-center space-x-1">
-                      <Icons.Plus /> <span>Install Submodule to Skills Hub</span>
+                    <button
+                      onClick={() => handleActivatePreset(p)}
+                      className={`w-full py-2.5 rounded-lg text-xs font-semibold transition flex items-center justify-center space-x-2 shadow-lg ${p.active ? 'bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400/50 shadow-emerald-900/40' : 'bg-indigo-600 hover:bg-indigo-500 text-white'}`}
+                    >
+                      {p.active ? (
+                        <>
+                          <Icons.Check /> <span>✓ Aktif Preset (Aktifleştirildi)</span>
+                        </>
+                      ) : (
+                        <>
+                          <Icons.Play /> <span>Modu Aktifleştir / Apply Preset</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 ))}
@@ -934,7 +1394,172 @@ function App() {
             </div>
           )}
 
-          {/* TAB: SETTINGS (SQLITE INTEGRATION) */}
+          {/* TAB: DEEP DYNAMIC GITHUB MARKETPLACE (SKILLS & MCP SEPARATED) */}
+          {activeTab === 'marketplace' && (
+            <div className="space-y-6">
+              {/* MODE TOGGLE: SKILLS VS MCP */}
+              <div className="p-1.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center space-x-2">
+                <button
+                  onClick={() => {
+                    setMarketplaceMode('skills');
+                    setGithubQuery('agent-skills');
+                    fetch('/api/marketplace/search?q=agent-skills').then(r => r.json()).then(data => setMarketplace(data));
+                  }}
+                  className={`flex-1 py-2.5 rounded-lg text-xs font-semibold font-mono transition flex items-center justify-center space-x-2 ${marketplaceMode === 'skills' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'}`}
+                >
+                  <Icons.Code /> <span>Skills Hub Marketplace (Ajan Yetenekleri)</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setMarketplaceMode('mcp');
+                    setGithubQuery('mcp-server');
+                    fetch('/api/marketplace/search?q=mcp-server').then(r => r.json()).then(data => setMarketplace(data));
+                  }}
+                  className={`flex-1 py-2.5 rounded-lg text-xs font-semibold font-mono transition flex items-center justify-center space-x-2 ${marketplaceMode === 'mcp' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'}`}
+                >
+                  <Icons.Server /> <span>MCP Servers Marketplace (Model Context Protocol)</span>
+                </button>
+              </div>
+
+              <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-4">
+                <div>
+                  <h3 className="text-base font-semibold text-slate-100">
+                    {marketplaceMode === 'skills' ? 'GitHub Agent Skill Repolarında Ara' : 'GitHub MCP Server Sunucularında Ara'}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {marketplaceMode === 'skills'
+                      ? 'Canlı GitHub depolarında arama yapın ve dilediğiniz yeteneği tek tıkla submodule olarak ekleyin.'
+                      : 'Model Context Protocol (MCP) sunucularını arayın ve mcp_config.json dosyanıza otomatik ekleyin.'}
+                  </p>
+                </div>
+
+                <form onSubmit={handleSearchGithubMarketplace} className="flex items-center space-x-3">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      placeholder={marketplaceMode === 'skills' ? 'Örn: claude-skills, ux-ui, security-agent...' : 'Örn: mcp-server-sqlite, postgres-mcp, puppeteer-mcp...'}
+                      value={githubQuery}
+                      onChange={e => setGithubQuery(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500"
+                    />
+                    <div className="absolute left-3 top-3 text-slate-500"><Icons.Search /></div>
+                  </div>
+                  <button type="submit" disabled={isSearchingGithub} className="px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-2">
+                    <Icons.Search /> <span>{isSearchingGithub ? 'Aranıyor...' : 'GitHub Depolarında Ara'}</span>
+                  </button>
+                </form>
+
+                {/* DISCOVERY CHIPS FOR SKILLS VS MCP */}
+                <div className="pt-2">
+                  <span className="text-[11px] font-mono text-slate-400 block mb-2 font-semibold uppercase tracking-wider">
+                    {marketplaceMode === 'skills' ? 'Skill Keşif Konuları (Skills Topic Discovery):' : 'MCP Server Keşif Konuları (MCP Topic Discovery):'}
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(marketplaceMode === 'skills' ? [
+                      { label: "Official Skills", query: "anthropics skills" },
+                      { label: "AI Long-Term Memory", query: "claude memory skill" },
+                      { label: "Cybersecurity & Audit", query: "cybersecurity agent skills" },
+                      { label: "UI/UX & CSS Design", query: "ui-ux pro max skill" },
+                      { label: "Token Savers & Speed", query: "caveman prompt skill" },
+                      { label: "Agent Workflows & TDD", query: "agent superpowers workflow" },
+                      { label: "Game Dev & 60FPS", query: "game studio agent skills" },
+                      { label: "Marketing & Growth", query: "marketing copywriting skills" }
+                    ] : [
+                      { label: "SQLite & Databases", query: "mcp-server sqlite" },
+                      { label: "PostgreSQL MCP", query: "mcp-server postgres" },
+                      { label: "Browser Automation", query: "mcp-server puppeteer" },
+                      { label: "Fetch & Web Scraper", query: "mcp-server fetch" },
+                      { label: "Git & Version Control", query: "mcp-server git" },
+                      { label: "Slack & Communication", query: "mcp-server slack" },
+                      { label: "Docker & Container", query: "mcp-server docker" }
+                    ]).map(chip => (
+                      <button
+                        key={chip.label}
+                        type="button"
+                        onClick={() => {
+                          setGithubQuery(chip.query);
+                          fetch(`/api/marketplace/search?q=${encodeURIComponent(chip.query)}`)
+                            .then(r => r.json())
+                            .then(data => setMarketplace(data));
+                        }}
+                        className="px-2.5 py-1 rounded-md bg-slate-950 hover:bg-indigo-600/20 border border-slate-800 hover:border-indigo-500/40 text-slate-300 text-xs font-mono transition flex items-center space-x-1"
+                      >
+                        <span>#</span> <span>{chip.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {marketplace.map(item => {
+                  const repoBasename = (item.url || item.name || '').split('/').pop().replace(/\.git$/, '');
+                  const isInstalled = allInstalledSkillsList.some(s => s.toLowerCase() === repoBasename.toLowerCase() || s.toLowerCase() === item.name.toLowerCase());
+
+                  return (
+                    <div key={item.name} className={`p-5 rounded-xl border flex flex-col justify-between space-y-3 transition ${isInstalled ? 'bg-slate-900/40 border-emerald-500/30' : 'bg-slate-900/80 border-slate-800'}`}>
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-semibold text-slate-200 truncate">{item.label || item.name}</h4>
+                          <div className="flex items-center space-x-2">
+                            {isInstalled && (
+                              <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-mono flex items-center space-x-1">
+                                <Icons.Check /> <span>Yüklü</span>
+                              </span>
+                            )}
+                            <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-mono">★ {item.stars || '1.2k'}</span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-slate-400 mt-1.5 leading-relaxed line-clamp-2">{item.desc}</p>
+                        <p className="text-[10px] font-mono text-indigo-400 mt-2 truncate">{item.url}</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          if (marketplaceMode === 'mcp') {
+                            setEditingMcpServer({
+                              key: repoBasename,
+                              data: { command: 'npx', args: ['-y', `${item.name}@latest`] }
+                            });
+                            showToast('MCP Server Ekleme', `[${repoBasename}] konfigürasyonu için editör açıldı.`, 'info');
+                          } else {
+                            handleMarketplaceInstallSubmodule(item.url);
+                          }
+                        }}
+                        disabled={marketplaceMode === 'skills' && (isInstalled || installingRepo === item.url)}
+                        className={`py-2 rounded text-xs font-medium transition flex items-center justify-center space-x-1 ${marketplaceMode === 'skills' && isInstalled ? 'bg-slate-800 text-emerald-400 cursor-default border border-emerald-500/20' : 'bg-emerald-600 hover:bg-emerald-500 text-white'}`}
+                      >
+                        {marketplaceMode === 'skills' ? (
+                          isInstalled ? (
+                            <>
+                              <Icons.Check /> <span>Yüklendi (Skills Hub'da Aktif)</span>
+                            </>
+                          ) : (
+                            <>
+                              <Icons.Plus />
+                              <span>{installingRepo === item.url ? 'Kuruluyor...' : 'Submodule Olarak Yükle'}</span>
+                            </>
+                          )
+                        ) : (
+                          mcpConfig?.mcpServers && mcpConfig.mcpServers[repoBasename] ? (
+                            <>
+                              <Icons.Check /> <span>Yüklendi & Yapılandır</span>
+                            </>
+                          ) : (
+                            <>
+                              <Icons.Server />
+                              <span>MCP Sunucularıma Ekle</span>
+                            </>
+                          )
+                        )}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* TAB: SETTINGS */}
           {activeTab === 'settings' && (
             <div className="space-y-6 p-5 rounded-xl bg-slate-900/80 border border-slate-800">
               <div className="border-b border-slate-800 pb-4 flex items-center justify-between">
@@ -956,10 +1581,11 @@ function App() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-mono text-slate-400 block mb-1">Windows Linking Strategy</label>
+                  <label className="text-xs font-mono text-slate-400 block mb-1">Windows & Universal Sync Strategy</label>
                   <select value={settingLinkMode} onChange={e => setSettingLinkMode(e.target.value)} className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-                    <option value="junction">Windows Junction (mklink /J) - Recommended</option>
+                    <option value="junction">Windows Junction (mklink /J) - Canlı Senkronizasyon (Önerilen)</option>
                     <option value="symlink">Symlink (mklink /D)</option>
+                    <option value="copy">Klasör / Dosya Kopyalama (Direct Copy - Bağımsız)</option>
                   </select>
                 </div>
 
@@ -975,6 +1601,59 @@ function App() {
                   <Icons.Check /> <span>{t.saveSettings}</span>
                 </button>
               </form>
+
+              {/* SQL DUMP EXPORT & IMPORT BACKUP SYSTEM */}
+              <div className="pt-6 border-t border-slate-800 space-y-4 max-w-xl">
+                <div>
+                  <h4 className="text-sm font-semibold text-slate-200 flex items-center space-x-2">
+                    <Icons.Lock /> <span>SQLite Tam Sistem Yedeği (SQL Export & Import Restore)</span>
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Tüm veritabanını, GitHub yetenek submodüllerini, custom preset modlarını ve MCP sunucu ayarlarınızı tek dosyada yedekleyin veya felaket anında tüm sistemi geriye yükleyin.
+                  </p>
+                </div>
+
+                <div className="flex items-center space-x-3">
+                  <a
+                    href="/api/db/export"
+                    download="skills_hub_backup.sql.json"
+                    className="px-4 py-2.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition flex items-center space-x-2 shadow-lg"
+                  >
+                    <Icons.Sliders /> <span>SQL Yedeği İndir (Export)</span>
+                  </a>
+
+                  <label className="px-4 py-2.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-2 cursor-pointer shadow-lg">
+                    <Icons.Plus /> <span>SQL Yedeği Yükle & Geri Getir (Import)</span>
+                    <input
+                      type="file"
+                      accept=".json,.sql"
+                      className="hidden"
+                      onChange={e => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = async (evt) => {
+                            try {
+                              const res = await fetch('/api/db/import', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: evt.target.result
+                              });
+                              const data = await res.json();
+                              addLog(data.message, data.success ? 'success' : 'error');
+                              showToast('Sistem Geri Yüklendi', data.message, data.success ? 'success' : 'error');
+                              fetchData();
+                            } catch (err) {
+                              addLog('SQL Import Hatası: ' + err.message, 'error');
+                            }
+                          };
+                          reader.readAsText(file);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
             </div>
           )}
 
@@ -1066,6 +1745,16 @@ function App() {
           serverData={editingMcpServer.data}
           onSave={(key, serverObj) => handleSaveMcpServerObject(key, serverObj)}
           onClose={() => setEditingMcpServer(null)}
+        />
+      )}
+
+      {/* PRESET EDITOR MODAL */}
+      {editingPreset && (
+        <PresetEditorModal
+          preset={editingPreset.id ? editingPreset : null}
+          availableSkills={allInstalledSkillsList}
+          onSave={(presetObj) => handleSavePresetObj(presetObj)}
+          onClose={() => setEditingPreset(null)}
         />
       )}
 

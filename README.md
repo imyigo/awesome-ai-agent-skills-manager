@@ -1,7 +1,7 @@
-# ⚡ Universal Multi-AI Agent Control Center
+# 🧠 Awesome Universal Agent Brain Manager
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Control_Center-v2.0-5B5BD6?style=for-the-badge&logo=react&logoColor=white" alt="Universal Control Center" />
+  <img src="https://img.shields.io/badge/Brain_Manager-v2.5-5B5BD6?style=for-the-badge&logo=react&logoColor=white" alt="Awesome Universal Agent Brain Manager" />
   <img src="https://img.shields.io/badge/AI_Providers-19_Agents_Active-00C853?style=for-the-badge&logo=python&logoColor=white" alt="19 AI Providers" />
   <img src="https://img.shields.io/badge/Architecture-Zero--Copy_Junction-FF6D00?style=for-the-badge&logo=git&logoColor=white" alt="Junction Link Architecture" />
   <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="MIT License" />
@@ -12,8 +12,10 @@
   <a href="docs/README.tr.md"><b>Türkçe</b></a>
 </p>
 
-> **The Universal Control Surface for AI Coding Assistants & Agents.**  
-> Effortlessly unify, audit, test, and sync **Skills, MCP Servers, and Slash Commands** across **19 AI coding tools** — powered by zero-copy OS Junction Links, an SSE Real-Time Engine, and AST Security Threat Analysis.
+> **The Universal Control Center for AI Agent Skills, MCP Servers & Workflow Presets.**  
+> Effortlessly unify, audit, test, and sync **Skills, MCP Servers, and Slash Commands** across **19 AI coding tools** — powered by zero-copy OS Junction Links, SQLite Persistence, SSE Real-Time Engine, and AST Security Threat Analysis.
+
+* **GitHub Repository:** [https://github.com/imyigo/awesome-universal-agent-brain-manager](https://github.com/imyigo/awesome-universal-agent-brain-manager)
 
 ---
 
