@@ -1,76 +1,75 @@
-# ⚡ Multi-AI Skill & Framework Hub (Claude • Antigravity • Cursor • Codex)
+# ⚡ Evrensel Multi-AI Agent Yönetim Merkezi
 
-> **Claude Code ve Google Antigravity için ultra optimize edilmiş, 3 katmanlı modüler yetenek (skill) ve MCP altyapısı.** 10+ popüler açık kaynak skill'i çakışmasız, canlı Git submodule bağlantılı tek bir mimaride birleştirir.
+<p align="center">
+  <img src="https://img.shields.io/badge/Kontrol_Merkezi-v2.0-5B5BD6?style=for-the-badge&logo=react&logoColor=white" alt="Kontrol Merkezi" />
+  <img src="https://img.shields.io/badge/AI_Providers-19_Ara%C3%A7_Aktif-00C853?style=for-the-badge&logo=python&logoColor=white" alt="19 AI Provider" />
+  <img src="https://img.shields.io/badge/Mimari-S%C4%B1f%C4%B1r--Kopya_Junction-FF6D00?style=for-the-badge&logo=git&logoColor=white" alt="Junction Link Mimarisi" />
+  <img src="https://img.shields.io/badge/Lisans-MIT-blue?style=for-the-badge" alt="MIT Lisansı" />
+</p>
 
----
-
-## ❓ Sorun: AI Yeteneklerini (Skills) Yönetmek Kâbus mu?
-
-> **Farklı cihazlarda, Claude Code, Antigravity, Cursor ve Codex arasında yetenekleri senkronize etmek tam bir zaman kaybı değil mi?**
-
-* ❌ **Çakışan Yönergeler:** Farklı repolardan doğrudan indirilen yetenekler birbiriyle çakışır ve AI'ın kafasını karıştırır.
-* ❌ **Token İsrafı:** Aşırı büyük yetenek dosyaları her istekte yüzbinlerce context token'ı harcayarak kotanızı saniyeler içinde bitirir.
-* ❌ **Geri Kaldıran Güncellemeler:** Orijinal repo sahipleri yeteneklerini güncellediğinde yerel dosyalarınız haberiniz olmadan eski kalır.
-* ❌ **Çoklu Araç Karmaşası:** Claude (`~/.claude`), Antigravity (`~/.gemini`), Cursor (`~/.cursor`) ve Codex (`~/.codex`) için ayrı ayrı klasör yönetmek yorucu ve hataya açıktır.
+> **Yapay Zeka Kodlama Asistanları İçin Dünyanın En Gelişmiş Kontrol Yüzeyi.**  
+> **19 farklı AI aracında** (Claude Code, Google Antigravity, Cursor, Codex, Windsurf vb.) **Skill'leri, MCP Server'ları ve Slash Komutlarını** tek bir merkezden sıfır kopyalama Junction Link mimarisi, SSE Canlı Push Motoru ve AST Güvenlik Analizi ile yönetin.
 
 ---
 
-## 💡 Çözüm: Multi-AI Skill & Framework Hub
+## 💥 Neden Evrensel Skill Merkezi?
 
-> **Tüm AI araçlarınızı tek bir komutla bağlayan, sıfır çakışmalı ve token optimizasyonlu kontrol paneli.**
-
-* ✅ **Otomatik AI Tespiti:** Bilgisayarınızdaki Antigravity, Claude Code, Cursor IDE ve OpenAI Codex'i otomatik tanır ve bağlar.
-* ✅ **3-Katmanlı Lazy-Load Mimarisi:** İlgili alan referanslarını yalnızca ihtiyaç anında yükleyerek token tüketiminizi **%60-70 azaltır**.
-* ✅ **Canlı GitHub Senkronizasyonu:** Orijinal repolara Git Submodules ile canlı bağlıdır. Tek komutla şeffafça güncellenir.
-* ✅ **Tek Tıkla Özel Skill Ekleme:** İstediğiniz herhangi bir GitHub skill reposunu tek tıkla ekleyip tüm AI'larınıza anında yayınlayabilirsiniz.
+| Problemler (Merkez Olmadan) | Çözümlerimiz (Evrensel Kontrol Merkezi) |
+|---|---|
+| **Klasör Karmaşası:** Skill'lerin `~/.claude`, `~/.cursor` gibi farklı yerlere kopyalanıp sürümlerin bozulması. | **Tek Kaynak Junction Mimarisi:** İlgili işletim sistemi seviyesinde bağlanan tek klasör. Tek `git pull` ile 19 aracın tamamı güncellenir. |
+| **Dağınık MCP ve Komutlar:** MCP ayarlarının ve slash komutlarının her araçta ayrı ayrı tutulması. | **3'ü 1 Arada Yönetim:** Skill'ler, MCP Server'lar (`mcp_config.json`) ve Slash Komutlar (`commands/`) tek panelden yönetilir. |
+| **Güvenlik Riskleri:** Zararlı kod, base64 payload'ları veya API anahtarı sızdıran güvensiz skill'ler. | **AST & LLM Güvenlik Analizi:** 0-100 Güvenlik Skoru ile tehditler canlı taranır ve uyarı verilir. |
+| **Elle Düzenleme Eziyeti:** SKILL.md dosyalarını sürekli terminalden açıp kopyalamak. | **Arayüz İçi Canlı Kod Editörü & Diff Preview:** Markdown içeriklerini canlı önizleme ve yan yana fark görünümü ile düzenleme. |
+| **Test Alanının Olmaması:** Skill'in AI asistanına verildiğinde nasıl yanıt vereceğinin bilinmemesi. | **Etkileşimli LLM Sandbox Tester:** Ajan yanıtlarını ajana yüklemeden önce GUI üzerinde simüle edebilme. |
+| **Ağır Kurulumlar:** Rakiplerin 2GB Rust derleyicileri veya Python/SQLite bağımlılıkları istemesi. | **Işık Hızında & Sıfır Bağımlılık:** Saf Node.js + React 18 SPA. **1 saniyenin altında** açılır (`./gui.sh`). |
 
 ---
 
-## 🎨 Görsel Web Dashboard Başlatma
+## 🤖 19 Desteklenen AI Aracı
 
-Tüm AI sisteminizi **Görsel Web Dashboard** üzerinden yönetin:
+```text
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           19 DESTEKLENEN AI ARACI                               │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│  1. Google Antigravity    6. Cline               11. OpenCode     16. Pi Agent  │
+│  2. Claude Code           7. Roo Code            12. Zed Editor   17. Hermes    │
+│  3. Cursor IDE            8. Continue            13. Augment      18. OpenClaw  │
+│  4. OpenAI Codex          9. GitHub Copilot      14. Amp          19. Generic   │
+│  5. Windsurf             10. Aider               15. Gemini CLI       Agents    │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
 
+---
+
+## 🚀 Hızlı Başlangıç
+
+### 1. Klonlayın
+```bash
+git clone --recursive https://github.com/imyigo/awesome-ai-agent-skills-manager.git ~/.gemini/claude-antigravity-best-skills
+```
+
+### 2. Kontrol Panelini Başlatın
 ```bash
 cd ~/.gemini/claude-antigravity-best-skills
 chmod +x gui.sh
 ./gui.sh
 ```
 
-> **`./gui.sh` komutunu çalıştırdığınız an Görsel Web Arayüzü `http://localhost:3777` adresinde otomatik açılır!**
-
-### Görsel Web Dashboard Özellikleri:
-* 🚀 **Tek Tıkla Kurulum:** Tüm yetenekleri Antigravity, Claude Code, Cursor ve Codex'e bağlar.
-* 🔄 **Canlı Submodule Güncelleme:** GitHub'dan tüm yetenekleri şeffaf commit loglarıyla günceller.
-* 📂 **İnteraktif Kategori Gezgini:** Web, Mobil, Oyun, Güvenlik, Planlama ve Pazarlama kurallarını detaylıca inceler.
-* ➕ **Özel Skill Ekleme:** İstediğiniz GitHub skill reposunu tek tıkla ekleyip tüm AI'larınıza yayınlar.
-
-```text
-========================================================
-  ⚡ MULTI-AI SKILL & FRAMEWORK HUB CONTROL PANEL
-  (Antigravity • Claude Code • Cursor IDE • OpenAI Codex)
-========================================================
-  [1] 🚀 Kurulum Yap & Tüm AI'ları Bağla (Install & Link)
-  [2] 🔄 Skill'leri Güncelle & GitHub Raporu Al (Update & Report)
-  [3] 🔍 AI Tespiti & Sistem Bağlantı Durumu (Auto-Detect Status)
-  [4] ➕ Canlı Yeni GitHub Skill Reposu Ekle (Add Custom Skill Repo)
-  [5] ⚙️ AI Bağlantı Hedef Ayarları (Toggle Target AIs)
-  [6] ❌ Çıkış (Exit)
-========================================================
-```
+> **Web Kontrol Paneli `http://localhost:3777` adresinde otomatik açılır!**
 
 ---
 
-## 🚀 Hızlı Kurulum
+## 🤖 Otomasyon CLI (`skills --json`)
 
+AI ajanları ve CI/CD süreçleri için scriptable komut satırı kullanımı:
 ```bash
-git clone --recursive https://github.com/imyigo/awesome-ai-agent-skills-manager.git ~/.gemini/claude-antigravity-best-skills
-cd ~/.gemini/claude-antigravity-best-skills
-chmod +x control.sh
-./control.sh
+node gui/cli.js status --json
+node gui/cli.js list --json
+node gui/cli.js audit --json
 ```
 
 ---
 
 ## 📜 Lisans
 
-Bu proje [MIT](LICENSE) lisanslıdır.
+MIT Lisansı. Yüksek performanslı yapay zeka ajan süreçleri için tasarlandı.
