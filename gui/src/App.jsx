@@ -197,7 +197,7 @@ function App() {
       fetchData();
     } catch (e) {
       addLog('Error: ' + e.message, 'error');
-    } flex {
+    } finally {
       setLoadingAction(null);
     }
   };
