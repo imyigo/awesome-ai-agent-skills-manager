@@ -814,7 +814,7 @@ function createServer(port) {
       return;
     }
 
-    if (req.method === 'GET' && (req.url === '/' || req.url === '/index.html')) {
+    if (req.method === 'GET' && (req.url === '/' || req.url === '/index.html' || (!req.url.startsWith('/api') && !req.url.startsWith('/src/')))) {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       res.end(REACT_HTML_SHELL);
     } else if (req.method === 'GET' && req.url.startsWith('/src/')) {

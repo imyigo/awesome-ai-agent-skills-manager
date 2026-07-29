@@ -527,33 +527,28 @@ function App() {
   const [lang, setLang] = useState('tr');
   const t = dict[lang];
 
+  const VALID_TABS = ['dashboard', 'providers', 'starterPacks', 'skills', 'mcp', 'commands', 'presets', 'engines', 'sandbox', 'marketplace', 'settings'];
+
   const getInitialTab = () => {
-    const hash = window.location.hash.replace(/^#\/?/, '');
-    const validTabs = ['dashboard', 'skills', 'mcp', 'commands', 'presets', 'engines', 'sandbox', 'marketplace', 'settings'];
-    return validTabs.includes(hash) ? hash : 'dashboard';
+    const seg = window.location.pathname.replace(/^\//, '').split('/')[0];
+    return VALID_TABS.includes(seg) ? seg : 'dashboard';
   };
 
   const [activeTab, setActiveTabState] = useState(getInitialTab);
 
   const setActiveTab = (tab) => {
     setActiveTabState(tab);
-    window.location.hash = `/${tab}`;
+    window.history.pushState({ tab }, '', `/${tab}`);
   };
 
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace(/^#\/?/, '');
-      const validTabs = ['dashboard', 'skills', 'mcp', 'commands', 'presets', 'engines', 'sandbox', 'marketplace', 'settings'];
-      if (validTabs.includes(hash)) {
-        setActiveTabState(hash);
-      }
+    const handlePop = (e) => {
+      const seg = window.location.pathname.replace(/^\//, '').split('/')[0];
+      if (VALID_TABS.includes(seg)) setActiveTabState(seg);
+      else setActiveTabState('dashboard');
     };
-    window.addEventListener('hashchange', handleHashChange);
-    window.addEventListener('popstate', handleHashChange);
-    return () => {
-      window.removeEventListener('hashchange', handleHashChange);
-      window.removeEventListener('popstate', handleHashChange);
-    };
+    window.addEventListener('popstate', handlePop);
+    return () => window.removeEventListener('popstate', handlePop);
   }, []);
 
   const [aiStatus, setAiStatus] = useState({});
@@ -608,6 +603,7 @@ function App() {
   const [githubQuery, setGithubQuery] = useState('agent-skills');
   const [isSearchingGithub, setIsSearchingGithub] = useState(false);
   const [installingRepo, setInstallingRepo] = useState(null);
+  const [installingPack, setInstallingPack] = useState(null); // For Starter Packs tab
 
   // Presets State & Modal
   const [editingPreset, setEditingPreset] = useState(null);
@@ -1304,7 +1300,6 @@ function App() {
 
           {/* ===== TAB: STARTER PACKS ===== */}
           {activeTab === 'starterPacks' && (() => {
-            const [installingPack, setInstallingPack] = React.useState(null);
             const starterKits = [
               {
                 id: 'fullstack-dev',
@@ -1393,16 +1388,15 @@ function App() {
               setInstallingPack(kit.id);
               for (const repo of kit.repos) {
                 try {
-                  await fetch('/api/skills/add', {
+                  await fetch('/api/add-skill', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ url: repo.url, category: repo.tag })
                   });
                 } catch(e) { /* continue */ }
               }
-              addLog(`✅ "${kit.label}" paketi kuruldu (${kit.repos.length} repo)`);
+              addLog(`✅ "${kit.label}" paketi işlemleri başlatıldı (${kit.repos.length} repo)`);
               setInstallingPack(null);
-              fetchData();
             };
 
             return (
