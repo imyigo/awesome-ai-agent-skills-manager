@@ -1,80 +1,180 @@
-# ⚡ Evrensel Multi-AI Agent Yönetim Merkezi
-
 <p align="center">
-  <img src="https://img.shields.io/badge/Kontrol_Merkezi-v2.0-5B5BD6?style=for-the-badge&logo=react&logoColor=white" alt="Kontrol Merkezi" />
-  <img src="https://img.shields.io/badge/AI_Providers-19_Ara%C3%A7_Aktif-00C853?style=for-the-badge&logo=python&logoColor=white" alt="19 AI Provider" />
-  <img src="https://img.shields.io/badge/Mimari-S%C4%B1f%C4%B1r--Kopya_Junction-FF6D00?style=for-the-badge&logo=git&logoColor=white" alt="Junction Link Mimarisi" />
-  <img src="https://img.shields.io/badge/Lisans-MIT-blue?style=for-the-badge" alt="MIT Lisansı" />
+  <img src="https://img.shields.io/badge/Brain_Manager-v2.5-5B5BD6?style=for-the-badge&logo=react&logoColor=white" />
+  <img src="https://img.shields.io/badge/Yapay_Zeka_Sağlayıcı-19_Agent-00C853?style=for-the-badge&logo=openai&logoColor=white" />
+  <img src="https://img.shields.io/badge/Kurulum-90_Saniye-FF6D00?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Lisans-MIT-blue?style=for-the-badge" />
 </p>
 
-> **Yapay Zeka Kodlama Asistanları İçin Evrensel Kontrol Yüzeyi.**  
-> **19 farklı AI aracında** (Claude Code, Google Antigravity, Cursor, Codex, Windsurf vb.) **Skill'leri, MCP Server'ları ve Slash Komutlarını** tek bir merkezden sıfır kopyalama Junction Link mimarisi, SSE Canlı Push Motoru ve AST Güvenlik Analizi ile yönetin.
+<h1 align="center">🧠 Awesome Universal Agent Brain Manager</h1>
+<p align="center"><b>Tüm AI kodlama ajanlarını tek panelden yönet — Yetenekler, MCP Sunucular ve Presetler, hepsi senkronize.</b></p>
 
 ---
 
-## 🤖 19 Desteklenen AI Aracı
+<p align="center">
+  🌍 <b>Dil Seçin</b><br><br>
+  <a href="../README.md"><b>🇬🇧 English</b></a> &nbsp;•&nbsp;
+  <a href="README.tr.md"><b>🇹🇷 Türkçe</b></a> &nbsp;•&nbsp;
+  <a href="README.zh.md"><b>🇨🇳 中文</b></a> &nbsp;•&nbsp;
+  <a href="README.ja.md"><b>🇯🇵 日本語</b></a> &nbsp;•&nbsp;
+  <a href="README.de.md"><b>🇩🇪 Deutsch</b></a> &nbsp;•&nbsp;
+  <a href="README.es.md"><b>🇪🇸 Español</b></a>
+</p>
 
-```text
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                           19 DESTEKLENEN AI ARACI                               │
-├─────────────────────────────────────────────────────────────────────────────────┤
-│  1. Google Antigravity    6. Cline               11. OpenCode     16. Pi Agent  │
-│  2. Claude Code           7. Roo Code            12. Zed Editor   17. Hermes    │
-│  3. Cursor IDE            8. Continue            13. Augment      18. OpenClaw  │
-│  4. OpenAI Codex          9. GitHub Copilot      14. Amp          19. Generic   │
-│  5. Windsurf             10. Aider               15. Gemini CLI       Agents    │
-└─────────────────────────────────────────────────────────────────────────────────┘
+---
+
+## 😤 Her AI Geliştiricinin Yaşadığı Problem
+
+**Claude Code**, **Cursor**, **Windsurf**, **Copilot** ve daha fazlasını kullanıyorsun.  
+Her araç kendi `SKILL.md`, `rules/`, `mcp_config.json`, komut klasörüne sahip.
+
+**Sonuç ne mi?**
+
+```
+❌  Claude'da skill güncelliyorsun → Cursor haberi yok
+❌  MCP sunucu ekliyorsun → 5 araçta ayrı ayrı yapılandırmak zorundasın
+❌  Yeni skill reposu kuruyorsun → her ajanın klasörüne manuel kopyalıyorsun
+❌  Proje değiştiriyorsun → tüm workflow presetlerin kayboldu
+❌  Takıma yeni biri katıldı → "configler nerede?" 3 saatlik onboarding
 ```
 
----
-
-## 🌟 Öne Çıkan Yetenekler
-
-### 🔌 1. Gerçek Zamanlı SSE Push Motoru
-Manuel yenilemeye gerek yoktur. Dosya sistemindeki veya durumdaki her değişiklik **Server-Sent Events (SSE)** ile canlı olarak tüm web istemcilerine aktarılır.
-
-### 🔗 2. Sıfır-Kopya Junction Link Mimarisi
-Merkezi skill ve komut klasörünü işletim sistemi seviyesinde sembolik bağlar (Junction/Symlink) ile 19 araca bağlar. Tek bir `git pull` ile tüm araçlar anında güncellenir.
-
-### 🛠️ 3. 3'ü 1 Arada Yönetim Katmanı
-**Skill'leri** (`SKILL.md`), **MCP Server'ları** (`mcp_config.json`) ve **Slash Komutları** (`commands/`) tek panelden yönetir ve senkronize eder.
-
-### 🛡️ 4. AST Güvenlik ve Tehdit Taraması
-Zararlı kod kalıplarını tarar ve puanlar:
-* Dinamik kod çalıştırma (`eval`, `new Function`)
-* Gizlenmiş içerikler (`atob`, `btoa`, base64)
-* Sızdırılmış API anahtarları (`sk-`, `ghp_`)
-* Yıkıcı sistem komutları (`rm -rf /`, `format c:`)
-
-### ⚡ 5. Geliştirici Modları (Presets)
-Tek tıkla özelleştirilmiş skill gruplarını aktifleştirme ve kendi özel modlarınızı oluşturma.
-
-### 🧪 6. Etkileşimli LLM Sandbox Tester
-Skill'leri canlı AI ajanına vermeden önce GUI üzerinden test edebilme ortamı.
-
-### 🤖 7. Otomasyon CLI (`skills --json`)
-AI ajanları ve CI/CD süreçleri için `--json` çıktılı komut satırı kullanımı.
+**Yazılım yazmak yerine config yönetiyorsun.**
 
 ---
 
-## 🚀 Hızlı Başlangıç
+## ✅ Çözüm: Tek Beyin, Tüm Ajanlar
 
-### 1. Klonlayın
+```
+┌─────────────────────────────────────────────────────────────────┐
+│               🧠 AGENT BRAIN MANAGER                            │
+│                                                                 │
+│  📁 repo/skills/          ←  buraya git clone yap              │
+│  📋 MCP Sunucular         ←  bir kez konfigüre et, her yerde   │
+│  ⚡ Workflow Presetleri   ←  tek tıkla bağlam değiştir          │
+│  🔴 Canlı SSE Motoru      ←  tüm ajanlara gerçek zamanlı push  │
+│                                                                 │
+│  Dashboard → http://localhost:3777                              │
+└────────────────┬────────────────────────────────────────────────┘
+                 │  Otomatik senkronizasyon (Kopyalama Modu)
+     ┌───────────┼───────────────────────────────┐
+     ▼           ▼           ▼           ▼        ▼
+  Claude      Cursor     Windsurf    Copilot   + 15 daha
+  Code        IDE        IDE         Chat      ajan...
+  ✅ Skill    ✅ Kural   ✅ Skill    ✅ Skill   ✅ Hepsi senkron
+  ✅ MCP      ✅ MCP     ✅ MCP      ✅ MCP
+  ✅ Komutlar ✅ Komutlar ✅ Komutlar ✅ Komutlar
+```
+
+**Bir kez güncelle → 19 ajana anında yayılır.**
+
+---
+
+## ⚡ 90 Saniyede Kurulum
+
+> **Gereksinimler:** Node.js 18+ ve Git. Hepsi bu.
+
 ```bash
-git clone --recursive https://github.com/imyigo/awesome-ai-agent-skills-manager.git ~/.gemini/claude-antigravity-best-skills
+# 1. Klonla
+git clone https://github.com/imyigo/awesome-universal-agent-brain-manager.git
+cd awesome-universal-agent-brain-manager
+
+# 2. Çalıştır
+node gui/gui_server.js
+
+# 3. Tarayıcı → http://localhost:3777
 ```
 
-### 2. Kontrol Panelini Başlatın
-```bash
-cd ~/.gemini/claude-antigravity-best-skills
-chmod +x gui.sh
-./gui.sh
+**Docker yok. Python yok. Build adımı yok. Düzenlenecek config dosyası yok.**  
+Dashboard'u aç → AI araçlarının yanındaki "Bağla"ya tıkla → bitti. ✅
+
+---
+
+## 🗺️ Nasıl Çalışır? (Tam Mimari)
+
+```
+BİLGİSAYARIN
+═══════════════════════════════════════════════════════════════════
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │  📦 SKİLL REPOLARI  (repo/skills/)                          │
+  │                                                             │
+  │  ├── caveman/          ← Token sıkıştırma                   │
+  │  ├── ui-ux-pro-max/    ← Tasarım sistemi kuralları          │
+  │  ├── cybersecurity/    ← OWASP + tehdit modelleme           │
+  │  └── kendi-skillin/    ← Kendi skil repon                   │
+  └──────────────────┬──────────────────────────────────────────┘
+                     │
+                     ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │  🧠 BRAIN MANAGER  (gui_server.js + SQLite)                 │
+  │                                                             │
+  │  • Web Dashboard    http://localhost:3777                   │
+  │  • Canlı Terminal   Her git/kurulum işlemini akıyor         │
+  │  • SQLite DB        Tüm presetler, MCP, ayarlar             │
+  │  • REST API         /api/skills /api/mcp /api/presets       │
+  └──────────────────┬──────────────────────────────────────────┘
+                     │  Dosya kopyalama / senkronizasyon
+     ┌───────────────┼──────────────────────────────┐
+     │               │               │              │
+     ▼               ▼               ▼              ▼
+  ~/.claude/      ~/.cursor/     ~/.gemini/    ~/.continue/
+  skills/         rules/         antigravity/  skills/
+  commands/       commands/      skills/
+  mcp.json        .cursorrules   commands/
+                                 mcp.json
+  ✅ Claude     ✅ Cursor      ✅ Antigravity  ✅ + 15 daha
 ```
 
-> **Web Kontrol Paneli `http://localhost:3777` adresinde otomatik açılır!**
+---
+
+## 🎯 Bu Araç Kimin İçin?
+
+| Kişi | Sorun | Nasıl Çözüyor |
+|------|-------|--------------|
+| **Solo Geliştirici** | 3+ AI araçta skill configlerini takip etmek | Tek dashboard, hepsi senkron |
+| **Dev Takımı** | Yeni üye onboarding saatler alıyor | SQLite yedek export → import → 60s'de her şey geri |
+| **AI Güç Kullanıcısı** | Frontend / güvenlik / veri işi arasında bağlam değiştirmek | Tek tık Workflow Presetleri |
+| **Prompt Mühendisi** | Skilleri ajanlara dağıtmadan test etmek | Yerleşik LLM Sandbox Tester |
+
+---
+
+## 📋 Sistem Gereksinimleri
+
+| Araç | Gerekli | Not |
+|------|---------|-----|
+| **Node.js** | ✅ Evet | v18 veya üzeri |
+| **Git** | ✅ Evet | Skill repo klonlamak için |
+| **Docker CLI** | ❌ Opsiyonel | Sadece Core Engine daemonları için |
+| **Python** | ❌ Opsiyonel | Bazı skilleler için |
+| **Tarayıcı** | ✅ Evet | Chrome, Firefox, Edge |
+
+> 💡 **Gereksinim kontrolü:** Uygulamayı aç → Ayarlar → "Sistem Gereksinimleri" paneli tüm araçların anlık durumunu gösterir.
+
+---
+
+## 🛠️ Öne Çıkan Özellikler
+
+- **📦 Skill Repo Yöneticisi** — URL ile GitHub repo kur, otomatik tüm ajanlara kopyala
+- **🛍️ Başlangıç Paketleri** — Hazır çoklu repo kitleri (Full-Stack, Güvenlik, Kreatif, AI Bellek...)
+- **🔌 MCP Sunucu Yöneticisi** — Stdio ve HTTP/SSE sunucular, API key yönetimi
+- **⚡ Workflow Presetleri** — Bağlamınıza göre tek tıkla skill seti değiştirme
+- **🔴 Canlı Terminal** — Her işlem satır satır terminale akıyor
+- **💾 SQLite Yedek/Geri Yükle** — Tüm sistemi tek JSON dosyasına export et
+- **🛡️ Güvenlik Tarayıcı** — Skill dosyalarında tehlikeli pattern tespiti
 
 ---
 
 ## 📜 Lisans
 
-MIT Lisansı. Yüksek performanslı yapay zeka ajan süreçleri için tasarlandı.
+MIT — Kişisel ve ticari kullanım için ücretsiz.
+
+---
+
+<p align="center">
+  <b>⭐ AI ajan config yönetiminde zaman kazanıyorsan repoyu yıldızla!</b><br><br>
+  <a href="../README.md">🇬🇧 English</a> •
+  <a href="README.tr.md">🇹🇷 Türkçe</a> •
+  <a href="README.zh.md">🇨🇳 中文</a> •
+  <a href="README.ja.md">🇯🇵 日本語</a> •
+  <a href="README.de.md">🇩🇪 Deutsch</a> •
+  <a href="README.es.md">🇪🇸 Español</a>
+</p>
