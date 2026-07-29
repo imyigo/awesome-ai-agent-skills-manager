@@ -12,6 +12,7 @@ const dict = {
     presets: "Presets (Modlar)",
     marketplace: "Marketplace",
     security: "Güvenlik Taraması",
+    sandbox: "LLM Sandbox Test",
     updateAll: "Tüm Repoları Güncelle",
     providers: "AI Providers",
     installed: "Yüklü",
@@ -24,8 +25,12 @@ const dict = {
     repoUrl: "https://github.com/user/skill-repo.git",
     addBtn: "Skill Reposu Ekle",
     langToggle: "EN",
-    diffView: "Kod Diff Önizleme",
-    runLlmScan: "LLM Güvenlik Analizi Başlat"
+    diffView: "Kod Görünümü / Düzenle",
+    disableSkill: "Pasifleştir",
+    enableSkill: "Aktifleştir",
+    createPreset: "Yeni Özel Preset Oluştur",
+    testPrompt: "Test İstemini Girin",
+    runTest: "Sandbox Simülasyonu Çalıştır"
   },
   en: {
     dashboard: "Dashboard",
@@ -35,6 +40,7 @@ const dict = {
     presets: "Presets (Workflow Modes)",
     marketplace: "Marketplace",
     security: "Security Scanner",
+    sandbox: "LLM Sandbox Test",
     updateAll: "Update All Repos",
     providers: "AI Providers",
     installed: "Installed",
@@ -47,8 +53,12 @@ const dict = {
     repoUrl: "https://github.com/user/skill-repo.git",
     addBtn: "Add Skill Repository",
     langToggle: "TR",
-    diffView: "Code Diff Preview",
-    runLlmScan: "Run LLM Threat Scan"
+    diffView: "View / Edit Code",
+    disableSkill: "Disable",
+    enableSkill: "Enable",
+    createPreset: "Create Custom Preset",
+    testPrompt: "Enter Test Prompt",
+    runTest: "Run Sandbox Simulation"
   }
 };
 
@@ -72,31 +82,36 @@ const Icons = {
   Server: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>,
   Globe: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
   Eye: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
+  Play: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>,
+  Power: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>,
 };
 
-// VISUAL DIFF VIEWER COMPONENT
-function DiffViewerModal({ title, originalContent, modifiedContent, onClose }) {
-  const origLines = (originalContent || '').split('\n');
-  const modLines = (modifiedContent || originalContent || '').split('\n');
+// LIVE CODE EDITOR & PREVIEW MODAL
+function CodeEditorModal({ title, fileName, initialContent, onSave, onClose }) {
+  const [content, setContent] = useState(initialContent || '');
 
   return (
     <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-      <div className="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+      <div className="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
         <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
           <div className="flex items-center space-x-2">
             <Icons.Code />
-            <h3 className="text-sm font-semibold text-white">{title} - Diff Preview</h3>
+            <h3 className="text-sm font-semibold text-white">Live Editor - {title} ({fileName})</h3>
           </div>
-          <button onClick={onClose} className="text-xs text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-800">Close</button>
+          <div className="flex items-center space-x-2">
+            <button onClick={() => onSave(content)} className="px-3 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium flex items-center space-x-1">
+              <Icons.Check /> <span>Save Changes</span>
+            </button>
+            <button onClick={onClose} className="text-xs text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-800">Cancel</button>
+          </div>
         </div>
 
-        <div className="flex-1 overflow-auto p-4 font-mono text-xs space-y-1 bg-slate-950">
-          {origLines.map((line, idx) => (
-            <div key={idx} className="flex space-x-3 px-2 py-0.5 rounded hover:bg-slate-900">
-              <span className="text-slate-600 select-none w-8 text-right">{idx + 1}</span>
-              <span className="text-slate-300 whitespace-pre-wrap">{line}</span>
-            </div>
-          ))}
+        <div className="flex-1 grid grid-cols-2 divide-x divide-slate-800 overflow-hidden bg-slate-950">
+          <textarea value={content} onChange={e => setContent(e.target.value)} className="p-4 bg-transparent font-mono text-xs text-indigo-300 focus:outline-none resize-none overflow-y-auto" placeholder="Markdown content..." />
+          <div className="p-4 font-sans text-xs text-slate-300 overflow-y-auto space-y-2 bg-slate-900/40">
+            <span className="text-[10px] uppercase font-mono text-slate-500">Live Preview</span>
+            <div className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed">{content}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -118,8 +133,16 @@ function App() {
   const [sseConnected, setSseConnected] = useState(false);
   const [logs, setLogs] = useState([]);
   const [isConsoleOpen, setIsConsoleOpen] = useState(false);
-  const [diffModal, setDiffModal] = useState(null);
-  const [llmReport, setLlmReport] = useState(null);
+  const [editorModal, setEditorModal] = useState(null);
+
+  // Sandbox Tester states
+  const [sandboxPrompt, setSandboxPrompt] = useState('Review this React component for accessibility issues.');
+  const [sandboxSkill, setSandboxSkill] = useState('ux-ui');
+  const [sandboxResult, setSandboxResult] = useState(null);
+
+  // Custom Preset states
+  const [newPresetTitle, setNewPresetTitle] = useState('');
+  const [newPresetDesc, setNewPresetDesc] = useState('');
 
   // Form states
   const [newSkillUrl, setNewSkillUrl] = useState('');
@@ -174,6 +197,24 @@ function App() {
       fetchData();
     } catch (e) {
       addLog('Error: ' + e.message, 'error');
+    } flex {
+      setLoadingAction(null);
+    }
+  };
+
+  const handleToggleSkillDisabled = async (skillName) => {
+    setLoadingAction(`disable-${skillName}`);
+    try {
+      const res = await fetch('/api/toggle-skill-disabled', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: skillName })
+      });
+      const data = await res.json();
+      addLog(data.message, data.success ? 'success' : 'error');
+      fetchData();
+    } catch (e) {
+      addLog('Error: ' + e.message, 'error');
     } finally {
       setLoadingAction(null);
     }
@@ -220,33 +261,55 @@ function App() {
     }
   };
 
-  const handleSaveMcp = async () => {
+  const handleCreatePreset = async (e) => {
+    e.preventDefault();
+    if (!newPresetTitle) return;
     try {
-      const parsed = JSON.parse(mcpInputJson);
-      const res = await fetch('/api/mcp/save', {
+      const res = await fetch('/api/presets/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(parsed)
+        body: JSON.stringify({ title: newPresetTitle, description: newPresetDesc, skills: ['ux-ui', 'caveman'] })
       });
       const data = await res.json();
       addLog(data.message, data.success ? 'success' : 'error');
+      setNewPresetTitle(''); setNewPresetDesc('');
+      fetchData();
     } catch (e) {
-      addLog('JSON Error: ' + e.message, 'error');
+      addLog('Preset error: ' + e.message, 'error');
     }
   };
 
-  const handleRunLlmScan = async () => {
-    setLoadingAction('llm-scan');
-    addLog('Starting LLM Deep Threat Analysis...', 'info');
+  const handleRunSandbox = async () => {
+    setLoadingAction('sandbox-test');
     try {
-      const res = await fetch('/api/security/llm-scan', { method: 'POST' });
+      const res = await fetch('/api/sandbox/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: sandboxPrompt, skillName: sandboxSkill })
+      });
       const data = await res.json();
-      setLlmReport(data);
-      addLog('LLM Threat Scan completed: Grade ' + data.overallGrade, 'success');
+      setSandboxResult(data);
+      addLog('Sandbox test executed for ' + sandboxSkill, 'success');
     } catch (e) {
-      addLog('Scan error: ' + e.message, 'error');
+      addLog('Sandbox error: ' + e.message, 'error');
     } finally {
       setLoadingAction(null);
+    }
+  };
+
+  const handleSaveCommandContent = async (fileName, newContent) => {
+    try {
+      const res = await fetch('/api/commands/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName, content: newContent })
+      });
+      const data = await res.json();
+      addLog(data.message, data.success ? 'success' : 'error');
+      setEditorModal(null);
+      fetchData();
+    } catch (e) {
+      addLog('Save error: ' + e.message, 'error');
     }
   };
 
@@ -289,11 +352,11 @@ function App() {
             <button onClick={() => setActiveTab('presets')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'presets' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
               <Icons.Sliders /> <span>{t.presets}</span>
             </button>
+            <button onClick={() => setActiveTab('sandbox')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'sandbox' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
+              <Icons.Play /> <span>{t.sandbox}</span>
+            </button>
             <button onClick={() => setActiveTab('marketplace')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'marketplace' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
               <Icons.ShoppingBag /> <span>{t.marketplace}</span>
-            </button>
-            <button onClick={() => setActiveTab('security')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'security' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
-              <Icons.Shield /> <span>{t.security}</span>
             </button>
           </nav>
         </div>
@@ -380,21 +443,20 @@ function App() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {cat.repos.map(r => (
-                      <div key={r.name} className="p-3 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between">
+                      <div key={r.name} className={`p-3 rounded-lg border flex items-center justify-between transition ${r.meta?.disabled ? 'bg-slate-950/40 border-slate-900 opacity-60' : 'bg-slate-950 border-slate-800'}`}>
                         <div>
                           <div className="flex items-center space-x-2">
                             <span className="font-mono text-xs font-semibold text-indigo-300">{r.name}</span>
                             <span className="px-1.5 py-0.2 rounded bg-slate-800 text-[10px] font-mono text-slate-400">{r.tag}</span>
-                            {r.meta && (
-                              <span className={`px-1.5 py-0.2 rounded text-[10px] font-mono ${r.meta.securityScore >= 80 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}`}>
-                                Score: {r.meta.securityScore}/100
-                              </span>
-                            )}
+                            {r.meta?.disabled && <span className="px-1.5 py-0.2 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-mono text-[10px]">Disabled</span>}
                           </div>
                           <p className="text-[11px] text-slate-500 truncate max-w-xs mt-1">{r.url}</p>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <button onClick={() => setDiffModal({ title: r.name, originalContent: `# ${r.name}\n\nPath: ${r.url}` })} className="p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition" title={t.diffView}>
+                          <button onClick={() => handleToggleSkillDisabled(r.name)} className={`p-1.5 rounded transition ${r.meta?.disabled ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20' : 'bg-slate-800 text-slate-400 hover:text-white'}`} title={r.meta?.disabled ? t.enableSkill : t.disableSkill}>
+                            <Icons.Power />
+                          </button>
+                          <button onClick={() => setEditorModal({ title: r.name, fileName: 'SKILL.md', initialContent: r.meta?.content || `# ${r.name}` })} className="p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition" title={t.diffView}>
                             <Icons.Eye />
                           </button>
                           <button onClick={() => handleRemoveSkill(r.name)} className="p-1.5 rounded hover:bg-rose-500/20 text-rose-400 transition" title="Delete">
@@ -409,13 +471,75 @@ function App() {
             </div>
           )}
 
-          {activeTab === 'mcp' && (
-            <div className="space-y-4 p-5 rounded-xl bg-slate-900/80 border border-slate-800">
-              <h3 className="text-base font-semibold text-slate-100">MCP Server Management</h3>
-              <textarea value={mcpInputJson} onChange={e => setMcpInputJson(e.target.value)} rows="12" className="w-full p-4 rounded-lg bg-slate-950 border border-slate-800 font-mono text-xs text-indigo-300 focus:outline-none focus:border-indigo-500" />
-              <button onClick={handleSaveMcp} className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-2">
-                <Icons.Check /> <span>Save & Sync All Tools</span>
-              </button>
+          {activeTab === 'presets' && (
+            <div className="space-y-6">
+              <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-4">
+                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t.createPreset}</h3>
+                <form onSubmit={handleCreatePreset} className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <input type="text" placeholder="Preset Title (e.g. My Custom Workflow)" value={newPresetTitle} onChange={e => setNewPresetTitle(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500" required />
+                  <input type="text" placeholder="Description..." value={newPresetDesc} onChange={e => setNewPresetDesc(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500" />
+                  <button type="submit" className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center justify-center space-x-2">
+                    <Icons.Plus /> <span>Save Preset</span>
+                  </button>
+                </form>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {presetsList.map(p => (
+                  <div key={p.id} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between space-y-4">
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-semibold text-slate-200">{p.title}</h4>
+                        {p.custom && <span className="px-2 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-mono">Custom</span>}
+                      </div>
+                      <p className="text-xs text-slate-400 mt-1">{p.description}</p>
+                    </div>
+                    <button className="w-full py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition">Activate Preset</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'sandbox' && (
+            <div className="space-y-6">
+              <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-4">
+                <div>
+                  <h3 className="text-base font-semibold text-slate-100">LLM Sandbox Skill Tester</h3>
+                  <p className="text-xs text-slate-400 mt-1">Test any installed skill against a sample prompt before deploying to your AI agent.</p>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-xs font-mono text-slate-400 block mb-1">Target Skill Framework</label>
+                    <select value={sandboxSkill} onChange={e => setSandboxSkill(e.target.value)} className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                      <option value="ux-ui">ux-ui (Web & UI/UX Standards)</option>
+                      <option value="caveman">caveman (Token Reduction)</option>
+                      <option value="karpathy">karpathy (Guardrails & Verification)</option>
+                      <option value="security">security (OWASP & Threat Modeling)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-mono text-slate-400 block mb-1">Test Prompt</label>
+                    <textarea value={sandboxPrompt} onChange={e => setSandboxPrompt(e.target.value)} rows="3" className="w-full p-3 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" placeholder="Type test user request..." />
+                  </div>
+
+                  <button onClick={handleRunSandbox} disabled={loadingAction === 'sandbox-test'} className="px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition flex items-center space-x-2">
+                    <Icons.Play /> <span>{t.runTest}</span>
+                  </button>
+                </div>
+              </div>
+
+              {sandboxResult && (
+                <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h4 className="text-sm font-semibold text-slate-200">Sandbox Result: {sandboxResult.skillName}</h4>
+                    <span className="text-xs font-mono text-slate-400">Tokens: {sandboxResult.tokenCount}</span>
+                  </div>
+                  <pre className="p-4 rounded-lg bg-slate-950 border border-slate-800 font-mono text-xs text-indigo-300 whitespace-pre-wrap">{sandboxResult.simulatedOutput}</pre>
+                </div>
+              )}
             </div>
           )}
 
@@ -427,7 +551,7 @@ function App() {
                   <div key={cmd.name} className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-xs text-indigo-400">/{cmd.name}</span>
-                      <button onClick={() => setDiffModal({ title: cmd.name, originalContent: cmd.content })} className="text-xs text-slate-400 hover:text-white flex items-center space-x-1 bg-slate-800 px-2 py-1 rounded">
+                      <button onClick={() => setEditorModal({ title: cmd.name, fileName: cmd.fileName, initialContent: cmd.content })} className="text-xs text-slate-400 hover:text-white flex items-center space-x-1 bg-slate-800 px-2.5 py-1 rounded">
                         <Icons.Eye /> <span>{t.diffView}</span>
                       </button>
                     </div>
@@ -438,52 +562,13 @@ function App() {
             </div>
           )}
 
-          {activeTab === 'security' && (
-            <div className="space-y-6">
-              <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
-                <div>
-                  <h3 className="text-base font-semibold text-slate-100">LLM Deep Threat Analysis Engine</h3>
-                  <p className="text-xs text-slate-400 mt-1">Prompt Injection, malicious code execution and telemetry check.</p>
-                </div>
-                <button onClick={handleRunLlmScan} disabled={loadingAction === 'llm-scan'} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition flex items-center space-x-2">
-                  <Icons.Shield /> <span>{t.runLlmScan}</span>
-                </button>
-              </div>
-
-              {llmReport && (
-                <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-semibold text-slate-200">Scan Report: {llmReport.skillName}</h4>
-                    <span className="px-2.5 py-1 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs font-bold">Grade: {llmReport.overallGrade}</span>
-                  </div>
-                  <p className="text-xs text-slate-500 font-mono">Engine: {llmReport.engine} | {llmReport.timestamp}</p>
-                  <div className="space-y-2 pt-2">
-                    {llmReport.findings.map(f => (
-                      <div key={f.id} className="p-3 rounded bg-slate-950 border border-slate-800 text-xs flex justify-between items-center">
-                        <span className="text-slate-300">{f.description}</span>
-                        <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono text-[10px]">{f.severity}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {activeTab === 'presets' && (
-            <div className="space-y-4">
-              <h3 className="text-base font-semibold text-slate-100">Workflow Presets</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {presetsList.map(p => (
-                  <div key={p.id} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between space-y-4">
-                    <div>
-                      <h4 className="text-sm font-semibold text-slate-200">{p.title}</h4>
-                      <p className="text-xs text-slate-400 mt-1">{p.description}</p>
-                    </div>
-                    <button className="w-full py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition">Activate Preset</button>
-                  </div>
-                ))}
-              </div>
+          {activeTab === 'mcp' && (
+            <div className="space-y-4 p-5 rounded-xl bg-slate-900/80 border border-slate-800">
+              <h3 className="text-base font-semibold text-slate-100">MCP Server Management</h3>
+              <textarea value={mcpInputJson} onChange={e => setMcpInputJson(e.target.value)} rows="12" className="w-full p-4 rounded-lg bg-slate-950 border border-slate-800 font-mono text-xs text-indigo-300 focus:outline-none focus:border-indigo-500" />
+              <button onClick={handleSaveMcp} className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-2">
+                <Icons.Check /> <span>Save & Sync All Tools</span>
+              </button>
             </div>
           )}
 
@@ -508,8 +593,8 @@ function App() {
         </div>
       </main>
 
-      {diffModal && (
-        <DiffViewerModal title={diffModal.title} originalContent={diffModal.originalContent} onClose={() => setDiffModal(null)} />
+      {editorModal && (
+        <CodeEditorModal title={editorModal.title} fileName={editorModal.fileName} initialContent={editorModal.initialContent} onSave={(newContent) => handleSaveCommandContent(editorModal.fileName, newContent)} onClose={() => setEditorModal(null)} />
       )}
     </div>
   );

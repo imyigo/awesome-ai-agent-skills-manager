@@ -23,7 +23,7 @@ function broadcast(eventName, data) {
 }
 
 // ============================================================
-// 19 AI PROVIDER HARNESS CATALOG (Genişletilmiş Yol Tanımları)
+// 19 AI PROVIDER HARNESS CATALOG
 // ============================================================
 const AI_PATHS = {
   antigravity: { name: "Google Antigravity", path: path.join(homeDir, '.gemini', 'antigravity'), skillsSub: 'skills', cmdSub: 'commands' },
@@ -53,7 +53,7 @@ function watchAIDirectories() {
   watched.forEach(dir => {
     if (!fs.existsSync(dir)) return;
     try {
-      fs.watch(dir, { persistent: false }, (eventType, filename) => {
+      fs.watch(dir, { persistent: false }, () => {
         broadcast('status_update', getAIStatus());
       });
     } catch (e) {}
@@ -158,11 +158,23 @@ function getAIStatus() {
   return result;
 }
 
-// SKILL METADATA & FRONTMATTER PARSER
+// SKILL METADATA & FRONTMATTER PARSER WITH .disabled SUPPORT
 function parseSkillMetadata(skillDir) {
   const skillMdPath = path.join(skillDir, 'SKILL.md');
+  const skillDisabledPath = path.join(skillDir, 'SKILL.md.disabled');
   const claudeMdPath = path.join(skillDir, 'CLAUDE.md');
-  const targetPath = fs.existsSync(skillMdPath) ? skillMdPath : (fs.existsSync(claudeMdPath) ? claudeMdPath : null);
+
+  let isDisabled = false;
+  let targetPath = null;
+
+  if (fs.existsSync(skillMdPath)) {
+    targetPath = skillMdPath;
+  } else if (fs.existsSync(skillDisabledPath)) {
+    targetPath = skillDisabledPath;
+    isDisabled = true;
+  } else if (fs.existsSync(claudeMdPath)) {
+    targetPath = claudeMdPath;
+  }
 
   const meta = {
     name: path.basename(skillDir),
@@ -172,7 +184,9 @@ function parseSkillMetadata(skillDir) {
     author: "Bilinmiyor",
     securityScore: 100,
     findings: [],
-    hasFrontmatter: false
+    hasFrontmatter: false,
+    disabled: isDisabled,
+    filePath: targetPath
   };
 
   if (!targetPath) {
@@ -183,6 +197,8 @@ function parseSkillMetadata(skillDir) {
 
   try {
     const content = fs.readFileSync(targetPath, 'utf8');
+    meta.content = content;
+
     const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
     if (fmMatch) {
       meta.hasFrontmatter = true;
@@ -292,13 +308,72 @@ function getLiveSkillsData() {
   return categories;
 }
 
-// MCP SERVER YÖNETİMİ
+// CUSTOM PRESETS CRUD SYSTEM
+function getPresetsConfig() {
+  const presetsFile = path.join(SYNC_DIR, 'presets.json');
+  const defaults = [
+    {
+      id: "fullstack-pro",
+      title: "Fullstack Web & App Architect",
+      description: "Karpathy guardrails, UX/UI OKLCH design tokens, Node.js + React 18 & SQLite standartları.",
+      skills: ["ux-ui", "caveman", "unified-dev"],
+      custom: false
+    },
+    {
+      id: "security-auditor",
+      title: "Security Audit & Hardening",
+      description: "OWASP Top 10, AST static scanning, STRIDE tehdit modelleme ve sıfır-güven (Zero-Trust) denetimi.",
+      skills: ["security", "unified-dev"],
+      custom: false
+    },
+    {
+      id: "game-studio",
+      title: "Indie Game Developer Studio",
+      description: "GDD şablonları, 60 FPS performans kuralları, Object Pooling ve Game Feel (Juice) rehberi.",
+      skills: ["game", "caveman"],
+      custom: false
+    },
+    {
+      id: "growth-marketing",
+      title: "Growth Marketing & ASO/CRO",
+      description: "PAS/AIDA reklam metinleri, App Store Optimization ve Landing Page Dönüşüm optimizasyonu.",
+      skills: ["marketing", "ux-ui"],
+      custom: false
+    }
+  ];
+
+  if (fs.existsSync(presetsFile)) {
+    try {
+      const customList = JSON.parse(fs.readFileSync(presetsFile, 'utf8'));
+      return [...defaults, ...customList];
+    } catch (e) {}
+  }
+  return defaults;
+}
+
+function saveCustomPreset(preset) {
+  const presetsFile = path.join(SYNC_DIR, 'presets.json');
+  let customList = [];
+  if (fs.existsSync(presetsFile)) {
+    try { customList = JSON.parse(fs.readFileSync(presetsFile, 'utf8')); } catch (e) {}
+  }
+
+  const existingIdx = customList.findIndex(p => p.id === preset.id);
+  preset.custom = true;
+
+  if (existingIdx >= 0) {
+    customList[existingIdx] = preset;
+  } else {
+    customList.push(preset);
+  }
+
+  fs.writeFileSync(presetsFile, JSON.stringify(customList, null, 2), 'utf8');
+}
+
 function getMCPConfig() {
   const mcpFile = path.join(SYNC_DIR, 'mcp_config.json');
   if (fs.existsSync(mcpFile)) {
-    try {
-      return JSON.parse(fs.readFileSync(mcpFile, 'utf8'));
-    } catch (e) {}
+    try { return JSON.parse(fs.readFileSync(mcpFile, 'utf8')); } catch (e) {}
   }
   return { mcpServers: {} };
 }
@@ -326,7 +401,6 @@ function saveMCPConfig(config) {
   } catch (e) {}
 }
 
-// SLASH COMMANDS YÖNETİMİ
 function getCommandsList() {
   const cmdDir = path.join(SYNC_DIR, 'commands');
   if (!fs.existsSync(cmdDir)) return [];
@@ -347,39 +421,6 @@ function getCommandsList() {
   }
 }
 
-// PRESETS SYSTEM
-const PRESETS = [
-  {
-    id: "fullstack-pro",
-    title: "Fullstack Web & App Architect",
-    description: "Karpathy guardrails, UX/UI OKLCH design tokens, Node.js + React 18 & SQLite standartları.",
-    skills: ["ux-ui", "caveman", "unified-dev"],
-    active: true
-  },
-  {
-    id: "security-auditor",
-    title: "Security Audit & Hardening",
-    description: "OWASP Top 10, AST static scanning, STRIDE tehdit modelleme ve sıfır-güven (Zero-Trust) denetimi.",
-    skills: ["security", "unified-dev"],
-    active: false
-  },
-  {
-    id: "game-studio",
-    title: "Indie Game Developer Studio",
-    description: "GDD şablonları, 60 FPS performans kuralları, Object Pooling ve Game Feel (Juice) rehberi.",
-    skills: ["game", "caveman"],
-    active: false
-  },
-  {
-    id: "growth-marketing",
-    title: "Growth Marketing & ASO/CRO",
-    description: "PAS/AIDA reklam metinleri, App Store Optimization ve Landing Page Dönüşüm optimizasyonu.",
-    skills: ["marketing", "ux-ui"],
-    active: false
-  }
-];
-
-// MARKETPLACE VERİSİ
 const MARKETPLACE_CATALOG = [
   { name: "anthropics/skills", label: "Official Anthropic Agent Skills", stars: "95.9k", desc: "Anthropic resmi agent skill koleksiyonu.", url: "https://github.com/anthropics/skills" },
   { name: "obra/superpowers", label: "Superpowers Agent Framework", stars: "89.8k", desc: "Ajanlar için gelişmiş süper yetenekler ve akışlar.", url: "https://github.com/obra/superpowers" },
@@ -513,7 +554,7 @@ function createServer(port) {
           saveMCPConfig(config);
           broadcast('mcp_update', getMCPConfig());
           res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-          res.end(JSON.stringify({ success: true, message: 'MCP Konfigürasyonu kaydedildi ve tüm araçlara senkronize edildi!' }));
+          res.end(JSON.stringify({ success: true, message: 'MCP Konfigürasyonu kaydedildi!' }));
         } catch (e) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
           res.end(JSON.stringify({ success: false, message: e.message }));
@@ -522,9 +563,88 @@ function createServer(port) {
     } else if (req.method === 'GET' && req.url === '/api/commands') {
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify(getCommandsList()));
+    } else if (req.method === 'POST' && req.url === '/api/commands/save') {
+      let body = '';
+      req.on('data', chunk => { body += chunk.toString(); });
+      req.on('end', () => {
+        try {
+          const { fileName, content } = JSON.parse(body);
+          if (!fileName) throw new Error('Dosya adı eksik');
+          const cmdDir = path.join(SYNC_DIR, 'commands');
+          if (!fs.existsSync(cmdDir)) fs.mkdirSync(cmdDir, { recursive: true });
+          fs.writeFileSync(path.join(cmdDir, fileName), content, 'utf8');
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: true, message: `Komut [${fileName}] başarıyla kaydedildi!` }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: false, message: e.message }));
+        }
+      });
     } else if (req.method === 'GET' && req.url === '/api/presets') {
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-      res.end(JSON.stringify(PRESETS));
+      res.end(JSON.stringify(getPresetsConfig()));
+    } else if (req.method === 'POST' && req.url === '/api/presets/save') {
+      let body = '';
+      req.on('data', chunk => { body += chunk.toString(); });
+      req.on('end', () => {
+        try {
+          const preset = JSON.parse(body);
+          if (!preset.title) throw new Error('Preset başlığı eksik');
+          if (!preset.id) preset.id = 'preset-' + Date.now();
+          saveCustomPreset(preset);
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: true, message: `Preset [${preset.title}] başarıyla oluşturuldu!` }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: false, message: e.message }));
+        }
+      });
+    } else if (req.method === 'POST' && req.url === '/api/toggle-skill-disabled') {
+      let body = '';
+      req.on('data', chunk => { body += chunk.toString(); });
+      req.on('end', () => {
+        try {
+          const { name } = JSON.parse(body);
+          const skillDir = path.join(SYNC_DIR, 'skills', 'originals', name);
+          const activeFile = path.join(skillDir, 'SKILL.md');
+          const disabledFile = path.join(skillDir, 'SKILL.md.disabled');
+
+          let newState = false;
+          if (fs.existsSync(activeFile)) {
+            fs.renameSync(activeFile, disabledFile);
+            newState = true; // Now disabled
+          } else if (fs.existsSync(disabledFile)) {
+            fs.renameSync(disabledFile, activeFile);
+            newState = false; // Now active
+          }
+
+          broadcast('skills_update', getLiveSkillsData());
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: true, disabled: newState, message: `[${name}] ${newState ? 'pasifleştirildi (.disabled)' : 'aktifleştirildi (SKILL.md)'}` }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: false, message: e.message }));
+        }
+      });
+    } else if (req.method === 'POST' && req.url === '/api/sandbox/test') {
+      let body = '';
+      req.on('data', chunk => { body += chunk.toString(); });
+      req.on('end', () => {
+        try {
+          const { prompt, skillName } = JSON.parse(body || '{}');
+          const response = {
+            prompt: prompt || 'Test prompt',
+            skillName: skillName || 'General Skill',
+            simulatedOutput: `[LLM Sandbox Simulation Response]\n\nProcessing user request under rule framework [${skillName}]:\n\n1. Karpathy Guardrail verification: Check assumptions.\n2. Response: "${prompt || 'Sample Prompt'}" has been validated.\n3. Output generated without emojis and formatted with WCAG compliance.`,
+            tokenCount: Math.floor(Math.random() * 200) + 150
+          };
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify(response));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: false, message: e.message }));
+        }
+      });
     } else if (req.method === 'GET' && req.url === '/api/marketplace') {
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify(MARKETPLACE_CATALOG));
@@ -534,7 +654,6 @@ function createServer(port) {
       req.on('end', () => {
         try {
           const { skillName, apiKey } = JSON.parse(body || '{}');
-          // LLM Deep Threat Analysis Report Simulation / Engine
           const report = {
             skillName: skillName || 'All Skills',
             timestamp: new Date().toISOString(),
