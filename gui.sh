@@ -53,21 +53,21 @@ if [ "$1" = "--auto-install" ]; then
     echo "🚀 Web GUI Tarafından Otomatik Kurulum Yapılıyor..."
     mkdir -p "$CONFIG_DIR" "$ANTIGRAVITY_DIR" "$CLAUDE_DIR" "$CURSOR_DIR" "$CODEX_DIR"
 
-    if [ -f "$CONTROL_DIR/mcp_config.json" ]; then
-        create_link "$CONTROL_DIR/mcp_config.json" "$CONFIG_DIR/mcp_config.json" "false"
+    if [ -f "$CONTROL_DIR/repo/mcp/mcp_config.json" ]; then
+        create_link "$CONTROL_DIR/repo/mcp/mcp_config.json" "$CONFIG_DIR/mcp_config.json" "false"
     fi
 
-    create_link "$CONTROL_DIR/skills" "$ANTIGRAVITY_DIR/skills" "true"
-    if [ -d "$CONTROL_DIR/commands" ]; then create_link "$CONTROL_DIR/commands" "$ANTIGRAVITY_DIR/commands" "true"; fi
+    create_link "$CONTROL_DIR/repo/skills" "$ANTIGRAVITY_DIR/skills" "true"
+    if [ -d "$CONTROL_DIR/repo/commands" ]; then create_link "$CONTROL_DIR/repo/commands" "$ANTIGRAVITY_DIR/commands" "true"; fi
 
-    create_link "$CONTROL_DIR/skills" "$CLAUDE_DIR/skills" "true"
-    if [ -d "$CONTROL_DIR/commands" ]; then create_link "$CONTROL_DIR/commands" "$CLAUDE_DIR/commands" "true"; fi
+    create_link "$CONTROL_DIR/repo/skills" "$CLAUDE_DIR/skills" "true"
+    if [ -d "$CONTROL_DIR/repo/commands" ]; then create_link "$CONTROL_DIR/repo/commands" "$CLAUDE_DIR/commands" "true"; fi
 
-    create_link "$CONTROL_DIR/skills" "$CURSOR_DIR/skills" "true"
-    if [ -d "$CONTROL_DIR/commands" ]; then create_link "$CONTROL_DIR/commands" "$CURSOR_DIR/commands" "true"; fi
+    create_link "$CONTROL_DIR/repo/skills" "$CURSOR_DIR/skills" "true"
+    if [ -d "$CONTROL_DIR/repo/commands" ]; then create_link "$CONTROL_DIR/repo/commands" "$CURSOR_DIR/commands" "true"; fi
 
-    create_link "$CONTROL_DIR/skills" "$CODEX_DIR/skills" "true"
-    if [ -d "$CONTROL_DIR/commands" ]; then create_link "$CONTROL_DIR/commands" "$CODEX_DIR/commands" "true"; fi
+    create_link "$CONTROL_DIR/repo/skills" "$CODEX_DIR/skills" "true"
+    if [ -d "$CONTROL_DIR/repo/commands" ]; then create_link "$CONTROL_DIR/repo/commands" "$CODEX_DIR/commands" "true"; fi
 
     echo "✅ Kurulum Başarıyla Tamamlandı! Tüm AI araçları bağlandı."
     exit 0
