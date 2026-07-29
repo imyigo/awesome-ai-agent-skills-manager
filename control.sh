@@ -76,8 +76,9 @@ do_install() {
     # Submodules
     if [ -d "$SYNC_DIR/.git" ]; then
         cd "$SYNC_DIR"
+        echo "  🔄 Git submodule'ler hazirlaniyor..."
         git submodule update --init --recursive 2>/dev/null || true
-        echo "  ✅ Git submodule'ler guncellendi"
+        echo "  ✅ Git submodule'ler hazir"
     fi
 
     # Post-merge hook
@@ -97,20 +98,68 @@ EOF
     echo "🎉 Kurulum Basariyla Tamamlandi!"
 }
 
-# 2. Guncelleme Fonksiyonu
+# 2. Detaylı Raporlamalı Güncelleme Fonksiyonu
 do_update() {
     echo ""
-    echo "🔄 Orijinal Skill Repolari Guncelleniyor..."
-    echo "----------------------------------------"
+    echo "🔄 Orijinal Skill Repolari Taranıyor ve Guncelleniyor..."
+    echo "--------------------------------------------------------"
     
-    if [ -d "$SYNC_DIR/.git" ]; then
-        cd "$SYNC_DIR"
-        git submodule update --remote --merge
-        echo ""
-        echo "✅ Tum canlı skill'ler basariyla guncellendi!"
-    else
+    if [ ! -d "$SYNC_DIR/.git" ]; then
         echo "❌ Git reposu bulunamadi!"
+        return
     fi
+
+    cd "$SYNC_DIR"
+    
+    local total_count=0
+    local updated_count=0
+    local unchanged_count=0
+
+    # Submodule'leri tara
+    while read -r line; do
+        if [ -z "$line" ]; then continue; fi
+        
+        local sub_path="$(echo "$line" | awk '{print $2}')"
+        local skill_name="$(basename "$sub_path")"
+        
+        if [ -z "$sub_path" ] || [ ! -d "$SYNC_DIR/$sub_path" ]; then continue; fi
+        
+        total_count=$((total_count + 1))
+        
+        # Güncelleme öncesi commit hash
+        cd "$SYNC_DIR/$sub_path"
+        local old_commit="$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")"
+        
+        # Güncelleme yap
+        cd "$SYNC_DIR"
+        git submodule update --remote --merge "$sub_path" 2>/dev/null || true
+        
+        # Güncelleme sonrası commit hash
+        cd "$SYNC_DIR/$sub_path"
+        local new_commit="$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")"
+        local last_msg="$(git log -1 --pretty=format:"%s" 2>/dev/null || echo "")"
+        
+        if [ "$old_commit" != "$new_commit" ]; then
+            updated_count=$((updated_count + 1))
+            echo "  ✨ [$skill_name] YENİ GÜNCELLEME ALINDI! ($old_commit -> $new_commit)"
+            echo "     └─ Son Degisiklik: $last_msg"
+        else
+            unchanged_count=$((unchanged_count + 1))
+            echo "  ℹ️  [$skill_name] Zaten En Guncel Surumde (Commit: $new_commit)"
+        fi
+        
+    done < <(git submodule status 2>/dev/null || true)
+
+    cd "$SYNC_DIR"
+
+    echo ""
+    echo "===================================================="
+    echo "📊 SKILL GÜNCELLEME İSTATİSTİK RAPORU"
+    echo "===================================================="
+    echo "  • Toplam İncelenen Skill Repo   : $total_count"
+    echo "  • Yeni Güncelleme Alan Skill   : $updated_count"
+    echo "  • Değişiklik Olmayan (Güncel)   : $unchanged_count"
+    echo "===================================================="
 }
 
 # 3. Durum Kontrol Fonksiyonu
@@ -121,7 +170,7 @@ do_status() {
     echo "🖥️  Sistem: $OS_TYPE"
     echo "📂 Repo: $SYNC_DIR"
     echo ""
-    echo "🔗 Baglanti Durumları:"
+    echo "🔗 Baglanti Durumlari:"
     
     if [ -e "$CONFIG_DIR/mcp_config.json" ]; then
         echo "  ✅ mcp_config.json -> Bagli"
@@ -151,6 +200,17 @@ do_status() {
         echo "  ✅ Claude Code commands/ -> Bagli"
     else
         echo "  ❌ Claude Code commands/ -> Eksik"
+    fi
+
+    echo ""
+    echo "📦 Kurulu Canli Submodule Skill'leri:"
+    if [ -d "$SYNC_DIR/.git" ]; then
+        cd "$SYNC_DIR"
+        git submodule status | while read -r line; do
+            local sub_path="$(echo "$line" | awk '{print $2}')"
+            local sub_commit="$(echo "$line" | awk '{print $1}')"
+            echo "  • $(basename "$sub_path") (Commit: ${sub_commit:0:7})"
+        done
     fi
 }
 
