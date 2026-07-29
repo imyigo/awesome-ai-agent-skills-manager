@@ -13,3 +13,6 @@ desktop.ini
 
 # macOS (diğer bilgisayar Mac ise)
 .DS_Store
+
+# İnceleme amaçlı örnek projeler — ASLA push edilmez
+sample-proje/
