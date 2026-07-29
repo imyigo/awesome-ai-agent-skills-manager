@@ -37,6 +37,29 @@ function getAIStatus() {
   return result;
 }
 
+// Remove directory / link safely
+function removeLinkTarget(targetPath) {
+  if (!fs.existsSync(targetPath)) return;
+  try {
+    const stat = fs.lstatSync(targetPath);
+    if (stat.isSymbolicLink()) {
+      fs.unlinkSync(targetPath);
+    } else if (isWin && stat.isDirectory()) {
+      try {
+        fs.rmdirSync(targetPath); // Removes Windows Junction
+      } catch (e) {
+        fs.rmSync(targetPath, { recursive: true, force: true });
+      }
+    } else {
+      fs.rmSync(targetPath, { recursive: true, force: true });
+    }
+  } catch (e) {
+    try {
+      fs.rmSync(targetPath, { recursive: true, force: true });
+    } catch (err) {}
+  }
+}
+
 // Create or remove link helper
 function toggleLink(aiKey, targetState, callback) {
   const targetDir = AI_PATHS[aiKey];
@@ -51,34 +74,31 @@ function toggleLink(aiKey, targetState, callback) {
 
   if (targetState === true) {
     // LINK
+    removeLinkTarget(skillsDest);
+    removeLinkTarget(commandsDest);
+
     if (isWin) {
       const winSrcSkills = path.join(SYNC_DIR, 'skills');
       const winSrcCmds = path.join(SYNC_DIR, 'commands');
-      const cmd = `cmd //c "if exist \\"${skillsDest}\\" rmdir /s /q \\"${skillsDest}\\" & mklink /J \\"${skillsDest}\\" \\"${winSrcSkills}\\""`;
+      const cmd = `cmd //c "mklink /J \\"${skillsDest}\\" \\"${winSrcSkills}\\""`;
       exec(cmd, (err) => {
         if (fs.existsSync(winSrcCmds)) {
-          const cmd2 = `cmd //c "if exist \\"${commandsDest}\\" rmdir /s /q \\"${commandsDest}\\" & mklink /J \\"${commandsDest}\\" \\"${winSrcCmds}\\""`;
+          const cmd2 = `cmd //c "mklink /J \\"${commandsDest}\\" \\"${winSrcCmds}\\""`;
           exec(cmd2, () => callback(null, `${aiKey} başarıyla bağlandı.`));
         } else {
           callback(null, `${aiKey} başarıyla bağlandı.`);
         }
       });
     } else {
-      exec(`rm -rf "${skillsDest}" "${commandsDest}" && ln -s "${path.join(SYNC_DIR, 'skills')}" "${skillsDest}" && ln -s "${path.join(SYNC_DIR, 'commands')}" "${commandsDest}"`, (err) => {
+      exec(`ln -s "${path.join(SYNC_DIR, 'skills')}" "${skillsDest}" && ln -s "${path.join(SYNC_DIR, 'commands')}" "${commandsDest}"`, (err) => {
         callback(err, `${aiKey} başarıyla bağlandı.`);
       });
     }
   } else {
     // UNLINK
-    if (isWin) {
-      exec(`cmd //c "if exist \\"${skillsDest}\\" rmdir /s /q \\"${skillsDest}\\" & if exist \\"${commandsDest}\\" rmdir /s /q \\"${commandsDest}\\""`, (err) => {
-        callback(err, `${aiKey} bağlantısı kaldırıldı.`);
-      });
-    } else {
-      exec(`rm -rf "${skillsDest}" "${commandsDest}"`, (err) => {
-        callback(err, `${aiKey} bağlantısı kaldırıldı.`);
-      });
-    }
+    removeLinkTarget(skillsDest);
+    removeLinkTarget(commandsDest);
+    callback(null, `${aiKey} bağlantısı kaldırıldı.`);
   }
 }
 
