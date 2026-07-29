@@ -1,4 +1,5 @@
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const { exec, execSync, spawnSync } = require('child_process');
@@ -607,7 +608,7 @@ function searchGitHubMarketplace(query, callback) {
     headers: { 'User-Agent': 'Node-Skill-Hub' }
   };
 
-  const req = http.request(options, res => {
+  const req = https.request(options, res => {
     let body = '';
     res.on('data', chunk => body += chunk);
     res.on('end', () => {
