@@ -1135,6 +1135,50 @@ function App() {
               </div>
 
               <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-100 flex items-center space-x-2">
+                      <Icons.Zap /> <span>Önerilen Başlangıç Paketleri & Çekirdek Repolar (Recommended Skill Packs)</span>
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      İsteğe bağlı: Tek tıkla topluluk tarafından en çok tercih edilen popüler yetenek repolarını kurun ve ajanınıza bağlayın.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setActiveTab('marketplace')}
+                    className="px-3 py-1.5 rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 text-xs font-medium hover:bg-indigo-600/30 transition flex items-center space-x-1"
+                  >
+                    <Icons.ShoppingBag /> <span>Tüm Marketplace Repoları</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {[
+                    { name: 'anthropics/skills', label: 'Resmi Anthropic Yetenek Seti', stars: '98.5k', desc: 'Anthropic PDF, DOCX ve kod co-authoring yetenekleri.', url: 'https://github.com/anthropics/skills' },
+                    { name: 'obra/superpowers', label: 'Superpowers TDD & Workflow', stars: '89.8k', desc: 'AI için otonom planlama, TDD ve kod denetimi.', url: 'https://github.com/obra/superpowers' },
+                    { name: 'nextlevelbuilder/ui-ux-pro-max-skill', label: 'UI/UX Pro Max Tasarım Zekası', stars: '43.1k', desc: 'WCAG 2.2 AA erişilebilir tasarım standartları.', url: 'https://github.com/nextlevelbuilder/ui-ux-pro-max-skill' }
+                  ].map(pack => (
+                    <div key={pack.name} className="p-3.5 rounded-lg bg-slate-950 border border-slate-800 flex flex-col justify-between space-y-2">
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-xs font-semibold text-indigo-300">{pack.label}</h4>
+                          <span className="text-[10px] font-mono text-amber-400">★ {pack.stars}</span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-1 leading-snug">{pack.desc}</p>
+                      </div>
+                      <button
+                        onClick={() => handleInstallMarketplaceRepo(pack.url, pack.name)}
+                        disabled={installingRepo === pack.url}
+                        className="w-full py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center justify-center space-x-1"
+                      >
+                        <Icons.Plus /> <span>{installingRepo === pack.url ? 'Kuruluyor...' : 'Repoyu Kur'}</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-4">
                 <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t.addSkill}</h3>
                 <form onSubmit={handleAddSkill} className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <input type="text" placeholder={t.repoUrl} value={newSkillUrl} onChange={e => setNewSkillUrl(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" required />
