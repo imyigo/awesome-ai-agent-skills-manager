@@ -71,7 +71,7 @@ Yeteneklerinizi **Görsel Web Dashboard** (`./gui.sh`) VEYA **İnteraktif CLI** 
 ## 🚀 Hızlı Kurulum
 
 ```bash
-git clone --recursive https://github.com/imyigo/claude-antigravity-skills.git ~/.gemini/claude-antigravity-best-skills
+git clone --recursive https://github.com/imyigo/awesome-ai-agent-skills-manager.git ~/.gemini/claude-antigravity-best-skills
 cd ~/.gemini/claude-antigravity-best-skills
 chmod +x control.sh
 ./control.sh

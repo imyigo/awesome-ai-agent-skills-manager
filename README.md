@@ -89,7 +89,7 @@ You can manage your skills using the **Visual Web Dashboard** (`./gui.sh`) OR th
 
 ### 1. Clone with Submodules
 ```bash
-git clone --recursive https://github.com/imyigo/claude-antigravity-skills.git ~/.gemini/claude-antigravity-best-skills
+git clone --recursive https://github.com/imyigo/awesome-ai-agent-skills-manager.git ~/.gemini/claude-antigravity-best-skills
 ```
 
 ### 2. Launch Control Panel
