@@ -10,8 +10,8 @@ const dict = {
     mcp: "MCP Servers",
     commands: "Slash Commands",
     presets: "Presets (Modlar)",
-    marketplace: "Marketplace",
-    security: "Güvenlik Taraması",
+    marketplace: "Marketplace (GitHub)",
+    settings: "Ayarlar (SQLite)",
     sandbox: "LLM Sandbox Test",
     updateAll: "Tüm Repoları Güncelle",
     providers: "AI Providers",
@@ -28,13 +28,16 @@ const dict = {
     diffView: "Kod Görünümü / Düzenle",
     disableSkill: "Pasifleştir",
     enableSkill: "Aktifleştir",
-    createPreset: "Yeni Özel Preset Oluştur",
+    createPreset: "Özel Preset Oluştur (Skills Seçmeli)",
     testPrompt: "Test İstemini Girin",
     runTest: "Sandbox Simülasyonu Çalıştır",
     addMcp: "Yeni MCP Server Ekle",
     saveMcp: "MCP Konfigürasyonunu Kaydet ve Senkronize Et",
     rawJsonView: "Ham JSON Görünümü",
-    cardView: "Görsel Kart Görünümü"
+    cardView: "Görsel Kart Görünümü",
+    searchGithub: "GitHub Repolarında Ara (Örn: mcp-server, claude-skills)",
+    saveSettings: "Ayarları SQLite Veritabanına Kaydet",
+    setAuthSecret: "Auth Key Kaydet"
   },
   en: {
     dashboard: "Dashboard",
@@ -42,8 +45,8 @@ const dict = {
     mcp: "MCP Servers",
     commands: "Slash Commands",
     presets: "Presets (Workflow Modes)",
-    marketplace: "Marketplace",
-    security: "Security Scanner",
+    marketplace: "Marketplace (GitHub)",
+    settings: "Settings (SQLite)",
     sandbox: "LLM Sandbox Test",
     updateAll: "Update All Repos",
     providers: "AI Providers",
@@ -60,13 +63,16 @@ const dict = {
     diffView: "View / Edit Code",
     disableSkill: "Disable",
     enableSkill: "Enable",
-    createPreset: "Create Custom Preset",
+    createPreset: "Create Custom Preset (Select Skills)",
     testPrompt: "Enter Test Prompt",
     runTest: "Run Sandbox Simulation",
     addMcp: "Add New MCP Server",
     saveMcp: "Save & Sync MCP Configuration",
     rawJsonView: "Raw JSON View",
-    cardView: "Visual Cards View"
+    cardView: "Visual Cards View",
+    searchGithub: "Search GitHub Repositories (e.g. mcp-server, claude-skills)",
+    saveSettings: "Save Settings to SQLite Database",
+    setAuthSecret: "Save Auth Secret"
   }
 };
 
@@ -78,7 +84,7 @@ const Icons = {
   Shield: () => <svg className="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
   Grid: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>,
   Terminal: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>,
-  Sliders: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>,
+  Sliders: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="8"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>,
   ShoppingBag: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>,
   Code: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>,
   Link: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>,
@@ -92,6 +98,10 @@ const Icons = {
   Eye: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
   Play: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>,
   Power: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>,
+  Settings: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+  Search: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+  Lock: () => <svg className="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+  Database: () => <svg className="w-4 h-4 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>,
 };
 
 // LIVE CODE EDITOR & PREVIEW MODAL
@@ -138,27 +148,38 @@ function App() {
   const [commandsList, setCommandsList] = useState([]);
   const [presetsList, setPresetsList] = useState([]);
   const [marketplace, setMarketplace] = useState([]);
+  const [settingsData, setSettingsData] = useState({});
   const [sseConnected, setSseConnected] = useState(false);
   const [logs, setLogs] = useState([]);
   const [isConsoleOpen, setIsConsoleOpen] = useState(false);
   const [editorModal, setEditorModal] = useState(null);
 
-  // MCP UI View Mode
-  const [mcpViewMode, setMcpViewMode] = useState('cards'); // 'cards' or 'json'
+  // MCP UI View Mode & Secret Inputs
+  const [mcpViewMode, setMcpViewMode] = useState('cards');
   const [newMcpKey, setNewMcpKey] = useState('');
   const [newMcpCmd, setNewMcpCmd] = useState('');
   const [newMcpArgs, setNewMcpArgs] = useState('');
+  const [mcpAuthInputs, setMcpAuthInputs] = useState({});
+
+  // Marketplace GitHub Search
+  const [githubQuery, setGithubQuery] = useState('agent-skills');
+  const [isSearchingGithub, setIsSearchingGithub] = useState(false);
+
+  // Presets Multi-Select Skills
+  const [newPresetTitle, setNewPresetTitle] = useState('');
+  const [newPresetDesc, setNewPresetDesc] = useState('');
+  const [selectedSkillsForPreset, setSelectedSkillsForPreset] = useState(['ux-ui', 'caveman']);
 
   // Sandbox Tester states
   const [sandboxPrompt, setSandboxPrompt] = useState('Review this React component for accessibility issues.');
   const [sandboxSkill, setSandboxSkill] = useState('ux-ui');
   const [sandboxResult, setSandboxResult] = useState(null);
 
-  // Custom Preset states
-  const [newPresetTitle, setNewPresetTitle] = useState('');
-  const [newPresetDesc, setNewPresetDesc] = useState('');
+  // Settings State
+  const [settingLinkMode, setSettingLinkMode] = useState('junction');
+  const [settingAutoSync, setSettingAutoSync] = useState('true');
 
-  // Form states
+  // Form loading states
   const [newSkillUrl, setNewSkillUrl] = useState('');
   const [newSkillCategory, setNewSkillCategory] = useState('web');
   const [newSkillRule, setNewSkillRule] = useState('');
@@ -188,8 +209,8 @@ function App() {
 
   const fetchData = async () => {
     try {
-      const [sRes, kRes, mRes, cRes, pRes, mkRes] = await Promise.all([
-        fetch('/api/status'), fetch('/api/skills'), fetch('/api/mcp'), fetch('/api/commands'), fetch('/api/presets'), fetch('/api/marketplace')
+      const [sRes, kRes, mRes, cRes, pRes, mkRes, setRes] = await Promise.all([
+        fetch('/api/status'), fetch('/api/skills'), fetch('/api/mcp'), fetch('/api/commands'), fetch('/api/presets'), fetch('/api/marketplace'), fetch('/api/settings')
       ]);
       if (sRes.ok) setAiStatus(await sRes.json());
       if (kRes.ok) setSkillsData(await kRes.json());
@@ -201,12 +222,26 @@ function App() {
       if (cRes.ok) setCommandsList(await cRes.json());
       if (pRes.ok) setPresetsList(await pRes.json());
       if (mkRes.ok) setMarketplace(await mkRes.json());
+      if (setRes.ok) {
+        const s = await setRes.json();
+        setSettingsData(s);
+        if (s.linkMode) setSettingLinkMode(s.linkMode);
+        if (s.autoSync) setSettingAutoSync(s.autoSync);
+      }
     } catch (e) {
       addLog('Fetch error: ' + e.message, 'error');
     }
   };
 
   useEffect(() => { fetchData(); }, []);
+
+  const allInstalledSkillsList = useMemo(() => {
+    const list = [];
+    Object.values(skillsData).forEach(cat => {
+      if (cat.repos) cat.repos.forEach(r => list.push(r.name));
+    });
+    return Array.from(new Set(list));
+  }, [skillsData]);
 
   const handleToggleLink = async (aiKey, currentState) => {
     setLoadingAction(`toggle-${aiKey}`);
@@ -285,6 +320,41 @@ function App() {
     }
   };
 
+  const handleSearchGithubMarketplace = async (e) => {
+    e.preventDefault();
+    if (!githubQuery) return;
+    setIsSearchingGithub(true);
+    try {
+      const res = await fetch(`/api/marketplace/search?q=${encodeURIComponent(githubQuery)}`);
+      if (res.ok) {
+        const items = await res.json();
+        setMarketplace(items);
+        addLog(`GitHub search completed for "${githubQuery}" (${items.length} repos found)`, 'success');
+      }
+    } catch (e) {
+      addLog('GitHub Search error: ' + e.message, 'error');
+    } finally {
+      setIsSearchingGithub(false);
+    }
+  };
+
+  const handleSaveMcpAuthSecret = async (serverKey, envKey) => {
+    const val = mcpAuthInputs[`${serverKey}_${envKey}`];
+    if (!val) return;
+    try {
+      const res = await fetch('/api/mcp/auth/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ serverKey, envKey, authValue: val })
+      });
+      const data = await res.json();
+      addLog(data.message, data.success ? 'success' : 'error');
+      fetchData();
+    } catch (e) {
+      addLog('Auth save error: ' + e.message, 'error');
+    }
+  };
+
   const handleAddMcpServer = (e) => {
     e.preventDefault();
     if (!newMcpKey || !newMcpCmd) return;
@@ -325,6 +395,12 @@ function App() {
     }
   };
 
+  const handleTogglePresetSkillSelection = (skillName) => {
+    setSelectedSkillsForPreset(prev =>
+      prev.includes(skillName) ? prev.filter(s => s !== skillName) : [...prev, skillName]
+    );
+  };
+
   const handleCreatePreset = async (e) => {
     e.preventDefault();
     if (!newPresetTitle) return;
@@ -332,7 +408,11 @@ function App() {
       const res = await fetch('/api/presets/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: newPresetTitle, description: newPresetDesc, skills: ['ux-ui', 'caveman'] })
+        body: JSON.stringify({
+          title: newPresetTitle,
+          description: newPresetDesc,
+          skills: selectedSkillsForPreset
+        })
       });
       const data = await res.json();
       addLog(data.message, data.success ? 'success' : 'error');
@@ -340,6 +420,22 @@ function App() {
       fetchData();
     } catch (e) {
       addLog('Preset error: ' + e.message, 'error');
+    }
+  };
+
+  const handleSaveSettings = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/settings/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ linkMode: settingLinkMode, autoSync: settingAutoSync, theme: 'dark' })
+      });
+      const data = await res.json();
+      addLog(data.message, data.success ? 'success' : 'error');
+      fetchData();
+    } catch (e) {
+      addLog('Settings save error: ' + e.message, 'error');
     }
   };
 
@@ -379,7 +475,6 @@ function App() {
 
   const installedCount = useMemo(() => Object.values(aiStatus).filter(a => a.installed).length, [aiStatus]);
   const linkedCount = useMemo(() => Object.values(aiStatus).filter(a => a.linked).length, [aiStatus]);
-
   const mcpServersList = useMemo(() => Object.entries(mcpConfig.mcpServers || {}), [mcpConfig]);
 
   return (
@@ -423,6 +518,9 @@ function App() {
             </button>
             <button onClick={() => setActiveTab('marketplace')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'marketplace' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
               <Icons.ShoppingBag /> <span>{t.marketplace}</span>
+            </button>
+            <button onClick={() => setActiveTab('settings')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'settings' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
+              <Icons.Settings /> <span>{t.settings}</span>
             </button>
           </nav>
         </div>
@@ -537,19 +635,17 @@ function App() {
             </div>
           )}
 
-          {/* TAB: MCP SERVERS (REFINED VISUAL + JSON VIEWS) */}
+          {/* TAB: MCP SERVERS WITH AUTH KEYS */}
           {activeTab === 'mcp' && (
             <div className="space-y-6">
               <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-semibold text-slate-100">MCP Server Management</h3>
-                  <p className="text-xs text-slate-400 mt-1">Manage Model Context Protocol servers and sync automatically across Claude Code and Cursor.</p>
+                  <h3 className="text-base font-semibold text-slate-100">MCP Server & Auth Management</h3>
+                  <p className="text-xs text-slate-400 mt-1">Configure Model Context Protocol servers and manage API keys/secrets saved into SQLite.</p>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <button onClick={() => setMcpViewMode(mcpViewMode === 'cards' ? 'json' : 'cards')} className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs text-indigo-300 font-mono transition">
-                    {mcpViewMode === 'cards' ? t.rawJsonView : t.cardView}
-                  </button>
-                </div>
+                <button onClick={() => setMcpViewMode(mcpViewMode === 'cards' ? 'json' : 'cards')} className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs text-indigo-300 font-mono transition">
+                  {mcpViewMode === 'cards' ? t.rawJsonView : t.cardView}
+                </button>
               </div>
 
               {mcpViewMode === 'cards' ? (
@@ -558,7 +654,7 @@ function App() {
                   <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-4">
                     <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t.addMcp}</h4>
                     <form onSubmit={handleAddMcpServer} className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                      <input type="text" placeholder="Server Name (e.g. wix, github)" value={newMcpKey} onChange={e => setNewMcpKey(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" required />
+                      <input type="text" placeholder="Server Key (wix, github, sqlite)" value={newMcpKey} onChange={e => setNewMcpKey(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" required />
                       <input type="text" placeholder="Command (npx, docker)" value={newMcpCmd} onChange={e => setNewMcpCmd(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" required />
                       <input type="text" placeholder="Args (space separated)" value={newMcpArgs} onChange={e => setNewMcpArgs(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" />
                       <button type="submit" className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center justify-center space-x-2">
@@ -567,10 +663,10 @@ function App() {
                     </form>
                   </div>
 
-                  {/* MCP CARDS GRID */}
+                  {/* MCP CARDS GRID WITH AUTH SECRETS */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {mcpServersList.map(([key, srv]) => (
-                      <div key={key} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between space-y-3">
+                      <div key={key} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between space-y-4">
                         <div className="flex items-start justify-between">
                           <div className="flex items-center space-x-3">
                             <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
@@ -586,14 +682,29 @@ function App() {
                           </button>
                         </div>
 
-                        {srv.env && (
-                          <div className="p-2.5 rounded bg-slate-950 border border-slate-800/80 font-mono text-[10px] text-slate-400 space-y-1">
-                            <span className="text-slate-600 uppercase">Environment Variables:</span>
-                            {Object.entries(srv.env).map(([ek, ev]) => (
-                              <div key={ek} className="truncate"><span className="text-indigo-400">{ek}:</span> {ev}</div>
-                            ))}
+                        {/* AUTH SECRETS INPUT SECTION */}
+                        <div className="p-3 rounded bg-slate-950 border border-slate-800 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-mono text-amber-400 flex items-center space-x-1">
+                              <Icons.Lock /> <span>Auth & Key Configuration</span>
+                            </span>
                           </div>
-                        )}
+                          {srv.env && Object.entries(srv.env).map(([ek, ev]) => (
+                            <div key={ek} className="flex items-center space-x-2 pt-1">
+                              <span className="text-[10px] font-mono text-slate-400 w-1/3 truncate">{ek}:</span>
+                              <input
+                                type="password"
+                                placeholder={`Enter ${ek}`}
+                                value={mcpAuthInputs[`${key}_${ek}`] !== undefined ? mcpAuthInputs[`${key}_${ek}`] : ev}
+                                onChange={e => setMcpAuthInputs({ ...mcpAuthInputs, [`${key}_${ek}`]: e.target.value })}
+                                className="flex-1 px-2 py-1 rounded bg-slate-900 border border-slate-800 text-xs font-mono text-indigo-300 focus:outline-none focus:border-indigo-500"
+                              />
+                              <button onClick={() => handleSaveMcpAuthSecret(key, ek)} className="px-2 py-1 rounded bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-400 text-[10px] font-medium transition">
+                                {t.setAuthSecret}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -609,15 +720,36 @@ function App() {
             </div>
           )}
 
+          {/* TAB: PRESETS WITH MULTI-SELECT SKILLS */}
           {activeTab === 'presets' && (
             <div className="space-y-6">
               <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-4">
                 <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t.createPreset}</h3>
-                <form onSubmit={handleCreatePreset} className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <input type="text" placeholder="Preset Title (e.g. My Custom Workflow)" value={newPresetTitle} onChange={e => setNewPresetTitle(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500" required />
-                  <input type="text" placeholder="Description..." value={newPresetDesc} onChange={e => setNewPresetDesc(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500" />
-                  <button type="submit" className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center justify-center space-x-2">
-                    <Icons.Plus /> <span>Save Preset</span>
+                <form onSubmit={handleCreatePreset} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <input type="text" placeholder="Preset Title (e.g. Fullstack Security Mode)" value={newPresetTitle} onChange={e => setNewPresetTitle(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500" required />
+                    <input type="text" placeholder="Description..." value={newPresetDesc} onChange={e => setNewPresetDesc(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500" />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-mono text-indigo-300 block mb-2">Select Skills Attached to this Preset:</label>
+                    <div className="flex flex-wrap gap-2 p-3 rounded-lg bg-slate-950 border border-slate-800">
+                      {allInstalledSkillsList.map(skill => (
+                        <button
+                          key={skill}
+                          type="button"
+                          onClick={() => handleTogglePresetSkillSelection(skill)}
+                          className={`px-3 py-1 rounded-md text-xs font-mono transition flex items-center space-x-1 border ${selectedSkillsForPreset.includes(skill) ? 'bg-indigo-600/30 text-indigo-300 border-indigo-500/50' : 'bg-slate-900 text-slate-400 border-slate-800'}`}
+                        >
+                          <span>{selectedSkillsForPreset.includes(skill) ? '[x]' : '[ ]'}</span>
+                          <span>{skill}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button type="submit" className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-2">
+                    <Icons.Plus /> <span>Save Preset to SQLite</span>
                   </button>
                 </form>
               </div>
@@ -628,14 +760,109 @@ function App() {
                     <div>
                       <div className="flex items-center justify-between">
                         <h4 className="text-sm font-semibold text-slate-200">{p.title}</h4>
-                        {p.custom && <span className="px-2 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-mono">Custom</span>}
+                        {p.custom && <span className="px-2 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-mono">SQLite Custom</span>}
                       </div>
                       <p className="text-xs text-slate-400 mt-1">{p.description}</p>
+                      <div className="flex flex-wrap gap-1 mt-3">
+                        {(p.skills || []).map(sk => (
+                          <span key={sk} className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] font-mono text-indigo-300">{sk}</span>
+                        ))}
+                      </div>
                     </div>
                     <button onClick={() => addLog(`Preset [${p.title}] activated across all AI tools!`, 'success')} className="w-full py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition">Activate Preset</button>
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* TAB: DEEP DYNAMIC GITHUB MARKETPLACE */}
+          {activeTab === 'marketplace' && (
+            <div className="space-y-6">
+              <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-4">
+                <div>
+                  <h3 className="text-base font-semibold text-slate-100">Live GitHub Skill Search & Marketplace</h3>
+                  <p className="text-xs text-slate-400 mt-1">Dynamically query real GitHub repositories and install any skill repo as a submodule with one click.</p>
+                </div>
+
+                <form onSubmit={handleSearchGithubMarketplace} className="flex items-center space-x-3">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      placeholder={t.searchGithub}
+                      value={githubQuery}
+                      onChange={e => setGithubQuery(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500"
+                    />
+                    <div className="absolute left-3 top-3 text-slate-500"><Icons.Search /></div>
+                  </div>
+                  <button type="submit" disabled={isSearchingGithub} className="px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-2">
+                    <Icons.Search /> <span>{isSearchingGithub ? 'Searching...' : 'Search GitHub'}</span>
+                  </button>
+                </form>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {marketplace.map(item => (
+                  <div key={item.name} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between space-y-3">
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-semibold text-slate-200 truncate">{item.label || item.name}</h4>
+                        <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-mono">★ {item.stars || '1.2k'}</span>
+                      </div>
+                      <p className="text-xs text-slate-400 mt-1.5 leading-relaxed line-clamp-2">{item.desc}</p>
+                      <p className="text-[10px] font-mono text-indigo-400 mt-2 truncate">{item.url}</p>
+                    </div>
+                    <button onClick={() => { setNewSkillUrl(item.url); setActiveTab('dashboard'); }} className="py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition flex items-center justify-center space-x-1">
+                      <Icons.Plus /> <span>Install Submodule to Skills Hub</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB: SETTINGS (SQLITE INTEGRATION) */}
+          {activeTab === 'settings' && (
+            <div className="space-y-6 p-5 rounded-xl bg-slate-900/80 border border-slate-800">
+              <div className="border-b border-slate-800 pb-4 flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-semibold text-slate-100 flex items-center space-x-2">
+                    <Icons.Database /> <span>System & SQLite Database Settings</span>
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">Configure global storage, linking modes, and SQLite database settings.</p>
+                </div>
+                <span className="px-2.5 py-1 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono">
+                  Engine: Built-in node:sqlite
+                </span>
+              </div>
+
+              <form onSubmit={handleSaveSettings} className="space-y-4 max-w-xl">
+                <div>
+                  <label className="text-xs font-mono text-slate-400 block mb-1">SQLite Database Location</label>
+                  <input type="text" value={settingsData.dbPath || 'db.sqlite'} disabled className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs font-mono text-slate-500" />
+                </div>
+
+                <div>
+                  <label className="text-xs font-mono text-slate-400 block mb-1">Windows Linking Strategy</label>
+                  <select value={settingLinkMode} onChange={e => setSettingLinkMode(e.target.value)} className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                    <option value="junction">Windows Junction (mklink /J) - Recommended</option>
+                    <option value="symlink">Symlink (mklink /D)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-mono text-slate-400 block mb-1">Auto-Sync SSE Live Engine</label>
+                  <select value={settingAutoSync} onChange={e => setSettingAutoSync(e.target.value)} className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                    <option value="true">Enabled (Real-time filesystem push)</option>
+                    <option value="false">Disabled</option>
+                  </select>
+                </div>
+
+                <button type="submit" className="px-4 py-2.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-2">
+                  <Icons.Check /> <span>{t.saveSettings}</span>
+                </button>
+              </form>
             </div>
           )}
 
@@ -694,25 +921,6 @@ function App() {
                       </button>
                     </div>
                     <pre className="p-3 rounded bg-slate-950 text-[11px] font-mono text-slate-300 overflow-x-auto border border-slate-800 max-h-32">{cmd.content}</pre>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'marketplace' && (
-            <div className="space-y-4">
-              <h3 className="text-base font-semibold text-slate-100">Skill Marketplace</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {marketplace.map(item => (
-                  <div key={item.name} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between space-y-3">
-                    <div>
-                      <h4 className="text-sm font-semibold text-slate-200">{item.label}</h4>
-                      <p className="text-xs text-slate-400 mt-1">{item.desc}</p>
-                    </div>
-                    <button onClick={() => { setNewSkillUrl(item.url); setActiveTab('dashboard'); }} className="py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition flex items-center justify-center space-x-1">
-                      <Icons.Plus /> <span>Install as Submodule</span>
-                    </button>
                   </div>
                 ))}
               </div>

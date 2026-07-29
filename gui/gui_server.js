@@ -2,6 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { exec, execSync, spawnSync } = require('child_process');
+const { DatabaseSync } = require('node:sqlite');
 
 const PORT = parseInt(process.env.PORT || '3777', 10);
 const GUI_DIR = __dirname;
@@ -9,6 +10,61 @@ const SYNC_DIR = path.join(GUI_DIR, '..');
 
 const isWin = process.platform === 'win32';
 const homeDir = isWin ? process.env.USERPROFILE : process.env.HOME;
+
+// ============================================================
+// BUILT-IN SQLITE PERSISTENCE LAYER (NODE:SQLITE)
+// ============================================================
+const DB_PATH = path.join(SYNC_DIR, 'db.sqlite');
+let db;
+try {
+  db = new DatabaseSync(DB_PATH);
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT
+    );
+    CREATE TABLE IF NOT EXISTS custom_presets (
+      id TEXT PRIMARY KEY,
+      title TEXT,
+      description TEXT,
+      skills TEXT,
+      custom INTEGER DEFAULT 1,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS mcp_auth (
+      server_key TEXT PRIMARY KEY,
+      env_key TEXT,
+      auth_value TEXT,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS activity_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      time TEXT,
+      msg TEXT,
+      type TEXT
+    );
+  `);
+  console.log('[SQLite] DB Engine active at:', DB_PATH);
+} catch (e) {
+  console.error('[SQLite Init Warning]:', e.message);
+}
+
+function getSetting(key, fallback = '') {
+  if (!db) return fallback;
+  try {
+    const stmt = db.prepare('SELECT value FROM settings WHERE key = ?');
+    const row = stmt.get(key);
+    return row ? row.value : fallback;
+  } catch (e) { return fallback; }
+}
+
+function setSetting(key, value) {
+  if (!db) return;
+  try {
+    const stmt = db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value');
+    stmt.run(key, value);
+  } catch (e) {}
+}
 
 // ============================================================
 // SSE (SERVER-SENT EVENTS) — Django Channels canlı push motoru
@@ -218,7 +274,6 @@ function parseSkillMetadata(skillDir) {
       });
     }
 
-    // AST & SECURITY SCANNER
     if (/eval\s*\(|new\s+Function\s*\(/i.test(content)) {
       meta.findings.push({ severity: 'high', message: 'Dinamik kod çalıştırma (eval / new Function) tespit edildi!' });
       meta.securityScore -= 40;
@@ -308,9 +363,8 @@ function getLiveSkillsData() {
   return categories;
 }
 
-// CUSTOM PRESETS CRUD SYSTEM
+// CUSTOM PRESETS CRUD SYSTEM (SQLITE + FILE BACKUP)
 function getPresetsConfig() {
-  const presetsFile = path.join(SYNC_DIR, 'presets.json');
   const defaults = [
     {
       id: "fullstack-pro",
@@ -342,40 +396,84 @@ function getPresetsConfig() {
     }
   ];
 
-  if (fs.existsSync(presetsFile)) {
+  let sqlitePresets = [];
+  if (db) {
     try {
-      const customList = JSON.parse(fs.readFileSync(presetsFile, 'utf8'));
-      return [...defaults, ...customList];
+      const stmt = db.prepare('SELECT * FROM custom_presets');
+      const rows = stmt.all();
+      sqlitePresets = rows.map(r => ({
+        id: r.id,
+        title: r.title,
+        description: r.description,
+        skills: r.skills ? JSON.parse(r.skills) : [],
+        custom: true
+      }));
     } catch (e) {}
   }
-  return defaults;
+
+  const presetsFile = path.join(SYNC_DIR, 'presets.json');
+  let jsonPresets = [];
+  if (fs.existsSync(presetsFile)) {
+    try { jsonPresets = JSON.parse(fs.readFileSync(presetsFile, 'utf8')); } catch (e) {}
+  }
+
+  const mergedCustoms = [...sqlitePresets];
+  jsonPresets.forEach(jp => {
+    if (!mergedCustoms.some(cp => cp.id === jp.id)) {
+      mergedCustoms.push(jp);
+    }
+  });
+
+  return [...defaults, ...mergedCustoms];
 }
 
 function saveCustomPreset(preset) {
+  preset.custom = true;
+  if (!preset.id) preset.id = 'preset-' + Date.now();
+  if (!Array.isArray(preset.skills)) preset.skills = [];
+
+  if (db) {
+    try {
+      const stmt = db.prepare('INSERT INTO custom_presets (id, title, description, skills, custom) VALUES (?, ?, ?, ?, 1) ON CONFLICT(id) DO UPDATE SET title=excluded.title, description=excluded.description, skills=excluded.skills');
+      stmt.run(preset.id, preset.title, preset.description || '', JSON.stringify(preset.skills));
+    } catch (e) { console.error('[SQLite Preset Save Error]:', e.message); }
+  }
+
   const presetsFile = path.join(SYNC_DIR, 'presets.json');
   let customList = [];
   if (fs.existsSync(presetsFile)) {
     try { customList = JSON.parse(fs.readFileSync(presetsFile, 'utf8')); } catch (e) {}
   }
 
-  const existingIdx = customList.findIndex(p => p.id === preset.id);
-  preset.custom = true;
-
-  if (existingIdx >= 0) {
-    customList[existingIdx] = preset;
-  } else {
-    customList.push(preset);
-  }
+  const idx = customList.findIndex(p => p.id === preset.id);
+  if (idx >= 0) customList[idx] = preset;
+  else customList.push(preset);
 
   fs.writeFileSync(presetsFile, JSON.stringify(customList, null, 2), 'utf8');
 }
 
 function getMCPConfig() {
   const mcpFile = path.join(SYNC_DIR, 'mcp_config.json');
+  let config = { mcpServers: {} };
   if (fs.existsSync(mcpFile)) {
-    try { return JSON.parse(fs.readFileSync(mcpFile, 'utf8')); } catch (e) {}
+    try { config = JSON.parse(fs.readFileSync(mcpFile, 'utf8')); } catch (e) {}
   }
-  return { mcpServers: {} };
+
+  // Hydrate auth secrets from SQLite
+  if (db && config.mcpServers) {
+    try {
+      const stmt = db.prepare('SELECT * FROM mcp_auth');
+      const rows = stmt.all();
+      rows.forEach(r => {
+        if (config.mcpServers[r.server_key]) {
+          if (!config.mcpServers[r.server_key].env) config.mcpServers[r.server_key].env = {};
+          config.mcpServers[r.server_key].env[r.env_key] = r.auth_value;
+        }
+      });
+    } catch (e) {}
+  }
+
+  return config;
 }
 
 function saveMCPConfig(config) {
@@ -399,6 +497,21 @@ function saveMCPConfig(config) {
       fs.writeFileSync(cursorMcp, JSON.stringify(config, null, 2));
     }
   } catch (e) {}
+}
+
+function saveMCPAuthSecret(serverKey, envKey, authValue) {
+  if (db) {
+    try {
+      const stmt = db.prepare('INSERT INTO mcp_auth (server_key, env_key, auth_value) VALUES (?, ?, ?) ON CONFLICT(server_key) DO UPDATE SET env_key=excluded.env_key, auth_value=excluded.auth_value');
+      stmt.run(serverKey, envKey, authValue);
+    } catch (e) {}
+  }
+  const curr = getMCPConfig();
+  if (curr.mcpServers && curr.mcpServers[serverKey]) {
+    if (!curr.mcpServers[serverKey].env) curr.mcpServers[serverKey].env = {};
+    curr.mcpServers[serverKey].env[envKey] = authValue;
+    saveMCPConfig(curr);
+  }
 }
 
 function getCommandsList() {
@@ -484,6 +597,44 @@ function toggleLink(aiKey, targetState, callback) {
   }
 }
 
+// DYNAMIC GITHUB REPOSITORY SEARCH ENGINE
+function searchGitHubMarketplace(query, callback) {
+  const q = encodeURIComponent((query || 'agent-skills').trim());
+  const options = {
+    hostname: 'api.github.com',
+    path: `/search/repositories?q=${q}&sort=stars&order=desc&per_page=12`,
+    method: 'GET',
+    headers: { 'User-Agent': 'Node-Skill-Hub' }
+  };
+
+  const req = http.request(options, res => {
+    let body = '';
+    res.on('data', chunk => body += chunk);
+    res.on('end', () => {
+      try {
+        const json = JSON.parse(body);
+        if (json.items && Array.isArray(json.items)) {
+          const formatted = json.items.map(item => ({
+            name: item.full_name,
+            label: item.name,
+            stars: `${(item.stargazers_count / 1000).toFixed(1)}k`,
+            desc: item.description || 'GitHub skill repository',
+            url: item.clone_url || item.html_url,
+            ownerAvatar: item.owner ? item.owner.avatar_url : ''
+          }));
+          return callback(null, formatted);
+        }
+        callback(null, MARKETPLACE_CATALOG);
+      } catch (e) {
+        callback(null, MARKETPLACE_CATALOG);
+      }
+    });
+  });
+
+  req.on('error', () => callback(null, MARKETPLACE_CATALOG));
+  req.end();
+}
+
 // REST API SUNUCUSU
 function createServer(port) {
   const server = http.createServer((req, res) => {
@@ -542,6 +693,31 @@ function createServer(port) {
     } else if (req.method === 'GET' && req.url === '/api/skills') {
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify(getLiveSkillsData()));
+    } else if (req.method === 'GET' && req.url === '/api/settings') {
+      const settingsObj = {
+        dbPath: DB_PATH,
+        linkMode: getSetting('linkMode', isWin ? 'junction' : 'symlink'),
+        autoSync: getSetting('autoSync', 'true'),
+        theme: getSetting('theme', 'dark')
+      };
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify(settingsObj));
+    } else if (req.method === 'POST' && req.url === '/api/settings/save') {
+      let body = '';
+      req.on('data', chunk => { body += chunk.toString(); });
+      req.on('end', () => {
+        try {
+          const { linkMode, autoSync, theme } = JSON.parse(body || '{}');
+          if (linkMode) setSetting('linkMode', linkMode);
+          if (autoSync) setSetting('autoSync', autoSync);
+          if (theme) setSetting('theme', theme);
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: true, message: 'Ayarlar SQLite veritabanına kaydedildi!' }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: false, message: e.message }));
+        }
+      });
     } else if (req.method === 'GET' && req.url === '/api/mcp') {
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify(getMCPConfig()));
@@ -555,6 +731,22 @@ function createServer(port) {
           broadcast('mcp_update', getMCPConfig());
           res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
           res.end(JSON.stringify({ success: true, message: 'MCP Konfigürasyonu kaydedildi!' }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: false, message: e.message }));
+        }
+      });
+    } else if (req.method === 'POST' && req.url === '/api/mcp/auth/save') {
+      let body = '';
+      req.on('data', chunk => { body += chunk.toString(); });
+      req.on('end', () => {
+        try {
+          const { serverKey, envKey, authValue } = JSON.parse(body || '{}');
+          if (!serverKey || !envKey) throw new Error('Eksik parametre');
+          saveMCPAuthSecret(serverKey, envKey, authValue);
+          broadcast('mcp_update', getMCPConfig());
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: true, message: `[${serverKey}] için Auth Secret (${envKey}) kaydedildi!` }));
         } catch (e) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
           res.end(JSON.stringify({ success: false, message: e.message }));
@@ -593,7 +785,7 @@ function createServer(port) {
           if (!preset.id) preset.id = 'preset-' + Date.now();
           saveCustomPreset(preset);
           res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-          res.end(JSON.stringify({ success: true, message: `Preset [${preset.title}] başarıyla oluşturuldu!` }));
+          res.end(JSON.stringify({ success: true, message: `Preset [${preset.title}] başarıyla kaydedildi!` }));
         } catch (e) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
           res.end(JSON.stringify({ success: false, message: e.message }));
@@ -644,6 +836,13 @@ function createServer(port) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
           res.end(JSON.stringify({ success: false, message: e.message }));
         }
+      });
+    } else if (req.method === 'GET' && req.url.startsWith('/api/marketplace/search')) {
+      const urlObj = new URL(req.url, 'http://localhost');
+      const q = urlObj.searchParams.get('q') || 'agent-skills';
+      searchGitHubMarketplace(q, (err, items) => {
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify(items));
       });
     } else if (req.method === 'GET' && req.url === '/api/marketplace') {
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -761,6 +960,7 @@ function createServer(port) {
   server.listen(port, () => {
     console.log(`\n====================================================`);
     console.log(` Multi-AI Skill Hub Universal Control Center`);
+    console.log(` SQLite Database: active (node:sqlite)`);
     console.log(` React 18 Entry: http://localhost:${port}`);
     console.log(` SSE Push:       http://localhost:${port}/api/events`);
     console.log(` 19 AI Provider: Active`);
