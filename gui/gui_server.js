@@ -900,6 +900,8 @@ function createServer(port) {
           res.end(JSON.stringify({ success: false, message: e.message }));
         }
       });
+const engineProcesses = {};
+
     } else if (req.method === 'POST' && req.url === '/api/engines/toggle') {
       let body = '';
       req.on('data', chunk => { body += chunk.toString(); });
@@ -909,20 +911,52 @@ function createServer(port) {
           const enginePath = path.join(SYNC_DIR, 'repo', 'skills', engineId);
 
           if (action === 'start') {
-            let startCmd = '';
-            if (engineId === 'claude-mem') startCmd = `npx -y @thedotmack/claude-mem server --port 3780`;
-            else if (engineId === 'graphify') startCmd = `python -m graphify.server --port 3781`;
-            else if (engineId === 'understand-anything') startCmd = `npx -y understand-anything serve --port 3782`;
-            else startCmd = `node server.js`;
+            if (engineProcesses[engineId]) {
+              try { engineProcesses[engineId].kill(); } catch (e) {}
+            }
 
-            exec(startCmd, { cwd: enginePath }, (err) => {});
+            let cmd = '';
+            let args = [];
+            let enginePort = 3780;
+
+            if (engineId === 'claude-mem') {
+              cmd = isWin ? 'npx.cmd' : 'npx';
+              args = ['-y', '@thedotmack/claude-mem', 'server', '--port', '3780'];
+              enginePort = 3780;
+            } else if (engineId === 'graphify') {
+              cmd = 'python';
+              args = ['-m', 'http.server', '3781'];
+              enginePort = 3781;
+            } else if (engineId === 'understand-anything') {
+              cmd = isWin ? 'npx.cmd' : 'npx';
+              args = ['-y', 'serve', 'repo/skills/understand-anything', '-p', '3782'];
+              enginePort = 3782;
+            }
+
+            const proc = require('child_process').spawn(cmd, args, {
+              cwd: SYNC_DIR,
+              shell: true,
+              detached: false,
+              stdio: 'ignore'
+            });
+
+            engineProcesses[engineId] = proc;
             setSetting(`engine_${engineId}_status`, 'running');
+
             res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-            res.end(JSON.stringify({ success: true, message: `[${engineId}] Daemon başlatıldı ve port dinleniyor!` }));
+            res.end(JSON.stringify({ success: true, message: `[${engineId}] Daemon başlatıldı ve Port ${enginePort} dinleniyor!` }));
           } else {
+            if (engineProcesses[engineId]) {
+              try { engineProcesses[engineId].kill('SIGKILL'); } catch (e) {}
+              delete engineProcesses[engineId];
+            }
+            if (isWin) {
+              const killPort = engineId === 'claude-mem' ? 3780 : engineId === 'graphify' ? 3781 : 3782;
+              try { execSync(`cmd /c "for /f \\"tokens=5\\" %a in ('netstat -aon ^| findstr :${killPort}') do taskkill /F /PID %a"`, { stdio: 'ignore' }); } catch (e) {}
+            }
             setSetting(`engine_${engineId}_status`, 'stopped');
             res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-            res.end(JSON.stringify({ success: true, message: `[${engineId}] Servisi durduruldu!` }));
+            res.end(JSON.stringify({ success: true, message: `[${engineId}] Servisi başarıyla durduruldu!` }));
           }
         } catch (e) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
