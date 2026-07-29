@@ -1,124 +1,97 @@
-# setup.ps1 — Yeni bilgisayarda antigravity-sync kurulumu
-# Kullanım: .\setup.ps1
-# NOT: Normal PowerShell'de çalışır, yönetici gerekmez.
+# kurulum-windows.ps1 — Antigravity & Claude Code Kurulum Scripti
 
-param(
-    [string]$SyncDir = "$env:USERPROFILE\antigravity-sync"
-)
+$ScriptDir = $PSScriptRoot
+if (-not $ScriptDir) {
+    $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+}
 
 Write-Host ""
-Write-Host "🚀 Antigravity Sync Kurulum Scripti" -ForegroundColor Cyan
-Write-Host "=====================================" -ForegroundColor Cyan
+Write-Host "Antigravity ve Claude Code Kurulum Scripti" -ForegroundColor Cyan
+Write-Host "==========================================" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Repo Dizini: $ScriptDir" -ForegroundColor Gray
 Write-Host ""
 
-# 1. Gerekli dizinleri oluştur
-Write-Host "📁 Dizinler kontrol ediliyor..." -ForegroundColor Yellow
-New-Item -ItemType Directory -Path "$env:USERPROFILE\.gemini\config" -Force | Out-Null
-New-Item -ItemType Directory -Path "$env:USERPROFILE\.gemini\antigravity" -Force | Out-Null
-Write-Host "   ✅ Dizinler hazır" -ForegroundColor Green
+# 1. Gerekli dizinleri olustur
+Write-Host "Dizinler kontrol ediliyor..." -ForegroundColor Yellow
+$geminiConfig = "$env:USERPROFILE\.gemini\config"
+$geminiApp    = "$env:USERPROFILE\.gemini\antigravity"
+$claudeDir     = "$env:USERPROFILE\.claude"
+
+New-Item -ItemType Directory -Path $geminiConfig -Force | Out-Null
+New-Item -ItemType Directory -Path $geminiApp -Force | Out-Null
+New-Item -ItemType Directory -Path $claudeDir -Force | Out-Null
+Write-Host "  Dizinler hazir." -ForegroundColor Green
 
 # 2. mcp_config.json hardlink
 Write-Host ""
-Write-Host "🔗 MCP config bağlantısı kuruluyor..." -ForegroundColor Yellow
-$mcpTarget = "$SyncDir\mcp_config.json"
-$mcpLink   = "$env:USERPROFILE\.gemini\config\mcp_config.json"
+Write-Host "MCP config baglantisi kuruluyor..." -ForegroundColor Yellow
+$mcpTarget = "$ScriptDir\mcp_config.json"
+$mcpLink   = "$geminiConfig\mcp_config.json"
 
 if (Test-Path $mcpLink) {
-    $backup = "$mcpLink.bak_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
-    Copy-Item $mcpLink $backup
-    Write-Host "   ℹ️  Mevcut dosya yedeklendi: $backup" -ForegroundColor Gray
-    Remove-Item $mcpLink -Force
+    Remove-Item $mcpLink -Force -ErrorAction SilentlyContinue
 }
 
-cmd /c "mklink /H `"$mcpLink`" `"$mcpTarget`"" | Out-Null
-
-if (Test-Path $mcpLink) {
-    Write-Host "   ✅ mcp_config.json hardlink kuruldu" -ForegroundColor Green
+if (Test-Path $mcpTarget) {
+    cmd /c "mklink /H `"$mcpLink`" `"$mcpTarget`"" 2>$null
+    Write-Host "  mcp_config.json hardlink kuruldu." -ForegroundColor Green
 } else {
-    Write-Host "   ❌ mcp_config.json bağlantısı kurulamadı!" -ForegroundColor Red
+    Write-Host "  mcp_config.json bulunamadi, atlandi." -ForegroundColor Yellow
 }
 
-# 3. skills/ junction
+# Helper function to remove link or folder safely
+function Remove-LinkOrFolder($path) {
+    if (Test-Path $path) {
+        cmd /c "rmdir `"$path`"" 2>$null
+        if (Test-Path $path) {
+            Remove-Item $path -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+}
+
+# 3. skills/ junction (Antigravity & Claude Code)
 Write-Host ""
-Write-Host "🔗 Skills klasörü bağlantısı kuruluyor..." -ForegroundColor Yellow
-$skillsTarget = "$SyncDir\skills"
-$skillsLink   = "$env:USERPROFILE\.gemini\antigravity\skills"
+Write-Host "skills/ baglantisi kuruluyor..." -ForegroundColor Yellow
+$skillsTarget = "$ScriptDir\skills"
+$geminiSkills = "$geminiApp\skills"
+$claudeSkills = "$claudeDir\skills"
 
-if (Test-Path $skillsLink) {
-    Remove-Item $skillsLink -Recurse -Force
-}
+Remove-LinkOrFolder $geminiSkills
+cmd /c "mklink /J `"$geminiSkills`" `"$skillsTarget`"" 2>$null
+Write-Host "  Antigravity skills/ junction kuruldu." -ForegroundColor Green
 
-cmd /c "mklink /J `"$skillsLink`" `"$skillsTarget`"" | Out-Null
+Remove-LinkOrFolder $claudeSkills
+cmd /c "mklink /J `"$claudeSkills`" `"$skillsTarget`"" 2>$null
+Write-Host "  Claude Code skills/ junction kuruldu." -ForegroundColor Green
 
-if (Test-Path $skillsLink) {
-    Write-Host "   ✅ skills/ junction kuruldu" -ForegroundColor Green
-} else {
-    Write-Host "   ❌ skills/ bağlantısı kurulamadı!" -ForegroundColor Red
-}
-
-# 4. sidecars/ junction (isteğe bağlı)
-$sidecarsTarget = "$SyncDir\sidecars"
-$sidecarsLink   = "$env:USERPROFILE\.gemini\config\sidecars"
-
-if (Test-Path $sidecarsLink) {
-    Remove-Item $sidecarsLink -Recurse -Force
-}
-
-cmd /c "mklink /J `"$sidecarsLink`" `"$sidecarsTarget`"" | Out-Null
-
-if (Test-Path $sidecarsLink) {
-    Write-Host "   ✅ sidecars/ junction kuruldu" -ForegroundColor Green
-}
-
-# 4. commands/ junction bağını kur
+# 4. commands/ junction (Antigravity & Claude Code)
 Write-Host ""
-Write-Host "🔗 commands/ junction kuruluyor..." -ForegroundColor Yellow
-$cmdLink   = "$env:USERPROFILE\.gemini\antigravity\commands"
-$cmdTarget = "$SyncDir\commands"
+Write-Host "commands/ baglantisi kuruluyor..." -ForegroundColor Yellow
+$commandsTarget = "$ScriptDir\commands"
+$geminiCmds     = "$geminiApp\commands"
+$claudeCmds     = "$claudeDir\commands"
 
-if (Test-Path $cmdLink) {
-    cmd /c "rmdir `"$cmdLink`""
+if (Test-Path $commandsTarget) {
+    Remove-LinkOrFolder $geminiCmds
+    cmd /c "mklink /J `"$geminiCmds`" `"$commandsTarget`"" 2>$null
+    Write-Host "  Antigravity commands/ junction kuruldu." -ForegroundColor Green
+
+    Remove-LinkOrFolder $claudeCmds
+    cmd /c "mklink /J `"$claudeCmds`" `"$commandsTarget`"" 2>$null
+    Write-Host "  Claude Code commands/ junction kuruldu." -ForegroundColor Green
 }
-cmd /c "mklink /J `"$cmdLink`" `"$cmdTarget`""
-Write-Host "   ✅ Antigravity commands/ junction bağlandı" -ForegroundColor Green
 
-# 5. Claude Code (~/.claude) junction bağlarını kur
+# 5. Git Submodules Guncelle
 Write-Host ""
-Write-Host "🔗 Claude Code (~/.claude) bağları kuruluyor..." -ForegroundColor Yellow
-$claudeDir = "$env:USERPROFILE\.claude"
-if (-not (Test-Path $claudeDir)) {
-    New-Item -ItemType Directory -Path $claudeDir -Force | Out-Null
-}
-
-$cSkills = "$claudeDir\skills"
-$cCmds   = "$claudeDir\commands"
-
-if (Test-Path $cSkills) { Remove-Item $cSkills -Recurse -Force -ErrorAction SilentlyContinue }
-cmd /c "mklink /J `"$cSkills`" `"$SyncDir\skills`""
-
-if (Test-Path $cCmds) { Remove-Item $cCmds -Recurse -Force -ErrorAction SilentlyContinue }
-cmd /c "mklink /J `"$cCmds`" `"$SyncDir\commands`""
-Write-Host "   ✅ Claude Code skills/ ve commands/ bağlandı" -ForegroundColor Green
-
-# 5. Git post-merge hook (mcp_config.json hardlink yenileyici)
-Write-Host ""
-Write-Host "🔗 Git hook kuruluyor..." -ForegroundColor Yellow
-$hookSrc  = "$SyncDir\.git\hooks\post-merge"
-$hookDest = "$SyncDir\.git\hooks\post-merge"
-
-if (-not (Test-Path "$SyncDir\.git\hooks")) {
-    New-Item -ItemType Directory -Path "$SyncDir\.git\hooks" -Force | Out-Null
-}
-
-if (Test-Path $hookSrc) {
-    Write-Host "   ✅ post-merge hook mevcut" -ForegroundColor Green
-} else {
-    Write-Host "   ⚠️  Hook bulunamadı, skip." -ForegroundColor Yellow
+Write-Host "Git Submodule'ler kontrol ediliyor..." -ForegroundColor Yellow
+if (Test-Path "$ScriptDir\.git") {
+    Push-Location $ScriptDir
+    git submodule update --init --recursive 2>$null
+    Pop-Location
+    Write-Host "  Git submodule'ler guncellendi." -ForegroundColor Green
 }
 
 Write-Host ""
-Write-Host "🎉 Kurulum tamamlandı! Antigravity'yi yeniden başlatın." -ForegroundColor Green
-Write-Host ""
-Write-Host "  Sonraki güncellemeler için:" -ForegroundColor Gray
-Write-Host "  cd $SyncDir && git pull" -ForegroundColor Gray
+Write-Host "Kurulum tamamlandi! Antigravity ve Claude Code uygulamanizi yeniden baslatabilirsiniz." -ForegroundColor Green
 Write-Host ""

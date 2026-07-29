@@ -1,13 +1,24 @@
-<#
-.SYNOPSIS
-    Tek tıkla tüm orijinal skill repolarını canlı GitHub kaynaklarından günceller.
-#>
+# guncelle-windows.ps1 — Skill'leri Canli Upstream Repolardan Guncelleme Scripti
 
-Write-Host "🔄 Orijinal Skill Repoları Güncelleniyor..." -ForegroundColor Cyan
-
-# 1. Submodule'leri en son sürümlerine çek
-git submodule update --remote --merge
+$ErrorActionPreference = "Stop"
+$ScriptDir = $PSScriptRoot
+if (-not $ScriptDir) {
+    $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+}
 
 Write-Host ""
-Write-Host "✅ Tüm orijinal skill'ler başarıyla güncellendi!" -ForegroundColor Green
-Write-Host "📌 Güncellemeleri reponuza kaydetmek için: git commit -am 'chore: update submodules' && git push" -ForegroundColor Gray
+Write-Host "Orijinal Skill Repolari Guncelleniyor..." -ForegroundColor Cyan
+Write-Host "=========================================" -ForegroundColor Cyan
+Write-Host ""
+
+if (Test-Path "$ScriptDir\.git") {
+    Push-Location $ScriptDir
+    git submodule update --remote --merge
+    Pop-Location
+    Write-Host ""
+    Write-Host "Tum orijinal skill'ler basariyla guncellendi!" -ForegroundColor Green
+} else {
+    Write-Host "Git reposu bulunamadi!" -ForegroundColor Red
+}
+
+Write-Host ""
