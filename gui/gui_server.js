@@ -17,6 +17,37 @@ const AI_PATHS = {
   codex: path.join(homeDir, '.codex')
 };
 
+// IN-MEMORY REACT HTML SHELL (FİZİKİ INDEX.HTML GEREKTİRMEZ!)
+const REACT_HTML_SHELL = `<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚡ Multi-AI Skill Hub — Official React App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
+  <div id="root"></div>
+  <script type="text/babel" src="/src/App.jsx"></script>
+</body>
+</html>`;
+
 // 1. CANLI AI İZLEME & BAĞLANTI TARAMASI
 function getAIStatus() {
   const result = {};
@@ -251,20 +282,14 @@ function toggleLink(aiKey, targetState, callback) {
   }
 }
 
-// 4. REACT APP SUNUCUSU
+// 4. REACT SERVER & REST API
 function createServer(port) {
   const server = http.createServer((req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
 
     if (req.method === 'GET' && (req.url === '/' || req.url === '/index.html')) {
-      fs.readFile(path.join(GUI_DIR, 'index.html'), (err, data) => {
-        if (err) {
-          res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
-          return res.end('Sunucu Hatası: index.html okunamadı.');
-        }
-        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-        res.end(data);
-      });
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(REACT_HTML_SHELL);
     } else if (req.method === 'GET' && req.url.startsWith('/src/')) {
       const filePath = path.join(GUI_DIR, req.url);
       fs.readFile(filePath, (err, data) => {
@@ -338,8 +363,8 @@ function createServer(port) {
 
   server.listen(port, () => {
     console.log(`\n====================================================`);
-    console.log(` ⚡ Multi-AI Skill Hub Official React App Server`);
-    console.log(` ⚛️ React Entry: http://localhost:${port}`);
+    console.log(` ⚡ Multi-AI Skill Hub Pure React Server`);
+    console.log(` ⚛️ React 18 Entry: http://localhost:${port}`);
     console.log(`====================================================\n`);
 
     const startCmd = isWin ? `start http://localhost:${port}` :
