@@ -566,6 +566,10 @@ function App() {
   const [sseConnected, setSseConnected] = useState(false);
   const [enginesList, setEnginesList] = useState([]);
 
+  // Live Terminal State — streams live_log SSE events
+  const [liveTerminal, setLiveTerminal] = useState({ lines: [], jobLabel: null, active: false });
+  const terminalEndRef = useRef(null);
+
   const fetchEngines = async () => {
     try {
       const res = await fetch('/api/engines/status');
@@ -642,6 +646,25 @@ function App() {
         setMcpInputJson(JSON.stringify(d, null, 2));
       } catch (err) {}
     });
+    es.addEventListener('live_log', (e) => {
+      try {
+        const { jobId, line, type, label } = JSON.parse(e.data);
+        setLiveTerminal(prev => {
+          const newLines = [...prev.lines, { jobId, line, type, ts: new Date().toLocaleTimeString() }].slice(-300);
+          const isActive = type !== 'done' ? true : false;
+          return {
+            lines: newLines,
+            jobLabel: label || prev.jobLabel,
+            active: prev.active ? type !== 'done' : true,
+          };
+        });
+        setIsConsoleOpen(true); // auto-open terminal
+        if (type === 'done') {
+          setTimeout(() => setLiveTerminal(prev => ({ ...prev, active: false })), 500);
+        }
+        addLog(line, type === 'stdout' || type === 'done' ? 'info' : 'error');
+      } catch (err) {}
+    });
     es.onerror = () => setSseConnected(false);
     return () => es.close();
   }, []);
@@ -680,6 +703,13 @@ function App() {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  // Auto-scroll terminal to bottom when new lines arrive
+  useEffect(() => {
+    if (terminalEndRef.current && isConsoleOpen) {
+      terminalEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [liveTerminal.lines, isConsoleOpen]);
 
   const handleUpdateAllRepos = async () => {
     setLoadingAction('update-all');
@@ -1078,9 +1108,13 @@ function App() {
         </div>
 
         <div className="p-3 border-t border-slate-800">
-          <button onClick={() => setIsConsoleOpen(!isConsoleOpen)} className="w-full flex items-center justify-between px-3 py-2 rounded bg-slate-900 border border-slate-800 text-slate-300 text-xs font-mono">
-            <span className="flex items-center space-x-2"><Icons.Terminal /> <span>Logs</span></span>
-            <span className="px-1.5 py-0.5 rounded bg-slate-800 text-[10px]">{logs.length}</span>
+          <button onClick={() => setIsConsoleOpen(!isConsoleOpen)} className="w-full flex items-center justify-between px-3 py-2 rounded bg-slate-900 border border-slate-800 text-slate-300 text-xs font-mono hover:border-slate-700 transition">
+            <span className="flex items-center space-x-2">
+              <Icons.Terminal />
+              <span>Terminal</span>
+              {liveTerminal.active && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
+            </span>
+            <span className="px-1.5 py-0.5 rounded bg-slate-800 text-[10px]">{liveTerminal.lines.length || logs.length}</span>
           </button>
         </div>
       </aside>
@@ -2203,23 +2237,54 @@ function App() {
         </div>
       </main>
 
-      {/* CONSOLE DRAWER */}
+      {/* LIVE TERMINAL DRAWER */}
       {isConsoleOpen && (
-        <div className="absolute bottom-0 left-64 right-0 h-48 bg-slate-900 border-t border-slate-800 flex flex-col z-50">
-          <div className="px-4 py-2 border-b border-slate-800 flex items-center justify-between bg-slate-950">
-            <span className="text-xs font-mono text-slate-400">System Logs & Realtime Events</span>
-            <button onClick={() => setIsConsoleOpen(false)} className="text-xs text-slate-500 hover:text-slate-300">Close</button>
+        <div className="absolute bottom-0 left-64 right-0 bg-slate-950 border-t border-slate-800 flex flex-col z-50" style={{ height: '260px' }}>
+          {/* Header */}
+          <div className="px-4 py-2 border-b border-slate-800 flex items-center justify-between bg-slate-900 flex-shrink-0">
+            <div className="flex items-center space-x-2">
+              <div className={`w-2 h-2 rounded-full ${liveTerminal.active ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
+              <span className="text-xs font-mono text-slate-300">
+                {liveTerminal.active ? `▶ ${liveTerminal.jobLabel || 'İşlem çalışıyor...'}` : 'Terminal — Sistem Logları'}
+              </span>
+              {liveTerminal.lines.length > 0 && (
+                <span className="text-[10px] font-mono text-slate-500 bg-slate-800 px-1.5 py-0.5 rounded">{liveTerminal.lines.length} satır</span>
+              )}
+            </div>
+            <div className="flex items-center space-x-2">
+              <button onClick={() => setLiveTerminal({ lines: [], jobLabel: null, active: false })} className="text-[11px] text-slate-500 hover:text-slate-300 font-mono transition">Temizle</button>
+              <button onClick={() => setIsConsoleOpen(false)} className="text-xs text-slate-500 hover:text-white px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 transition">✕</button>
+            </div>
           </div>
-          <div className="flex-1 p-3 overflow-y-auto font-mono text-[11px] space-y-1 bg-slate-950">
-            {logs.map((l, i) => (
-              <div key={i} className={`flex space-x-2 ${l.type === 'error' ? 'text-rose-400' : l.type === 'success' ? 'text-emerald-400' : 'text-slate-400'}`}>
-                <span className="text-slate-600">[{l.time}]</span>
-                <span>{l.msg}</span>
-              </div>
-            ))}
+
+          {/* Scrollable Log Area */}
+          <div className="flex-1 p-3 overflow-y-auto font-mono text-[11px] space-y-0.5">
+            {liveTerminal.lines.length > 0 ? (
+              liveTerminal.lines.map((l, i) => (
+                <div key={i} className={`flex space-x-2 leading-relaxed ${
+                  l.type === 'done' && l.line.startsWith('✅') ? 'text-emerald-400' :
+                  l.type === 'done' && l.line.startsWith('❌') ? 'text-rose-400' :
+                  l.type === 'start' ? 'text-indigo-300 font-semibold' :
+                  l.type === 'stderr' ? 'text-amber-400/80' :
+                  'text-slate-400'
+                }`}>
+                  <span className="text-slate-700 flex-shrink-0">[{l.ts}]</span>
+                  <span className="break-all">{l.line}</span>
+                </div>
+              ))
+            ) : (
+              logs.map((l, i) => (
+                <div key={i} className={`flex space-x-2 ${l.type === 'error' ? 'text-rose-400' : l.type === 'success' ? 'text-emerald-400' : 'text-slate-500'}`}>
+                  <span className="text-slate-700">[{l.time}]</span>
+                  <span>{l.msg}</span>
+                </div>
+              ))
+            )}
+            <div ref={terminalEndRef} />
           </div>
         </div>
       )}
+
 
       {/* MCP EDITOR MODAL */}
       {editingMcpServer && (

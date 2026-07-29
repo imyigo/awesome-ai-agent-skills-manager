@@ -1386,10 +1386,16 @@ function createServer(port) {
         }
       });
     } else if (req.method === 'POST' && req.url === '/api/update') {
-      exec('git submodule update --remote --merge', { cwd: SYNC_DIR }, (err, stdout, stderr) => {
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-        res.end(JSON.stringify({ success: !err, output: stdout || stderr || 'Tüm canlı skill repoları güncellendi!' }));
-        if (!err) broadcast('skills_update', getLiveSkillsData());
+      const jobId = `update-${Date.now()}`;
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ success: true, jobId, message: 'Git güncelleme başlatıldı...' }));
+      broadcast('live_log', { jobId, line: '▶ git submodule update --remote --merge başlatıldı...', type: 'start' });
+      const proc = require('child_process').spawn('git', ['submodule', 'update', '--remote', '--merge'], { cwd: SYNC_DIR, shell: false });
+      proc.stdout.on('data', d => d.toString().split('\n').filter(l => l.trim()).forEach(line => broadcast('live_log', { jobId, line, type: 'stdout' })));
+      proc.stderr.on('data', d => d.toString().split('\n').filter(l => l.trim()).forEach(line => broadcast('live_log', { jobId, line, type: 'stderr' })));
+      proc.on('close', code => {
+        broadcast('live_log', { jobId, line: code === 0 ? '✅ Tüm repolar güncellendi!' : `❌ Güncelleme tamamlandı (kod: ${code})`, type: 'done' });
+        broadcast('skills_update', getLiveSkillsData());
       });
     } else if (req.method === 'POST' && req.url === '/api/add-skill') {
       let body = '';
@@ -1399,18 +1405,25 @@ function createServer(port) {
           const { url, category, customRule } = JSON.parse(body);
           if (!url) throw new Error('URL eksik');
           const skillName = path.basename(url, '.git');
-          const cmd = `git submodule add -f "${url}" "repo/skills/${skillName}" && git submodule update --init --recursive`;
+          const jobId = `add-${skillName}-${Date.now()}`;
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: true, jobId, message: `[${skillName}] ekleniyor...` }));
+          broadcast('live_log', { jobId, line: `▶ git clone: ${url}`, type: 'start', label: `Repo Ekle: ${skillName}` });
 
-          exec(cmd, { cwd: SYNC_DIR }, (err, stdout, stderr) => {
+          const targetDir = path.join(SYNC_DIR, 'repo', 'skills', skillName);
+          const cloneArgs = ['clone', '--progress', url, targetDir];
+          const proc = require('child_process').spawn('git', cloneArgs, { cwd: SYNC_DIR, shell: false });
+          proc.stdout.on('data', d => d.toString().split('\n').filter(l => l.trim()).forEach(line => broadcast('live_log', { jobId, line, type: 'stdout' })));
+          proc.stderr.on('data', d => d.toString().split('\n').filter(l => l.trim()).forEach(line => broadcast('live_log', { jobId, line, type: 'stderr' })));
+          proc.on('close', code => {
             if (customRule && customRule.trim()) {
               const ruleFile = path.join(SYNC_DIR, 'repo', 'skills', 'unified-dev', '01-core-behavior.md');
               if (fs.existsSync(ruleFile)) {
                 fs.appendFileSync(ruleFile, `\n\n### Özel Kural [${skillName}]:\n- ${customRule}\n`);
               }
             }
-            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-            res.end(JSON.stringify({ success: !err, output: stdout || stderr || `[${skillName}] ${category || ''} kategorisine başarıyla eklendi!` }));
-            if (!err) broadcast('skills_update', getLiveSkillsData());
+            broadcast('live_log', { jobId, line: code === 0 ? `✅ [${skillName}] başarıyla eklendi!` : `❌ [${skillName}] eklenemedi (kod: ${code})`, type: 'done' });
+            if (code === 0) broadcast('skills_update', getLiveSkillsData());
           });
         } catch (e) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -1424,36 +1437,49 @@ function createServer(port) {
         try {
           const { name } = JSON.parse(body);
           if (!name) throw new Error('Skill adı eksik');
-          const relPath = `repo/skills/${name}`;
-          const cmd = `git submodule deinit -f "${relPath}" && git rm -f "${relPath}"`;
-
-          exec(cmd, { cwd: SYNC_DIR }, (err, stdout, stderr) => {
-            const fullPath = path.join(SYNC_DIR, relPath);
+          const fullPath = path.join(SYNC_DIR, 'repo', 'skills', name);
+          const jobId = `remove-${name}-${Date.now()}`;
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: true, jobId, message: `[${name}] siliniyor...` }));
+          broadcast('live_log', { jobId, line: `▶ [${name}] klasörü siliniyor...`, type: 'start', label: `Sil: ${name}` });
+          try {
             removeLinkTarget(fullPath);
-            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-            res.end(JSON.stringify({ success: true, output: `[${name}] repnuzu ve submodule kaydı başarıyla silindi.` }));
+            if (fs.existsSync(fullPath)) fs.rmSync(fullPath, { recursive: true, force: true });
+            broadcast('live_log', { jobId, line: `✅ [${name}] başarıyla silindi.`, type: 'done' });
             broadcast('skills_update', getLiveSkillsData());
-          });
+          } catch (rmErr) {
+            broadcast('live_log', { jobId, line: `❌ Silme hatası: ${rmErr.message}`, type: 'done' });
+          }
         } catch (e) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
           res.end(JSON.stringify({ success: false, output: 'Silme Hatası: ' + e.message }));
         }
       });
     } else if (req.method === 'POST' && req.url === '/api/docker/install') {
-      // Install Docker CLI (Engine) via winget / brew / apt (no Docker Desktop)
-      let cmd = '';
+      const jobId = `docker-install-${Date.now()}`;
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ success: true, jobId, message: 'Docker CLI kurulumu başlatıldı...' }));
+      broadcast('live_log', { jobId, line: '▶ Docker CLI kurulumu başlıyor...', type: 'start', label: 'Docker CLI Kur' });
+
+      let spawnCmd, spawnArgs;
       if (isWin) {
-        cmd = 'winget install -e --id Docker.DockerCLI --accept-package-agreements --accept-source-agreements';
+        broadcast('live_log', { jobId, line: 'ℹ winget ile Docker CLI kuruluyor (Docker Desktop değil)...', type: 'stderr' });
+        spawnCmd = 'winget';
+        spawnArgs = ['install', '-e', '--id', 'Docker.DockerCLI', '--accept-package-agreements', '--accept-source-agreements'];
       } else if (process.platform === 'darwin') {
-        cmd = 'brew install docker';
+        broadcast('live_log', { jobId, line: 'ℹ brew ile docker kuruluyor...', type: 'stderr' });
+        spawnCmd = 'brew';
+        spawnArgs = ['install', 'docker'];
       } else {
-        cmd = 'curl -fsSL https://get.docker.com | sh';
+        broadcast('live_log', { jobId, line: 'ℹ curl | sh ile get.docker.com indiriliyor...', type: 'stderr' });
+        spawnCmd = 'sh';
+        spawnArgs = ['-c', 'curl -fsSL https://get.docker.com | sh'];
       }
-      exec(cmd, { timeout: 180000 }, (err, stdout, stderr) => {
-        const success = !err;
-        const msg = success ? 'Docker CLI başarıyla kuruldu! Terminal: docker --version ile kontrol edin.' : `Docker kurulumu başarısız: ${stderr || err.message}`;
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-        res.end(JSON.stringify({ success, message: msg, output: stdout || stderr }));
+      const dproc = require('child_process').spawn(spawnCmd, spawnArgs, { shell: false, env: { ...process.env, DEBIAN_FRONTEND: 'noninteractive' } });
+      dproc.stdout.on('data', d => d.toString().split('\n').filter(l => l.trim()).forEach(line => broadcast('live_log', { jobId, line, type: 'stdout' })));
+      dproc.stderr.on('data', d => d.toString().split('\n').filter(l => l.trim()).forEach(line => broadcast('live_log', { jobId, line, type: 'stderr' })));
+      dproc.on('close', code => {
+        broadcast('live_log', { jobId, line: code === 0 ? '✅ Docker CLI başarıyla kuruldu! Terminalde: docker --version' : `❌ Docker kurulumu başarısız (çıkış kodu: ${code})`, type: 'done' });
       });
     } else if (req.method === 'GET' && req.url === '/api/engines/port-status') {
       const engines = [
