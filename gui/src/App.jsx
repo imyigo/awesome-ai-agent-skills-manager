@@ -30,7 +30,11 @@ const dict = {
     enableSkill: "Aktifleştir",
     createPreset: "Yeni Özel Preset Oluştur",
     testPrompt: "Test İstemini Girin",
-    runTest: "Sandbox Simülasyonu Çalıştır"
+    runTest: "Sandbox Simülasyonu Çalıştır",
+    addMcp: "Yeni MCP Server Ekle",
+    saveMcp: "MCP Konfigürasyonunu Kaydet ve Senkronize Et",
+    rawJsonView: "Ham JSON Görünümü",
+    cardView: "Görsel Kart Görünümü"
   },
   en: {
     dashboard: "Dashboard",
@@ -58,7 +62,11 @@ const dict = {
     enableSkill: "Enable",
     createPreset: "Create Custom Preset",
     testPrompt: "Enter Test Prompt",
-    runTest: "Run Sandbox Simulation"
+    runTest: "Run Sandbox Simulation",
+    addMcp: "Add New MCP Server",
+    saveMcp: "Save & Sync MCP Configuration",
+    rawJsonView: "Raw JSON View",
+    cardView: "Visual Cards View"
   }
 };
 
@@ -135,6 +143,12 @@ function App() {
   const [isConsoleOpen, setIsConsoleOpen] = useState(false);
   const [editorModal, setEditorModal] = useState(null);
 
+  // MCP UI View Mode
+  const [mcpViewMode, setMcpViewMode] = useState('cards'); // 'cards' or 'json'
+  const [newMcpKey, setNewMcpKey] = useState('');
+  const [newMcpCmd, setNewMcpCmd] = useState('');
+  const [newMcpArgs, setNewMcpArgs] = useState('');
+
   // Sandbox Tester states
   const [sandboxPrompt, setSandboxPrompt] = useState('Review this React component for accessibility issues.');
   const [sandboxSkill, setSandboxSkill] = useState('ux-ui');
@@ -161,7 +175,13 @@ function App() {
     es.onopen = () => { setSseConnected(true); addLog('SSE Connected (Live Sync Active)', 'success'); };
     es.addEventListener('status_update', (e) => { try { setAiStatus(JSON.parse(e.data)); } catch (err) {} });
     es.addEventListener('skills_update', (e) => { try { setSkillsData(JSON.parse(e.data)); } catch (err) {} });
-    es.addEventListener('mcp_update', (e) => { try { const d = JSON.parse(e.data); setMcpConfig(d); setMcpInputJson(JSON.stringify(d, null, 2)); } catch (err) {} });
+    es.addEventListener('mcp_update', (e) => {
+      try {
+        const d = JSON.parse(e.data);
+        setMcpConfig(d);
+        setMcpInputJson(JSON.stringify(d, null, 2));
+      } catch (err) {}
+    });
     es.onerror = () => setSseConnected(false);
     return () => es.close();
   }, []);
@@ -173,7 +193,11 @@ function App() {
       ]);
       if (sRes.ok) setAiStatus(await sRes.json());
       if (kRes.ok) setSkillsData(await kRes.json());
-      if (mRes.ok) { const m = await mRes.json(); setMcpConfig(m); setMcpInputJson(JSON.stringify(m, null, 2)); }
+      if (mRes.ok) {
+        const m = await mRes.json();
+        setMcpConfig(m || { mcpServers: {} });
+        setMcpInputJson(JSON.stringify(m || { mcpServers: {} }, null, 2));
+      }
       if (cRes.ok) setCommandsList(await cRes.json());
       if (pRes.ok) setPresetsList(await pRes.json());
       if (mkRes.ok) setMarketplace(await mkRes.json());
@@ -261,6 +285,46 @@ function App() {
     }
   };
 
+  const handleAddMcpServer = (e) => {
+    e.preventDefault();
+    if (!newMcpKey || !newMcpCmd) return;
+    const current = { ...(mcpConfig.mcpServers || {}) };
+    current[newMcpKey] = {
+      command: newMcpCmd,
+      args: newMcpArgs ? newMcpArgs.split(' ') : []
+    };
+    const updated = { mcpServers: current };
+    setMcpConfig(updated);
+    setMcpInputJson(JSON.stringify(updated, null, 2));
+    handleSaveMcpConfig(updated);
+    setNewMcpKey(''); setNewMcpCmd(''); setNewMcpArgs('');
+  };
+
+  const handleRemoveMcpServer = (serverKey) => {
+    const current = { ...(mcpConfig.mcpServers || {}) };
+    delete current[serverKey];
+    const updated = { mcpServers: current };
+    setMcpConfig(updated);
+    setMcpInputJson(JSON.stringify(updated, null, 2));
+    handleSaveMcpConfig(updated);
+  };
+
+  const handleSaveMcpConfig = async (configObj) => {
+    try {
+      const target = configObj || JSON.parse(mcpInputJson);
+      const res = await fetch('/api/mcp/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(target)
+      });
+      const data = await res.json();
+      addLog(data.message, data.success ? 'success' : 'error');
+      fetchData();
+    } catch (e) {
+      addLog('MCP Error: ' + e.message, 'error');
+    }
+  };
+
   const handleCreatePreset = async (e) => {
     e.preventDefault();
     if (!newPresetTitle) return;
@@ -316,6 +380,8 @@ function App() {
   const installedCount = useMemo(() => Object.values(aiStatus).filter(a => a.installed).length, [aiStatus]);
   const linkedCount = useMemo(() => Object.values(aiStatus).filter(a => a.linked).length, [aiStatus]);
 
+  const mcpServersList = useMemo(() => Object.entries(mcpConfig.mcpServers || {}), [mcpConfig]);
+
   return (
     <div className="flex h-screen bg-slate-950 text-slate-100 font-sans overflow-hidden">
       {/* SIDEBAR */}
@@ -344,7 +410,7 @@ function App() {
               <Icons.Code /> <span>{t.skills}</span>
             </button>
             <button onClick={() => setActiveTab('mcp')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'mcp' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
-              <Icons.Server /> <span>{t.mcp}</span>
+              <Icons.Server /> <span>{t.mcp} ({mcpServersList.length})</span>
             </button>
             <button onClick={() => setActiveTab('commands')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'commands' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
               <Icons.Terminal /> <span>{t.commands}</span>
@@ -471,6 +537,78 @@ function App() {
             </div>
           )}
 
+          {/* TAB: MCP SERVERS (REFINED VISUAL + JSON VIEWS) */}
+          {activeTab === 'mcp' && (
+            <div className="space-y-6">
+              <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-semibold text-slate-100">MCP Server Management</h3>
+                  <p className="text-xs text-slate-400 mt-1">Manage Model Context Protocol servers and sync automatically across Claude Code and Cursor.</p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button onClick={() => setMcpViewMode(mcpViewMode === 'cards' ? 'json' : 'cards')} className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs text-indigo-300 font-mono transition">
+                    {mcpViewMode === 'cards' ? t.rawJsonView : t.cardView}
+                  </button>
+                </div>
+              </div>
+
+              {mcpViewMode === 'cards' ? (
+                <div className="space-y-6">
+                  {/* ADD MCP SERVER FORM */}
+                  <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-4">
+                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t.addMcp}</h4>
+                    <form onSubmit={handleAddMcpServer} className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                      <input type="text" placeholder="Server Name (e.g. wix, github)" value={newMcpKey} onChange={e => setNewMcpKey(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" required />
+                      <input type="text" placeholder="Command (npx, docker)" value={newMcpCmd} onChange={e => setNewMcpCmd(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" required />
+                      <input type="text" placeholder="Args (space separated)" value={newMcpArgs} onChange={e => setNewMcpArgs(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" />
+                      <button type="submit" className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center justify-center space-x-2">
+                        <Icons.Plus /> <span>Add MCP Server</span>
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* MCP CARDS GRID */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {mcpServersList.map(([key, srv]) => (
+                      <div key={key} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                              <Icons.Server />
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-semibold text-slate-200 capitalize">{key}</h4>
+                              <p className="text-[11px] font-mono text-slate-500">{srv.command} {(srv.args || []).join(' ')}</p>
+                            </div>
+                          </div>
+                          <button onClick={() => handleRemoveMcpServer(key)} className="p-1.5 rounded hover:bg-rose-500/20 text-rose-400 transition" title="Delete MCP Server">
+                            <Icons.Trash />
+                          </button>
+                        </div>
+
+                        {srv.env && (
+                          <div className="p-2.5 rounded bg-slate-950 border border-slate-800/80 font-mono text-[10px] text-slate-400 space-y-1">
+                            <span className="text-slate-600 uppercase">Environment Variables:</span>
+                            {Object.entries(srv.env).map(([ek, ev]) => (
+                              <div key={ek} className="truncate"><span className="text-indigo-400">{ek}:</span> {ev}</div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4 p-5 rounded-xl bg-slate-900/80 border border-slate-800">
+                  <textarea value={mcpInputJson} onChange={e => setMcpInputJson(e.target.value)} rows="14" className="w-full p-4 rounded-lg bg-slate-950 border border-slate-800 font-mono text-xs text-indigo-300 focus:outline-none focus:border-indigo-500" />
+                  <button onClick={() => handleSaveMcpConfig()} className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-2">
+                    <Icons.Check /> <span>{t.saveMcp}</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           {activeTab === 'presets' && (
             <div className="space-y-6">
               <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-4">
@@ -559,16 +697,6 @@ function App() {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-
-          {activeTab === 'mcp' && (
-            <div className="space-y-4 p-5 rounded-xl bg-slate-900/80 border border-slate-800">
-              <h3 className="text-base font-semibold text-slate-100">MCP Server Management</h3>
-              <textarea value={mcpInputJson} onChange={e => setMcpInputJson(e.target.value)} rows="12" className="w-full p-4 rounded-lg bg-slate-950 border border-slate-800 font-mono text-xs text-indigo-300 focus:outline-none focus:border-indigo-500" />
-              <button onClick={handleSaveMcp} className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-2">
-                <Icons.Check /> <span>Save & Sync All Tools</span>
-              </button>
             </div>
           )}
 
