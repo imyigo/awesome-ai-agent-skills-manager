@@ -1,9 +1,9 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { exec, execSync } = require('child_process');
+const { exec, execSync, spawnSync } = require('child_process');
 
-let PORT = process.env.PORT || 3777;
+const PORT = parseInt(process.env.PORT || '3777', 10);
 const GUI_DIR = __dirname;
 const SYNC_DIR = path.join(GUI_DIR, '..');
 
@@ -50,15 +50,19 @@ const AI_PATHS = {
 // SIKI VE AKILLI AI YÜKLÜLÜK DENETİMİ (STRICT DETECTION)
 function checkAIInstalled(aiKey) {
   if (aiKey === 'antigravity') {
-    return fs.existsSync(AI_PATHS.antigravity);
+    // Antigravity konfigürasyon dosyası veya klasörü var mı?
+    return fs.existsSync(AI_PATHS.antigravity) &&
+      fs.readdirSync(AI_PATHS.antigravity).length > 0;
   }
-  
+
   if (aiKey === 'claude') {
-    return fs.existsSync(AI_PATHS.claude);
+    // Claude Code: gerçek ayar dosyası var mı?
+    return fs.existsSync(path.join(AI_PATHS.claude, 'settings.json')) ||
+           fs.existsSync(path.join(AI_PATHS.claude, 'CLAUDE.md'));
   }
 
   if (aiKey === 'cursor') {
-    // Windows ve macOS'ta Cursor IDE uygulamasının gerçekten yüklü olup olmadığını doğrula
+    // Cursor IDE: gerçek uygulama binary'si var mı?
     if (isWin) {
       const cursorProg = path.join(process.env.LOCALAPPDATA || '', 'Programs', 'cursor');
       const cursorProg64 = 'C:\\Program Files\\Cursor';
@@ -69,9 +73,19 @@ function checkAIInstalled(aiKey) {
   }
 
   if (aiKey === 'codex') {
-    // OpenAI Codex CLI'ın terminalde aktif komut olup olmadığını kontrol et
+    // OpenAI Codex CLI: npm wrapper scripti değil, gerçek binary var mı?
+    // npm global yüklemesi .ps1 veya .cmd wrapper bırakır — bunları hariç tut
     try {
-      execSync(isWin ? 'where codex' : 'which codex', { stdio: 'ignore' });
+      const result = spawnSync(isWin ? 'where' : 'which', ['codex'], { encoding: 'utf8' });
+      if (result.status !== 0 || !result.stdout) return false;
+      const codexPath = result.stdout.trim().split('\n')[0].trim();
+      // npm wrapper scriptleri (.ps1, .cmd) ise gerçek Codex CLI değil
+      if (isWin && (codexPath.endsWith('.ps1') || codexPath.endsWith('.cmd'))) {
+        // npm paketi olarak kurulu — bu gerçek OpenAI Codex
+        // config.toml veya resmi token dosyası var mı kontrol et
+        const codexConfig = path.join(AI_PATHS.codex, 'config.toml');
+        return fs.existsSync(codexConfig);
+      }
       return true;
     } catch (e) {
       return false;
@@ -414,10 +428,12 @@ function createServer(port) {
 
   server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
-      console.log(`⚠️ Port ${port} dolu, port ${port + 1} deneniyor...`);
-      createServer(port + 1);
+      console.error(`❌ Port ${port} dolu! Mevcut bir sunucu çalışıyor olabilir.`);
+      console.error(`   Çözmek için: Get-Process node | Stop-Process -Force`);
+      process.exit(1);
     } else {
       console.error('❌ Sunucu Hatası:', err);
+      process.exit(1);
     }
   });
 
@@ -427,10 +443,16 @@ function createServer(port) {
     console.log(` ⚛️ React 18 Entry: http://localhost:${port}`);
     console.log(`====================================================\n`);
 
-    const startCmd = isWin ? `start http://localhost:${port}` :
-                     process.platform === 'darwin' ? `open http://localhost:${port}` : `xdg-open http://localhost:${port}`;
-    exec(startCmd);
+    if (!process.env.NO_OPEN) {
+      const startCmd = isWin ? `start http://localhost:${port}` :
+                       process.platform === 'darwin' ? `open http://localhost:${port}` : `xdg-open http://localhost:${port}`;
+      exec(startCmd);
+    }
   });
+
+  // Temiz kapatma
+  process.on('SIGINT', () => { server.close(); process.exit(0); });
+  process.on('SIGTERM', () => { server.close(); process.exit(0); });
 }
 
 createServer(PORT);

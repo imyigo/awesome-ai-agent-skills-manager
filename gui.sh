@@ -85,6 +85,23 @@ echo ""
 
 cd "$CONTROL_DIR"
 
+# Port 3777'de çalışan eski sunucuyu öldür
+if [ "$OS_TYPE" = "windows" ]; then
+    # Windows: netstat ile 3777 portunu kullanan process'i bul ve öldür
+    PID=$(cmd //c "netstat -ano | findstr :3777" 2>/dev/null | awk '{print $NF}' | head -1)
+    if [ -n "$PID" ] && [ "$PID" != "0" ]; then
+        cmd //c "taskkill /PID $PID /F" 2>/dev/null || true
+        echo "  ♻️  Eski sunucu (PID: $PID) kapatıldı."
+    fi
+else
+    # Unix/macOS
+    PID=$(lsof -ti:3777 2>/dev/null)
+    if [ -n "$PID" ]; then
+        kill -9 "$PID" 2>/dev/null || true
+        echo "  ♻️  Eski sunucu (PID: $PID) kapatıldı."
+    fi
+fi
+
 if command -v node >/dev/null 2>&1; then
     node "$CONTROL_DIR/gui/gui_server.js"
 else
