@@ -20,3 +20,11 @@ desktop.ini
 
 # İnceleme amaçlı örnek projeler — ASLA push edilmez
 sample-proje/
+
+# Kullanıcının Yerel İndirdiği Yetenekler, MCP ve Komutlar (Boş Kalıp — Yerel Kalır)
+repo/skills/*
+!repo/skills/.gitkeep
+repo/mcp/*
+!repo/mcp/.gitkeep
+repo/commands/*
+!repo/commands/.gitkeep
