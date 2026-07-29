@@ -1192,6 +1192,11 @@ function App() {
                               <div className="flex items-center space-x-2">
                                 <span className="font-mono text-xs font-semibold text-indigo-300">{r.name}</span>
                                 <span className="px-1.5 py-0.2 rounded bg-slate-800 text-[10px] font-mono text-slate-400">{r.tag}</span>
+                                {['claude-mem', 'graphify', 'understand-anything'].includes(r.name) && (
+                                  <span className="px-2 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 font-mono text-[10px] flex items-center space-x-1">
+                                    <Icons.Cpu /> <span>Arka Plan Servisli Engine</span>
+                                  </span>
+                                )}
                                 {r.meta?.disabled && <span className="px-1.5 py-0.2 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-mono text-[10px]">Disabled</span>}
                               </div>
                               <p className="text-xs text-slate-300 mt-1 leading-snug font-sans max-w-sm line-clamp-2">
