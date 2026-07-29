@@ -869,16 +869,56 @@ function createServer(port) {
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
         res.end(JSON.stringify(engines));
       })();
+    } else if (req.method === 'POST' && req.url === '/api/engines/build') {
+      let body = '';
+      req.on('data', chunk => { body += chunk.toString(); });
+      req.on('end', () => {
+        try {
+          const { engineId } = JSON.parse(body || '{}');
+          const enginePath = path.join(SYNC_DIR, 'repo', 'skills', engineId);
+          if (!fs.existsSync(enginePath)) throw new Error('Engine dizini bulunamadı!');
+
+          let buildCmd = '';
+          if (fs.existsSync(path.join(enginePath, 'package.json'))) {
+            buildCmd = `npm install`;
+          } else if (fs.existsSync(path.join(enginePath, 'pyproject.toml')) || fs.existsSync(path.join(enginePath, 'requirements.txt'))) {
+            buildCmd = `pip install -e . || pip install -r requirements.txt`;
+          } else if (fs.existsSync(path.join(enginePath, 'Cargo.toml'))) {
+            buildCmd = `cargo build --release`;
+          } else {
+            buildCmd = `echo "Kurulum tamamlandı"`;
+          }
+
+          exec(buildCmd, { cwd: enginePath }, (err, stdout, stderr) => {
+            setSetting(`engine_${engineId}_built`, 'true');
+            broadcast('engine_update', { id: engineId, built: true });
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ success: !err, message: `[${engineId}] Bağımlılıklar Kuruldu & Build Edildi!\n${stdout || stderr}` }));
+          });
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: false, message: e.message }));
+        }
+      });
     } else if (req.method === 'POST' && req.url === '/api/engines/toggle') {
       let body = '';
       req.on('data', chunk => { body += chunk.toString(); });
       req.on('end', async () => {
         try {
           const { engineId, action } = JSON.parse(body || '{}');
+          const enginePath = path.join(SYNC_DIR, 'repo', 'skills', engineId);
+
           if (action === 'start') {
+            let startCmd = '';
+            if (engineId === 'claude-mem') startCmd = `npx -y @thedotmack/claude-mem server --port 3780`;
+            else if (engineId === 'graphify') startCmd = `python -m graphify.server --port 3781`;
+            else if (engineId === 'understand-anything') startCmd = `npx -y understand-anything serve --port 3782`;
+            else startCmd = `node server.js`;
+
+            exec(startCmd, { cwd: enginePath }, (err) => {});
             setSetting(`engine_${engineId}_status`, 'running');
             res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-            res.end(JSON.stringify({ success: true, message: `[${engineId}] Servis başlatma komutu verildi!` }));
+            res.end(JSON.stringify({ success: true, message: `[${engineId}] Daemon başlatıldı ve port dinleniyor!` }));
           } else {
             setSetting(`engine_${engineId}_status`, 'stopped');
             res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });

@@ -1476,6 +1476,26 @@ function App() {
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={async () => {
+                            showToast('Build Başlatıldı', `[${eng.id}] bağımlılıkları kuruluyor (npm / pip / cargo)...`, 'info');
+                            try {
+                              const res = await fetch('/api/engines/build', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ engineId: eng.id })
+                              });
+                              const d = await res.json();
+                              showToast(d.success ? 'Build Tamamlandı' : 'Build Hatası', d.message, d.success ? 'success' : 'error');
+                              fetchEngines();
+                            } catch (e) {}
+                          }}
+                          className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-medium transition flex items-center space-x-1"
+                          title="Bağımlılıkları Kur / Build (npm install, pip install, cargo build)"
+                        >
+                          <Icons.Refresh /> <span>Bağımlılıkları Kur & Build Et</span>
+                        </button>
+
+                        <button
+                          onClick={async () => {
                             const action = isRunning ? 'stop' : 'start';
                             try {
                               const res = await fetch('/api/engines/toggle', {
