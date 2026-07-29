@@ -70,13 +70,17 @@ if (Test-Path $sidecarsLink) {
     Write-Host "   ✅ sidecars/ junction kuruldu" -ForegroundColor Green
 }
 
-# 5. .env.example varsa hatırlat
+# 4. commands/ junction bağını kur
 Write-Host ""
-if (Test-Path "$SyncDir\.env.example") {
-    Write-Host "⚠️  Ortam değişkenlerini unutmayın!" -ForegroundColor Yellow
-    Write-Host "   .env.example dosyasına bakın ve token'larınızı ayarlayın:" -ForegroundColor Gray
-    Write-Host "   [System.Environment]::SetEnvironmentVariable('GITHUB_TOKEN', 'ghp_...', 'User')" -ForegroundColor Gray
+Write-Host "🔗 commands/ junction kuruluyor..." -ForegroundColor Yellow
+$cmdLink   = "$env:USERPROFILE\.gemini\antigravity\commands"
+$cmdTarget = "$SyncDir\commands"
+
+if (Test-Path $cmdLink) {
+    cmd /c "rmdir `"$cmdLink`""
 }
+cmd /c "mklink /J `"$cmdLink`" `"$cmdTarget`""
+Write-Host "   ✅ commands/ junction bağlandı" -ForegroundColor Green
 
 # 5. Git post-merge hook (mcp_config.json hardlink yenileyici)
 Write-Host ""

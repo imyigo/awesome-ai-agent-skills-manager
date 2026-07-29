@@ -22,13 +22,21 @@ fi
 ln -s "$SYNC_DIR/mcp_config.json" "$CONFIG_DIR/mcp_config.json"
 echo "   ✅ mcp_config.json symlink bağlandı"
 
-# 3. skills/ Dizin Symlink Kur
+# 3. skills/ ve commands/ Symlink Kur
 echo "🔗 skills/ dizin symlink kuruluyor..."
 if [ -L "$SKILLS_DIR" ] || [ -d "$SKILLS_DIR" ]; then
     rm -rf "$SKILLS_DIR"
 fi
 ln -s "$SYNC_DIR/skills" "$SKILLS_DIR"
 echo "   ✅ skills/ dizin symlink bağlandı"
+
+echo "🔗 commands/ dizin symlink kuruluyor..."
+COMMANDS_DIR="$HOME/.gemini/antigravity/commands"
+if [ -L "$COMMANDS_DIR" ] || [ -d "$COMMANDS_DIR" ]; then
+    rm -rf "$COMMANDS_DIR"
+fi
+ln -s "$SYNC_DIR/commands" "$COMMANDS_DIR"
+echo "   ✅ commands/ dizin symlink bağlandı"
 
 # 4. Git Submodule'leri Başlat ve Güncelle
 echo "🔄 Git Submodule'ler güncelleniyor..."
