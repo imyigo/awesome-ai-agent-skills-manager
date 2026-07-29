@@ -21,6 +21,28 @@
 
 ---
 
+## ❓ The Problem: Is Managing AI Skills a Nightmare?
+
+> **Are you tired of manually copying skill files across multiple machines, Claude Code, Antigravity, Cursor, and Codex?**
+
+* ❌ **Instruction Conflicts:** Downloading raw skills from different repos leads to conflicting AI instructions.
+* ❌ **Token Waste:** Loading massive, unoptimized skill files burns hundreds of thousands of context tokens in seconds.
+* ❌ **Outdated Skills:** When original repo authors update their skills, your local copies stay outdated without you knowing.
+* ❌ **Multi-AI Confusion:** Managing separate skill folders for Claude (`~/.claude`), Antigravity (`~/.gemini`), Cursor (`~/.cursor`), and Codex (`~/.codex`) is tedious and error-prone.
+
+---
+
+## 💡 The Solution: Multi-AI Skill & Framework Hub
+
+> **A single-command, zero-conflict, token-optimized control panel that unifies your entire AI stack.**
+
+* ✅ **Auto-AI Detection:** Automatically finds Antigravity, Claude Code, Cursor IDE, and OpenAI Codex on your system and links them seamlessly.
+* ✅ **3-Tier Lazy-Load Architecture:** Reduces token consumption by **60-70%** by loading domain references only when triggered.
+* ✅ **Live Upstream Sync:** Directly linked to original open-source repos via Git Submodules. Update all skills transparently with one click.
+* ✅ **One-Click Custom Skill Addition:** Add any public GitHub skill repo on-the-fly and instantly deploy it across all your AI assistants.
+
+---
+
 ## 🌟 Key Features
 
 * **🤖 Multi-AI Assistant Auto-Detection:** Automatically detects installed AI agents (Antigravity, Claude Code, Cursor IDE, OpenAI Codex) and manages symlinks seamlessly.

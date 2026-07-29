@@ -1,6 +1,28 @@
 # ⚡ Multi-AI Skill & Framework Hub (Claude • Antigravity • Cursor • Codex)
 
-> **Tüm AI kodlama asistanları için dünyanın ilk Çoklu-AI yetenek yöneticisi.** Bilgisayarınızda yüklü **Google Antigravity, Claude Code, Cursor IDE ve OpenAI Codex** asistanlarını otomatik tespit eder ve 10+ canlı açık kaynak yeteneği şeffaf GitHub raporlamasıyla bağlar.
+> **Claude Code ve Google Antigravity için ultra optimize edilmiş, 3 katmanlı modüler yetenek (skill) ve MCP altyapısı.** 10+ popüler açık kaynak skill'i çakışmasız, canlı Git submodule bağlantılı tek bir mimaride birleştirir.
+
+---
+
+## ❓ Sorun: AI Yeteneklerini (Skills) Yönetmek Kâbus mu?
+
+> **Farklı cihazlarda, Claude Code, Antigravity, Cursor ve Codex arasında yetenekleri senkronize etmek tam bir zaman kaybı değil mi?**
+
+* ❌ **Çakışan Yönergeler:** Farklı repolardan doğrudan indirilen yetenekler birbiriyle çakışır ve AI'ın kafasını karıştırır.
+* ❌ **Token İsrafı:** Aşırı büyük yetenek dosyaları her istekte yüzbinlerce context token'ı harcayarak kotanızı saniyeler içinde bitirir.
+* ❌ **Geri Kaldıran Güncellemeler:** Orijinal repo sahipleri yeteneklerini güncellediğinde yerel dosyalarınız haberiniz olmadan eski kalır.
+* ❌ **Çoklu Araç Karmaşası:** Claude (`~/.claude`), Antigravity (`~/.gemini`), Cursor (`~/.cursor`) ve Codex (`~/.codex`) için ayrı ayrı klasör yönetmek yorucu ve hataya açıktır.
+
+---
+
+## 💡 Çözüm: Multi-AI Skill & Framework Hub
+
+> **Tüm AI araçlarınızı tek bir komutla bağlayan, sıfır çakışmalı ve token optimizasyonlu kontrol paneli.**
+
+* ✅ **Otomatik AI Tespiti:** Bilgisayarınızdaki Antigravity, Claude Code, Cursor IDE ve OpenAI Codex'i otomatik tanır ve bağlar.
+* ✅ **3-Katmanlı Lazy-Load Mimarisi:** İlgili alan referanslarını yalnızca ihtiyaç anında yükleyerek token tüketiminizi **%60-70 azaltır**.
+* ✅ **Canlı GitHub Senkronizasyonu:** Orijinal repolara Git Submodules ile canlı bağlıdır. Tek komutla şeffafça güncellenir.
+* ✅ **Tek Tıkla Özel Skill Ekleme:** İstediğiniz herhangi bir GitHub skill reposunu tek tıkla ekleyip tüm AI'larınıza anında yayınlayabilirsiniz.
 
 ---
 
