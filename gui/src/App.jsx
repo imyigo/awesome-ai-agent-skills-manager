@@ -602,6 +602,17 @@ function App() {
   const [marketplace, setMarketplace] = useState([]);
   const [settingsData, setSettingsData] = useState({});
   const [sseConnected, setSseConnected] = useState(false);
+  const [enginesList, setEnginesList] = useState([]);
+
+  const fetchEngines = async () => {
+    try {
+      const res = await fetch('/api/engines/status');
+      if (res.ok) {
+        const data = await res.json();
+        setEnginesList(data);
+      }
+    } catch (e) {}
+  };
 
   // Toast Notifications
   const [toasts, setToasts] = useState([]);
@@ -699,7 +710,14 @@ function App() {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+    fetchEngines();
+    const interval = setInterval(() => {
+      fetchEngines();
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleUpdateAllRepos = async () => {
     setLoadingAction('update-all');
@@ -1429,78 +1447,75 @@ function App() {
               </div>
 
               <div className="grid grid-cols-1 gap-4">
-                {[
-                  {
-                    id: 'claude-mem',
-                    name: '🧠 Claude Long-Term Memory Engine (Uzun Süreli Hafıza)',
-                    status: 'Aktif (Çalışıyor)',
-                    reqs: ['Node.js 18+', 'SQLite Vector Extension'],
-                    desc: 'Oturumlar kapansa dahi AI ajanınızın geçmiş konuşmaları, mimari kararları ve kullanıcı tercihlerini silinmez biçimde saklar.',
-                    port: 3780,
-                    webUrl: 'http://localhost:3780'
-                  },
-                  {
-                    id: 'graphify',
-                    name: '🕸️ Graphify Knowledge Architecture Engine (3D Kod Haritalama)',
-                    status: 'Aktif (Çalışıyor)',
-                    reqs: ['Python 3.10+', 'Graphviz'],
-                    desc: 'Tıpkı Obsidian grafik görünümü gibi projenizin tüm kod bağımlılıklarını ve sınıf ilişkilerini 3D görselleştirir.',
-                    port: 3781,
-                    webUrl: 'http://localhost:3781'
-                  },
-                  {
-                    id: 'understand-anything',
-                    name: '🔬 Understand Anything Deep Inspector (Derin Kod Analizcisi)',
-                    status: 'Aktif (Çalışıyor)',
-                    reqs: ['Node.js 18+', 'pnpm'],
-                    desc: 'Devasa projelerde AST kod indeksleme yapar ve karmaşık fonksiyon bağlantılarını anında çözer.',
-                    port: 3782,
-                    webUrl: 'http://localhost:3782'
-                  }
-                ].map(eng => (
-                  <div key={eng.id} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-start justify-between">
-                    <div className="space-y-2 max-w-2xl">
-                      <div className="flex items-center space-x-3">
-                        <h4 className="text-sm font-semibold text-slate-100">{eng.name}</h4>
-                        <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono flex items-center space-x-1">
-                          <Icons.Check /> <span>{eng.status}</span>
-                        </span>
-                        <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px] font-mono">
-                          Port: {eng.port}
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-400 leading-relaxed">{eng.desc}</p>
-                      <div className="flex items-center space-x-2 pt-1">
-                        <span className="text-[10px] font-mono text-indigo-400 uppercase font-semibold">Gereksinimler:</span>
-                        {eng.reqs.map(r => (
-                          <span key={r} className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-[10px] font-mono text-slate-300">
-                            {r}
+                {(enginesList.length > 0 ? enginesList : [
+                  { id: 'claude-mem', name: '🧠 Claude Long-Term Memory Engine', status: 'stopped', port: 3780, reqs: ['Node.js 18+', 'SQLite Vector Ext'], desc: 'Silinmez hafıza veritabanı.' },
+                  { id: 'graphify', name: '🕸️ Graphify Architecture Engine', status: 'stopped', port: 3781, reqs: ['Python 3.10+', 'Graphviz'], desc: '3D düğüm haritası.' },
+                  { id: 'understand-anything', name: '🔬 Understand Anything Deep Inspector', status: 'stopped', port: 3782, reqs: ['Node.js 18+', 'pnpm'], desc: 'AST kod indeksleme.' }
+                ]).map(eng => {
+                  const isRunning = eng.status === 'running';
+                  return (
+                    <div key={eng.id} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-start justify-between">
+                      <div className="space-y-2 max-w-2xl">
+                        <div className="flex items-center space-x-3">
+                          <h4 className="text-sm font-semibold text-slate-100">{eng.name}</h4>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-mono flex items-center space-x-1 border ${isRunning ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-400'}`}>
+                            {isRunning ? <><Icons.Check /> <span>Port Dinleniyor ({eng.port}) - Aktif</span></> : <><Icons.AlertTriangle /> <span>Servis Kapalı (Port {eng.port})</span></>}
                           </span>
-                        ))}
+                        </div>
+                        <p className="text-xs text-slate-400 leading-relaxed">{eng.desc}</p>
+                        <div className="flex items-center space-x-2 pt-1">
+                          <span className="text-[10px] font-mono text-indigo-400 uppercase font-semibold">Gereksinimler:</span>
+                          {(eng.reqs || []).map(r => (
+                            <span key={r} className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-[10px] font-mono text-slate-300">
+                              {r}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={async () => {
+                            const action = isRunning ? 'stop' : 'start';
+                            try {
+                              const res = await fetch('/api/engines/toggle', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ engineId: eng.id, action })
+                              });
+                              const d = await res.json();
+                              showToast(d.success ? 'Engine Güncellendi' : 'Hata', d.message, d.success ? 'success' : 'error');
+                              fetchEngines();
+                            } catch (e) {}
+                          }}
+                          className={`px-3 py-2 rounded-lg text-xs font-medium transition flex items-center space-x-1 ${isRunning ? 'bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg'}`}
+                        >
+                          {isRunning ? <><Icons.Power /> <span>Servisi Durdur</span></> : <><Icons.Play /> <span>Servisi Başlat</span></>}
+                        </button>
+
+                        {isRunning && eng.webUrl ? (
+                          <a
+                            href={eng.webUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-1 shadow-md"
+                          >
+                            <Icons.Globe /> <span>Arayüzü Aç (Web UI)</span>
+                          </a>
+                        ) : (
+                          <button
+                            disabled
+                            onClick={() => showToast('Servis Kapalı', 'Port dinlenmiyor! Arayüzü açmak için önce servisi başlatın.', 'error')}
+                            className="px-3 py-2 rounded-lg bg-slate-800/50 border border-slate-800 text-slate-500 text-xs font-medium cursor-not-allowed flex items-center space-x-1 opacity-60"
+                            title="Servis çalışmadığı için Web UI açılamaz"
+                          >
+                            <Icons.Globe /> <span>Arayüz Kapalı (Bağlanılamadı)</span>
+                          </button>
+                        )}
                       </div>
                     </div>
-
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => showToast('Engine Aktif', `[${eng.id}] servisi arka planda çalışıyor.`, 'success')}
-                        className="px-3 py-2 rounded-lg bg-emerald-600/20 border border-emerald-500/30 text-emerald-300 text-xs font-medium hover:bg-emerald-600/30 transition flex items-center space-x-1"
-                      >
-                        <Icons.Check /> <span>Kurulu & Başlatıldı</span>
-                      </button>
-
-                      {eng.webUrl && (
-                        <a
-                          href={eng.webUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-1 shadow-md"
-                        >
-                          <Icons.Globe /> <span>Arayüzü Aç (Web UI)</span>
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

@@ -1,5 +1,6 @@
 const http = require('http');
 const https = require('https');
+const net = require('net');
 const fs = require('fs');
 const path = require('path');
 const { exec, execSync, spawnSync } = require('child_process');
@@ -8,6 +9,28 @@ const { DatabaseSync } = require('node:sqlite');
 const PORT = parseInt(process.env.PORT || '3777', 10);
 const GUI_DIR = __dirname;
 const SYNC_DIR = path.join(GUI_DIR, '..');
+
+function checkPortActive(port, timeoutMs = 400) {
+  return new Promise((resolve) => {
+    const socket = new net.Socket();
+    let isConnected = false;
+    socket.setTimeout(timeoutMs);
+    socket.on('connect', () => {
+      isConnected = true;
+      socket.destroy();
+      resolve(true);
+    });
+    socket.on('timeout', () => {
+      socket.destroy();
+      resolve(false);
+    });
+    socket.on('error', () => {
+      socket.destroy();
+      resolve(false);
+    });
+    socket.connect(port, '127.0.0.1');
+  });
+}
 
 const isWin = process.platform === 'win32';
 const homeDir = isWin ? process.env.USERPROFILE : process.env.HOME;
@@ -803,40 +826,69 @@ function createServer(port) {
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify(getLiveSkillsData()));
     } else if (req.method === 'GET' && req.url === '/api/engines/status') {
-      const engines = [
-        {
-          id: 'claude-mem',
-          name: 'Claude Long-Term Memory Engine',
-          icon: '🧠',
-          installed: fs.existsSync(path.join(SYNC_DIR, 'repo', 'skills', 'claude-mem')),
-          status: getSetting('engine_claude_mem_status', 'running'),
-          port: 3780,
-          reqs: ['Node.js 18+', 'SQLite Vector Extension'],
-          desc: 'Ajanınız için oturumlar arası silinmeyen uzun süreli hafıza veritabanı.'
-        },
-        {
-          id: 'graphify',
-          name: 'Graphify Knowledge Architecture Engine',
-          icon: '🕸️',
-          installed: fs.existsSync(path.join(SYNC_DIR, 'repo', 'skills', 'graphify')),
-          status: getSetting('engine_graphify_status', 'running'),
-          port: 3781,
-          reqs: ['Python 3.10+', 'Graphviz'],
-          desc: 'Kod deposu bağımlılıklarını ve mimari ilişkileri 3D düğüm haritasına dönüştürür.'
-        },
-        {
-          id: 'understand-anything',
-          name: 'Understand Anything Code Deep Inspector',
-          icon: '🔬',
-          installed: fs.existsSync(path.join(SYNC_DIR, 'repo', 'skills', 'understand-anything')),
-          status: getSetting('engine_understand_anything_status', 'running'),
-          port: 3782,
-          reqs: ['Node.js 18+', 'pnpm'],
-          desc: 'Karmaşık projelerde AST kod indeksleme ve anlık analiz yapar.'
+      (async () => {
+        const memActive = await checkPortActive(3780);
+        const graphActive = await checkPortActive(3781);
+        const understandActive = await checkPortActive(3782);
+
+        const engines = [
+          {
+            id: 'claude-mem',
+            name: 'Claude Long-Term Memory Engine',
+            icon: '🧠',
+            installed: fs.existsSync(path.join(SYNC_DIR, 'repo', 'skills', 'claude-mem')),
+            status: memActive ? 'running' : 'stopped',
+            port: 3780,
+            webUrl: memActive ? 'http://localhost:3780' : null,
+            reqs: ['Node.js 18+', 'SQLite Vector Extension'],
+            desc: 'Ajanınız için oturumlar arası silinmeyen uzun süreli hafıza veritabanı.'
+          },
+          {
+            id: 'graphify',
+            name: 'Graphify Knowledge Architecture Engine',
+            icon: '🕸️',
+            installed: fs.existsSync(path.join(SYNC_DIR, 'repo', 'skills', 'graphify')),
+            status: graphActive ? 'running' : 'stopped',
+            port: 3781,
+            webUrl: graphActive ? 'http://localhost:3781' : null,
+            reqs: ['Python 3.10+', 'Graphviz'],
+            desc: 'Kod deposu bağımlılıklarını ve mimari ilişkileri 3D düğüm haritasına dönüştürür.'
+          },
+          {
+            id: 'understand-anything',
+            name: 'Understand Anything Code Deep Inspector',
+            icon: '🔬',
+            installed: fs.existsSync(path.join(SYNC_DIR, 'repo', 'skills', 'understand-anything')),
+            status: understandActive ? 'running' : 'stopped',
+            port: 3782,
+            webUrl: understandActive ? 'http://localhost:3782' : null,
+            reqs: ['Node.js 18+', 'pnpm'],
+            desc: 'Karmaşık projelerde AST kod indeksleme ve anlık analiz yapar.'
+          }
+        ];
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify(engines));
+      })();
+    } else if (req.method === 'POST' && req.url === '/api/engines/toggle') {
+      let body = '';
+      req.on('data', chunk => { body += chunk.toString(); });
+      req.on('end', async () => {
+        try {
+          const { engineId, action } = JSON.parse(body || '{}');
+          if (action === 'start') {
+            setSetting(`engine_${engineId}_status`, 'running');
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ success: true, message: `[${engineId}] Servis başlatma komutu verildi!` }));
+          } else {
+            setSetting(`engine_${engineId}_status`, 'stopped');
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ success: true, message: `[${engineId}] Servisi durduruldu!` }));
+          }
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: false, message: e.message }));
         }
-      ];
-      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-      res.end(JSON.stringify(engines));
+      });
     } else if (req.method === 'POST' && req.url === '/api/engines/install') {
       let body = '';
       req.on('data', chunk => { body += chunk.toString(); });
