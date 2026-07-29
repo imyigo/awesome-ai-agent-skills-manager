@@ -31,13 +31,14 @@ const dict = {
     createPreset: "Özel Preset Oluştur (Skills Seçmeli)",
     testPrompt: "Test İstemini Girin",
     runTest: "Sandbox Simülasyonu Çalıştır",
-    addMcp: "Yeni MCP Server Ekle",
+    addMcp: "Yeni MCP Server Ekle (Local Stdio & Remote HTTP/SSE)",
     saveMcp: "MCP Konfigürasyonunu Kaydet ve Senkronize Et",
     rawJsonView: "Ham JSON Görünümü",
     cardView: "Görsel Kart Görünümü",
     searchGithub: "GitHub Repolarında Ara (Örn: mcp-server, claude-skills)",
     saveSettings: "Ayarları SQLite Veritabanına Kaydet",
-    setAuthSecret: "Auth Key Kaydet"
+    setAuthSecret: "Auth Key Kaydet",
+    editMcp: "MCP Sunucusunu Düzenle"
   },
   en: {
     dashboard: "Dashboard",
@@ -66,13 +67,14 @@ const dict = {
     createPreset: "Create Custom Preset (Select Skills)",
     testPrompt: "Enter Test Prompt",
     runTest: "Run Sandbox Simulation",
-    addMcp: "Add New MCP Server",
+    addMcp: "Add New MCP Server (Local Stdio & Remote HTTP/SSE)",
     saveMcp: "Save & Sync MCP Configuration",
     rawJsonView: "Raw JSON View",
     cardView: "Visual Cards View",
     searchGithub: "Search GitHub Repositories (e.g. mcp-server, claude-skills)",
     saveSettings: "Save Settings to SQLite Database",
-    setAuthSecret: "Save Auth Secret"
+    setAuthSecret: "Save Auth Secret",
+    editMcp: "Edit MCP Server"
   }
 };
 
@@ -92,6 +94,7 @@ const Icons = {
   Refresh: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
   Plus: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
   Trash: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>,
+  Edit: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
   Check: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>,
   Server: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>,
   Globe: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
@@ -136,6 +139,104 @@ function CodeEditorModal({ title, fileName, initialContent, onSave, onClose }) {
   );
 }
 
+// MCP SERVER EDITOR MODAL
+function McpEditorModal({ serverKey, serverData, onSave, onClose }) {
+  const [key, setKey] = useState(serverKey || '');
+  const [mcpType, setMcpType] = useState(serverData?.url ? 'remote' : 'stdio');
+  const [cmd, setCmd] = useState(serverData?.command || '');
+  const [argsStr, setArgsStr] = useState((serverData?.args || []).join(' '));
+  const [url, setUrl] = useState(serverData?.url || '');
+  const [headerKey, setHeaderKey] = useState(serverData?.headers ? Object.keys(serverData.headers)[0] || 'x-api-key' : 'x-api-key');
+  const [headerVal, setHeaderVal] = useState(serverData?.headers ? Object.values(serverData.headers)[0] || '' : '');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    let configObj = {};
+    if (mcpType === 'remote') {
+      configObj = {
+        url: url,
+        headers: headerKey ? { [headerKey]: headerVal } : {}
+      };
+    } else {
+      configObj = {
+        command: cmd,
+        args: argsStr ? argsStr.split(' ') : []
+      };
+    }
+    if (serverData?.env) configObj.env = serverData.env;
+    onSave(key, configObj);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+      <div className="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-lg overflow-hidden shadow-2xl space-y-4 p-6">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h3 className="text-sm font-semibold text-white flex items-center space-x-2">
+            <Icons.Server /> <span>{serverKey ? `Edit MCP Server [${serverKey}]` : 'Add New MCP Server'}</span>
+          </h3>
+          <button onClick={onClose} className="text-xs text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-800">Close</button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="text-xs font-mono text-slate-400 block mb-1">Server Key / ID</label>
+            <input type="text" value={key} onChange={e => setKey(e.target.value)} disabled={!!serverKey} className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" required />
+          </div>
+
+          <div>
+            <label className="text-xs font-mono text-slate-400 block mb-1">Server Protocol Type</label>
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => setMcpType('stdio')} className={`py-2 rounded text-xs font-mono transition ${mcpType === 'stdio' ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/50' : 'bg-slate-950 text-slate-400 border border-slate-800'}`}>
+                Local Stdio (Command)
+              </button>
+              <button type="button" onClick={() => setMcpType('remote')} className={`py-2 rounded text-xs font-mono transition ${mcpType === 'remote' ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/50' : 'bg-slate-950 text-slate-400 border border-slate-800'}`}>
+                Remote HTTP / SSE (URL)
+              </button>
+            </div>
+          </div>
+
+          {mcpType === 'stdio' ? (
+            <>
+              <div>
+                <label className="text-xs font-mono text-slate-400 block mb-1">Command (npx, docker, python)</label>
+                <input type="text" value={cmd} onChange={e => setCmd(e.target.value)} placeholder="npx" className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" required />
+              </div>
+              <div>
+                <label className="text-xs font-mono text-slate-400 block mb-1">Arguments (space separated)</label>
+                <input type="text" value={argsStr} onChange={e => setArgsStr(e.target.value)} placeholder="-y @wix/mcp-server@latest" className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" />
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <label className="text-xs font-mono text-slate-400 block mb-1">Remote SSE / HTTP Endpoint URL</label>
+                <input type="url" value={url} onChange={e => setUrl(e.target.value)} placeholder="https://21st.dev/api/mcp" className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" required />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-xs font-mono text-slate-400 block mb-1">Header Name</label>
+                  <input type="text" value={headerKey} onChange={e => setHeaderKey(e.target.value)} placeholder="x-api-key" className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" />
+                </div>
+                <div>
+                  <label className="text-xs font-mono text-slate-400 block mb-1">Header Value / Env Variable</label>
+                  <input type="text" value={headerVal} onChange={e => setHeaderVal(e.target.value)} placeholder="$API_KEY_21ST" className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" />
+                </div>
+              </div>
+            </>
+          )}
+
+          <div className="pt-3 flex justify-end space-x-2 border-t border-slate-800">
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded bg-slate-800 text-xs text-slate-300">Cancel</button>
+            <button type="submit" className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-1">
+              <Icons.Check /> <span>Save Server</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // MAIN APP COMPONENT
 function App() {
   const [lang, setLang] = useState('tr');
@@ -154,11 +255,9 @@ function App() {
   const [isConsoleOpen, setIsConsoleOpen] = useState(false);
   const [editorModal, setEditorModal] = useState(null);
 
-  // MCP UI View Mode & Secret Inputs
+  // MCP UI View Mode & Modal
   const [mcpViewMode, setMcpViewMode] = useState('cards');
-  const [newMcpKey, setNewMcpKey] = useState('');
-  const [newMcpCmd, setNewMcpCmd] = useState('');
-  const [newMcpArgs, setNewMcpArgs] = useState('');
+  const [editingMcpServer, setEditingMcpServer] = useState(null);
   const [mcpAuthInputs, setMcpAuthInputs] = useState({});
 
   // Marketplace GitHub Search
@@ -355,22 +454,18 @@ function App() {
     }
   };
 
-  const handleAddMcpServer = (e) => {
-    e.preventDefault();
-    if (!newMcpKey || !newMcpCmd) return;
+  const handleSaveMcpServerObject = (serverKey, serverObj) => {
     const current = { ...(mcpConfig.mcpServers || {}) };
-    current[newMcpKey] = {
-      command: newMcpCmd,
-      args: newMcpArgs ? newMcpArgs.split(' ') : []
-    };
+    current[serverKey] = serverObj;
     const updated = { mcpServers: current };
     setMcpConfig(updated);
     setMcpInputJson(JSON.stringify(updated, null, 2));
     handleSaveMcpConfig(updated);
-    setNewMcpKey(''); setNewMcpCmd(''); setNewMcpArgs('');
+    setEditingMcpServer(null);
   };
 
   const handleRemoveMcpServer = (serverKey) => {
+    if (!confirm(`Remove MCP Server [${serverKey}]?`)) return;
     const current = { ...(mcpConfig.mcpServers || {}) };
     delete current[serverKey];
     const updated = { mcpServers: current };
@@ -635,61 +730,78 @@ function App() {
             </div>
           )}
 
-          {/* TAB: MCP SERVERS WITH AUTH KEYS */}
+          {/* TAB: MCP SERVERS WITH REMOTE URL + HEADERS & EDIT MODAL */}
           {activeTab === 'mcp' && (
             <div className="space-y-6">
               <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-semibold text-slate-100">MCP Server & Auth Management</h3>
-                  <p className="text-xs text-slate-400 mt-1">Configure Model Context Protocol servers and manage API keys/secrets saved into SQLite.</p>
+                  <h3 className="text-base font-semibold text-slate-100">MCP Server Management (Stdio & Remote HTTP/SSE)</h3>
+                  <p className="text-xs text-slate-400 mt-1">Manage local stdio and remote HTTP/SSE MCP servers with custom headers, API keys, and auto-sync.</p>
                 </div>
-                <button onClick={() => setMcpViewMode(mcpViewMode === 'cards' ? 'json' : 'cards')} className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs text-indigo-300 font-mono transition">
-                  {mcpViewMode === 'cards' ? t.rawJsonView : t.cardView}
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button onClick={() => setEditingMcpServer({ key: '', data: null })} className="px-3 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium flex items-center space-x-1 transition">
+                    <Icons.Plus /> <span>{t.addMcp}</span>
+                  </button>
+                  <button onClick={() => setMcpViewMode(mcpViewMode === 'cards' ? 'json' : 'cards')} className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs text-indigo-300 font-mono transition">
+                    {mcpViewMode === 'cards' ? t.rawJsonView : t.cardView}
+                  </button>
+                </div>
               </div>
 
               {mcpViewMode === 'cards' ? (
-                <div className="space-y-6">
-                  {/* ADD MCP SERVER FORM */}
-                  <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-4">
-                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t.addMcp}</h4>
-                    <form onSubmit={handleAddMcpServer} className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                      <input type="text" placeholder="Server Key (wix, github, sqlite)" value={newMcpKey} onChange={e => setNewMcpKey(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" required />
-                      <input type="text" placeholder="Command (npx, docker)" value={newMcpCmd} onChange={e => setNewMcpCmd(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" required />
-                      <input type="text" placeholder="Args (space separated)" value={newMcpArgs} onChange={e => setNewMcpArgs(e.target.value)} className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" />
-                      <button type="submit" className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center justify-center space-x-2">
-                        <Icons.Plus /> <span>Add MCP Server</span>
-                      </button>
-                    </form>
-                  </div>
-
-                  {/* MCP CARDS GRID WITH AUTH SECRETS */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {mcpServersList.map(([key, srv]) => (
-                      <div key={key} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between space-y-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
-                              <Icons.Server />
-                            </div>
-                            <div>
-                              <h4 className="text-sm font-semibold text-slate-200 capitalize">{key}</h4>
-                              <p className="text-[11px] font-mono text-slate-500">{srv.command} {(srv.args || []).join(' ')}</p>
-                            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {mcpServersList.map(([key, srv]) => (
+                    <div key={key} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between space-y-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                            <Icons.Server />
                           </div>
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <h4 className="text-sm font-semibold text-slate-200 capitalize">{key}</h4>
+                              <span className={`px-2 py-0.2 rounded text-[9px] font-mono ${srv.url ? 'bg-sky-500/10 text-sky-400 border border-sky-500/20' : 'bg-slate-800 text-slate-400'}`}>
+                                {srv.url ? 'Remote HTTP/SSE' : 'Local Stdio'}
+                              </span>
+                            </div>
+                            <p className="text-[11px] font-mono text-slate-500 truncate max-w-xs mt-0.5">
+                              {srv.url ? srv.url : `${srv.command} ${(srv.args || []).join(' ')}`}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-1">
+                          <button onClick={() => setEditingMcpServer({ key, data: srv })} className="p-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Edit MCP Server">
+                            <Icons.Edit />
+                          </button>
                           <button onClick={() => handleRemoveMcpServer(key)} className="p-1.5 rounded hover:bg-rose-500/20 text-rose-400 transition" title="Delete MCP Server">
                             <Icons.Trash />
                           </button>
                         </div>
+                      </div>
 
-                        {/* AUTH SECRETS INPUT SECTION */}
+                      {/* REMOTE HEADERS SECTION */}
+                      {srv.headers && (
+                        <div className="p-3 rounded bg-slate-950 border border-slate-800 font-mono text-[11px] text-slate-300 space-y-1">
+                          <span className="text-[10px] text-indigo-400 uppercase font-semibold block">Headers Configuration:</span>
+                          {Object.entries(srv.headers).map(([hk, hv]) => (
+                            <div key={hk} className="flex justify-between items-center bg-slate-900/60 p-1.5 rounded border border-slate-800/80">
+                              <span className="text-slate-400">{hk}:</span>
+                              <span className="text-emerald-400">{hv}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* LOCAL ENV SECRETS INPUT SECTION */}
+                      {srv.env && (
                         <div className="p-3 rounded bg-slate-950 border border-slate-800 space-y-2">
                           <div className="flex items-center justify-between">
                             <span className="text-[11px] font-mono text-amber-400 flex items-center space-x-1">
-                              <Icons.Lock /> <span>Auth & Key Configuration</span>
+                              <Icons.Lock /> <span>Environment Secrets</span>
                             </span>
                           </div>
-                          {srv.env && Object.entries(srv.env).map(([ek, ev]) => (
+                          {Object.entries(srv.env).map(([ek, ev]) => (
                             <div key={ek} className="flex items-center space-x-2 pt-1">
                               <span className="text-[10px] font-mono text-slate-400 w-1/3 truncate">{ek}:</span>
                               <input
@@ -705,9 +817,9 @@ function App() {
                             </div>
                           ))}
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="space-y-4 p-5 rounded-xl bg-slate-900/80 border border-slate-800">
@@ -945,6 +1057,16 @@ function App() {
             ))}
           </div>
         </div>
+      )}
+
+      {/* MCP EDITOR MODAL */}
+      {editingMcpServer && (
+        <McpEditorModal
+          serverKey={editingMcpServer.key}
+          serverData={editingMcpServer.data}
+          onSave={(key, serverObj) => handleSaveMcpServerObject(key, serverObj)}
+          onClose={() => setEditingMcpServer(null)}
+        />
       )}
 
       {editorModal && (
