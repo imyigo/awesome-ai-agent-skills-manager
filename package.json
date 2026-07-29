@@ -1,0 +1,27 @@
+{
+  "name": "awesome-ai-agent-skills-manager",
+  "version": "1.0.0",
+  "description": "Universal Multi-AI Agent Control Center for Claude Code, Antigravity, Cursor, Codex, and 15+ more AI tools.",
+  "main": "gui/gui_server.js",
+  "bin": {
+    "skills": "gui/cli.js",
+    "askill": "gui/cli.js"
+  },
+  "scripts": {
+    "start": "node gui/gui_server.js",
+    "cli": "node gui/cli.js",
+    "test": "node --test gui/tests/server.test.js"
+  },
+  "keywords": [
+    "ai-agents",
+    "skills",
+    "claude-code",
+    "cursor",
+    "antigravity",
+    "codex",
+    "mcp-server",
+    "slash-commands"
+  ],
+  "author": "imyigo",
+  "license": "MIT"
+}
