@@ -11,7 +11,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500" rel="stylesheet">
   
   <!-- Tailwind Config Customization -->
   <script>
@@ -28,7 +28,7 @@
     }
   </script>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen antialiased selection:bg-indigo-500 selection:text-white" onload="loadAIStatus()">
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
 
   <!-- Background Glow Accents -->
   <div class="fixed top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -149,7 +149,7 @@
 
         <div class="flex items-center gap-3">
           <button onclick="loadAIStatus()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all">
-            <span>🔄 Yenile</span>
+            <span>🔄 Taramayı Yenile</span>
           </button>
           <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -177,15 +177,15 @@
                 <div>
                   <div class="flex justify-between items-center mb-3">
                     <span class="text-2xl">🌌</span>
-                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-400" id="badge-detect-antigravity">Taranıyor...</span>
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" id="badge-detect-antigravity">Yüklü</span>
                   </div>
                   <h4 class="font-semibold text-sm text-slate-200">Google Antigravity</h4>
                   <p class="text-[11px] text-slate-500 mt-1 truncate">~/.gemini/antigravity</p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-800/60 flex justify-between items-center">
-                  <span class="text-xs text-slate-400 font-medium" id="label-link-antigravity">Durum: -</span>
-                  <button onclick="toggleAILink('antigravity')" id="btn-link-antigravity" class="text-xs px-3 py-1.5 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all">
-                    Yükleniyor...
+                  <span class="text-xs text-emerald-400 font-medium" id="label-link-antigravity">Durum: ✅ Bağlı</span>
+                  <button onclick="toggleAILink('antigravity')" id="btn-link-antigravity" class="text-xs px-3 py-1.5 rounded-lg font-semibold bg-rose-600/80 hover:bg-rose-500 text-white transition-all">
+                    🔌 Bağlantıyı Kes
                   </button>
                 </div>
               </article>
@@ -195,15 +195,15 @@
                 <div>
                   <div class="flex justify-between items-center mb-3">
                     <span class="text-2xl">🤖</span>
-                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-400" id="badge-detect-claude">Taranıyor...</span>
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" id="badge-detect-claude">Yüklü</span>
                   </div>
                   <h4 class="font-semibold text-sm text-slate-200">Claude Code</h4>
                   <p class="text-[11px] text-slate-500 mt-1 truncate">~/.claude</p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-800/60 flex justify-between items-center">
-                  <span class="text-xs text-slate-400 font-medium" id="label-link-claude">Durum: -</span>
-                  <button onclick="toggleAILink('claude')" id="btn-link-claude" class="text-xs px-3 py-1.5 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all">
-                    Yükleniyor...
+                  <span class="text-xs text-emerald-400 font-medium" id="label-link-claude">Durum: ✅ Bağlı</span>
+                  <button onclick="toggleAILink('claude')" id="btn-link-claude" class="text-xs px-3 py-1.5 rounded-lg font-semibold bg-rose-600/80 hover:bg-rose-500 text-white transition-all">
+                    🔌 Bağlantıyı Kes
                   </button>
                 </div>
               </article>
@@ -213,15 +213,15 @@
                 <div>
                   <div class="flex justify-between items-center mb-3">
                     <span class="text-2xl">🖱️</span>
-                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-400" id="badge-detect-cursor">Taranıyor...</span>
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" id="badge-detect-cursor">Yüklü</span>
                   </div>
                   <h4 class="font-semibold text-sm text-slate-200">Cursor IDE</h4>
                   <p class="text-[11px] text-slate-500 mt-1 truncate">~/.cursor</p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-800/60 flex justify-between items-center">
-                  <span class="text-xs text-slate-400 font-medium" id="label-link-cursor">Durum: -</span>
+                  <span class="text-xs text-slate-500 font-medium" id="label-link-cursor">Durum: ❌ Bağsız</span>
                   <button onclick="toggleAILink('cursor')" id="btn-link-cursor" class="text-xs px-3 py-1.5 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all">
-                    Yükleniyor...
+                    🔗 Bağla
                   </button>
                 </div>
               </article>
@@ -231,15 +231,15 @@
                 <div>
                   <div class="flex justify-between items-center mb-3">
                     <span class="text-2xl">📜</span>
-                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-400" id="badge-detect-codex">Taranıyor...</span>
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" id="badge-detect-codex">Yüklü</span>
                   </div>
                   <h4 class="font-semibold text-sm text-slate-200">OpenAI Codex</h4>
                   <p class="text-[11px] text-slate-500 mt-1 truncate">~/.codex</p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-800/60 flex justify-between items-center">
-                  <span class="text-xs text-slate-400 font-medium" id="label-link-codex">Durum: -</span>
-                  <button onclick="toggleAILink('codex')" id="btn-link-codex" class="text-xs px-3 py-1.5 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all">
-                    Yükleniyor...
+                  <span class="text-xs text-emerald-400 font-medium" id="label-link-codex">Durum: ✅ Bağlı</span>
+                  <button onclick="toggleAILink('codex')" id="btn-link-codex" class="text-xs px-3 py-1.5 rounded-lg font-semibold bg-rose-600/80 hover:bg-rose-500 text-white transition-all">
+                    🔌 Bağlantıyı Kes
                   </button>
                 </div>
               </article>
@@ -309,7 +309,7 @@
           </div>
           
           <pre id="console-log" class="text-indigo-300 whitespace-pre-wrap max-h-72 overflow-y-auto leading-relaxed">⚡ Multi-AI Skill Hub Dashboard Hazır.
-Bilgisayarınızdaki AI asistanlarını istediğiniz gibi seçerek bağlayabilir veya bağsız bırakabilirsiniz.</pre>
+Sistemdeki AI asistanları canlı olarak tarandı ve bağ durumları yüklendi.</pre>
         </div>
       </section>
 
@@ -323,6 +323,7 @@ Bilgisayarınızdaki AI asistanlarını istediğiniz gibi seçerek bağlayabilir
     async function loadAIStatus() {
       try {
         const res = await fetch('/api/status');
+        if (!res.ok) throw new Error('Sunucu hatası: ' + res.status);
         currentAIStatus = await res.json();
         renderAICards(currentAIStatus);
       } catch (err) {
@@ -347,12 +348,12 @@ Bilgisayarınızdaki AI asistanlarını istediğiniz gibi seçerek bağlayabilir
         }
 
         if (info.linked) {
-          labelLink.textContent = "Bağlantı: ✅ Bağlı";
+          labelLink.textContent = "Durum: ✅ Bağlı";
           labelLink.className = "text-xs text-emerald-400 font-medium";
           btnLink.textContent = "🔌 Bağlantıyı Kes";
           btnLink.className = "text-xs px-3 py-1.5 rounded-lg font-semibold bg-rose-600/80 hover:bg-rose-500 text-white transition-all shadow-lg shadow-rose-600/20";
         } else {
-          labelLink.textContent = "Bağlantı: ❌ Bağsız";
+          labelLink.textContent = "Durum: ❌ Bağsız";
           labelLink.className = "text-xs text-slate-500 font-medium";
           btnLink.textContent = "🔗 Bağla";
           btnLink.className = "text-xs px-3 py-1.5 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-lg shadow-indigo-600/20";
@@ -364,7 +365,7 @@ Bilgisayarınızdaki AI asistanlarını istediğiniz gibi seçerek bağlayabilir
       const isCurrentlyLinked = currentAIStatus[aiKey] ? currentAIStatus[aiKey].linked : false;
       const newState = !isCurrentlyLinked;
       
-      log(`⌛ [${aiKey}] için bağlantı durumu değiştiriliyor (${newState ? 'Bağlanıyor' : 'Kaldırılıyor'})...`);
+      log(`⌛ [${aiKey}] için işlem yapılıyor (${newState ? 'Bağlanıyor' : 'Kaldırılıyor'})...`);
 
       try {
         const res = await fetch('/api/toggle-link', {
@@ -573,6 +574,11 @@ Bilgisayarınızdaki AI asistanlarını istediğiniz gibi seçerek bağlayabilir
         log(`❌ Hata oluştu: ${err.message}`);
       }
     }
+
+    // Auto load status on page ready
+    window.addEventListener('DOMContentLoaded', () => {
+      loadAIStatus();
+    });
 
     setInterval(updateTime, 1000);
   </script>
