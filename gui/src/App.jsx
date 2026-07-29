@@ -1212,6 +1212,15 @@ function App() {
                               <p className="text-[10px] font-mono text-indigo-400/80 truncate max-w-xs mt-1">{r.url}</p>
                             </div>
                             <div className="flex items-center space-x-1">
+                              {['claude-mem', 'graphify', 'understand-anything'].includes(r.name) && (
+                                <button
+                                  onClick={() => setActiveTab('engines')}
+                                  className="px-2 py-1 rounded bg-indigo-600/20 hover:bg-indigo-600/40 border border-indigo-500/30 text-indigo-300 text-[10px] font-mono transition flex items-center space-x-1"
+                                  title="Servis Sayfasına Git (Core Engines)"
+                                >
+                                  <Icons.Cpu /> <span>Servise Git</span>
+                                </button>
+                              )}
                               <button onClick={() => handleToggleSkillDisabled(r.name)} className={`p-1.5 rounded transition ${r.meta?.disabled ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20' : 'bg-slate-800 text-slate-400 hover:text-white'}`} title={r.meta?.disabled ? t.enableSkill : t.disableSkill}>
                                 <Icons.Power />
                               </button>
