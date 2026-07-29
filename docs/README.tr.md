@@ -26,9 +26,9 @@
 
 ---
 
-## 🎨 Kontrol Paneli & Görsel Web Dashboard
+## 🎨 Görsel Web Dashboard Başlatma
 
-Tüm işlemleri tek bir giriş noktasından (**`./control.sh`**) yönetebilirsiniz:
+Tüm AI sisteminizi **Görsel Web Dashboard** üzerinden yönetin:
 
 ```bash
 cd ~/.gemini/claude-antigravity-best-skills
@@ -36,14 +36,13 @@ chmod +x control.sh
 ./control.sh
 ```
 
-**`control.sh` İçindeki Seçenekler:**
-* **`[1]` 🚀 Kurulum Yap:** Antigravity, Claude Code, Cursor ve Codex bağlantılarını kurar.
-* **`[2]` 🔄 Güncelle:** Tüm canlı skill'leri şeffaf commit loglarıyla günceller.
-* **`[3]` 🔍 Sistem Durumu:** Yüklü AI asistanlarını tespit eder ve durum denetimi yapar.
-* **`[4]` ➕ Canlı Skill Ekle:** İstediğiniz GitHub skill reposunu tek tıkla ekler.
-* **`[5]` 🎨 Görsel Web Dashboard:** Tarayıcınızda `http://localhost:3777` adresinde **Görsel Web GUI** arayüzünü açar!
-* **`[6]` 🌐 Dil Değiştir:** Menü dilini anında değiştirir (Türkçe, English, Deutsch vb.).
-* **`[7]` ❌ Çıkış:** Kontrol panelinden çıkar.
+> **`./control.sh` komutunu çalıştırdığınız an Görsel Web Arayüzü `http://localhost:3777` adresinde otomatik açılır!**
+
+### Görsel Web Dashboard Özellikleri:
+* 🚀 **Tek Tıkla Kurulum:** Tüm yetenekleri Antigravity, Claude Code, Cursor ve Codex'e bağlar.
+* 🔄 **Canlı Submodule Güncelleme:** GitHub'dan tüm yetenekleri şeffaf commit loglarıyla günceller.
+* 📂 **İnteraktif Kategori Gezgini:** Web, Mobil, Oyun, Güvenlik, Planlama ve Pazarlama kurallarını detaylıca inceler.
+* ➕ **Özel Skill Ekleme:** İstediğiniz GitHub skill reposunu tek tıkla ekleyip tüm AI'larınıza yayınlar.
 
 ```text
 ========================================================

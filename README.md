@@ -43,9 +43,9 @@
 
 ---
 
-## 🎨 Web GUI Dashboard & Interactive CLI
+## 🎨 Web GUI Dashboard Launch
 
-Manage your skills using the **Interactive Dashboard & Control Panel**:
+Manage your entire AI stack using the **Visual Web Dashboard**:
 
 ```bash
 cd ~/.gemini/claude-antigravity-best-skills
@@ -53,14 +53,13 @@ chmod +x control.sh
 ./control.sh
 ```
 
-**Options in `control.sh`:**
-* **`[1]` 🚀 Install:** Links all skills, commands & MCP configs to Antigravity, Claude Code, Cursor & Codex.
-* **`[2]` 🔄 Update:** Upgrades all live skills from their upstream GitHub repositories with transparent commit logs.
-* **`[3]` 🔍 Status:** Auto-detects installed AI assistants and verifies connection health.
-* **`[4]` ➕ Add Skill:** Clones any custom GitHub skill repo on-the-fly and deploys it across all AI assistants.
-* **`[5]` 🎨 Web Dashboard:** Launches the **Visual Dark-Mode Web GUI** at `http://localhost:3777` with live log console!
-* **`[6]` 🌐 Language:** Toggle menu language (English, Türkçe, Deutsch, Русский, 中文, Français, Português).
-* **`[7]` ❌ Exit:** Exit the control panel.
+> **Running `./control.sh` automatically launches the Visual Web GUI at `http://localhost:3777` in your browser!**
+
+### Features in the Web Dashboard:
+* 🚀 **One-Click Install:** Link all skills to Antigravity, Claude Code, Cursor & Codex.
+* 🔄 **Live Submodule Update:** Update all skills from GitHub with transparent commit logs.
+* 📂 **Interactive Category Explorer:** Seamlessly browse and inspect rules for Web, Mobile, Game, Security, Planning & Marketing.
+* ➕ **Add Custom Skills:** Paste any public GitHub skill repo URL to instantly deploy it across all AI assistants.
 
 ```text
 ========================================================
