@@ -26,14 +26,14 @@ git clone --recursive https://github.com/imyigo/claude-antigravity-skills.git ~/
 Terminal / Git Bash ekranında:
 ```bash
 cd ~/.gemini/claude-antigravity-best-skills
-chmod +x control/*.sh
-./control/kurulum.sh
+chmod +x install.sh update.sh
+./install.sh
 ```
 
 ### 3. Tek Tıkla Güncelleme
 Orijinal kaynak repolardaki en son güncellemeleri çekmek için:
 ```bash
-./control/guncelle.sh
+./update.sh
 ```
 
 ---

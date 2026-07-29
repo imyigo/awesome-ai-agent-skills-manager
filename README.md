@@ -70,17 +70,17 @@ git clone --recursive https://github.com/imyigo/claude-antigravity-skills.git ~/
 
 ### 2. Run Universal Setup Script
 
-Run the universal setup script (in Git Bash / Terminal):
+Run the universal setup script in Terminal / Git Bash:
 ```bash
 cd ~/.gemini/claude-antigravity-best-skills
-chmod +x control/*.sh
-./control/kurulum.sh
+chmod +x install.sh update.sh
+./install.sh
 ```
 
 ### 3. One-Click Updates
 To update all skills from live original GitHub sources:
 ```bash
-./control/guncelle.sh
+./update.sh
 ```
 
 ---

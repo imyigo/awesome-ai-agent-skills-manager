@@ -3,8 +3,7 @@
 
 set -e
 
-CONTROL_DIR="$(cd "$(dirname "$0")" && pwd)"
-SYNC_DIR="$(cd "$CONTROL_DIR/.." && pwd)"
+SYNC_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo ""
 echo "🔄 Orijinal Skill Repolari Guncelleniyor..."
