@@ -10,13 +10,6 @@ const SYNC_DIR = path.join(GUI_DIR, '..');
 const isWin = process.platform === 'win32';
 const homeDir = isWin ? process.env.USERPROFILE : process.env.HOME;
 
-const AI_PATHS = {
-  antigravity: path.join(homeDir, '.gemini', 'antigravity'),
-  claude: path.join(homeDir, '.claude'),
-  cursor: path.join(homeDir, '.cursor'),
-  codex: path.join(homeDir, '.codex')
-};
-
 const REACT_HTML_SHELL = `<!DOCTYPE html>
 <html lang="tr" class="dark">
 <head>
@@ -47,13 +40,54 @@ const REACT_HTML_SHELL = `<!DOCTYPE html>
 </body>
 </html>`;
 
+const AI_PATHS = {
+  antigravity: path.join(homeDir, '.gemini', 'antigravity'),
+  claude: path.join(homeDir, '.claude'),
+  cursor: path.join(homeDir, '.cursor'),
+  codex: path.join(homeDir, '.codex')
+};
+
+// SIKI VE AKILLI AI YÜKLÜLÜK DENETİMİ (STRICT DETECTION)
+function checkAIInstalled(aiKey) {
+  if (aiKey === 'antigravity') {
+    return fs.existsSync(AI_PATHS.antigravity);
+  }
+  
+  if (aiKey === 'claude') {
+    return fs.existsSync(AI_PATHS.claude);
+  }
+
+  if (aiKey === 'cursor') {
+    // Windows ve macOS'ta Cursor IDE uygulamasının gerçekten yüklü olup olmadığını doğrula
+    if (isWin) {
+      const cursorProg = path.join(process.env.LOCALAPPDATA || '', 'Programs', 'cursor');
+      const cursorProg64 = 'C:\\Program Files\\Cursor';
+      return fs.existsSync(cursorProg) || fs.existsSync(cursorProg64);
+    } else {
+      return fs.existsSync('/Applications/Cursor.app');
+    }
+  }
+
+  if (aiKey === 'codex') {
+    // OpenAI Codex CLI'ın terminalde aktif komut olup olmadığını kontrol et
+    try {
+      execSync(isWin ? 'where codex' : 'which codex', { stdio: 'ignore' });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return false;
+}
+
 function getAIStatus() {
   const result = {};
   for (const [key, dirPath] of Object.entries(AI_PATHS)) {
-    const installed = fs.existsSync(dirPath);
+    const installed = checkAIInstalled(key);
     const skillsPath = path.join(dirPath, 'skills');
     let linked = false;
-    if (installed && fs.existsSync(skillsPath)) {
+    if (fs.existsSync(skillsPath)) {
       try {
         const stat = fs.lstatSync(skillsPath);
         linked = stat.isSymbolicLink() || stat.isDirectory();
@@ -240,7 +274,6 @@ function removeLinkTarget(targetPath) {
   }
 }
 
-// Windows ve Unix için Hatasız Link Bağlama Yardımcısı
 function toggleLink(aiKey, targetState, callback) {
   const targetDir = AI_PATHS[aiKey];
   if (!targetDir) return callback(new Error('Bilinmeyen AI aracı'));
@@ -253,7 +286,6 @@ function toggleLink(aiKey, targetState, callback) {
   const commandsDest = path.join(targetDir, 'commands');
 
   if (targetState === true) {
-    // 1. Önce eski bağları temizle
     removeLinkTarget(skillsDest);
     removeLinkTarget(commandsDest);
 
