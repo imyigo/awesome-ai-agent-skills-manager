@@ -86,27 +86,25 @@ git clone --recursive https://github.com/imyigo/claude-antigravity-skills.git ~/
 
 ### 2. Run Setup Script
 
-All installation and update scripts are neatly located in the **`control/`** directory.
+Setup and update scripts are located in the **`control/`** directory.
 
-**Windows (Double-click or Terminal):**
-- Double-click `control/kurulum-windows.bat` OR run:
+**Windows (PowerShell):**
 ```powershell
 cd ~/.gemini/claude-antigravity-best-skills
 .\control\kurulum-windows.ps1
 ```
 
-**macOS / Linux (Double-click Finder or Terminal):**
-- Double-click `control/kurulum-mac.command` in Finder OR run in Terminal:
+**macOS / Linux (Bash/Zsh):**
 ```bash
 cd ~/.gemini/claude-antigravity-best-skills
-chmod +x control/*.sh control/*.command
+chmod +x control/*.sh
 ./control/kurulum-mac-linux.sh
 ```
 
 ### 3. One-Click Updates
 
-**Windows:** Double-click `control/guncelle-windows.bat` or run `.\control\guncelle-windows.ps1`
-**macOS / Linux:** Double-click `control/guncelle-mac.command` or run `./control/guncelle-mac-linux.sh`
+**Windows:** `.\control\guncelle-windows.ps1`
+**macOS / Linux:** `./control/guncelle-mac-linux.sh`
 
 ---
 
