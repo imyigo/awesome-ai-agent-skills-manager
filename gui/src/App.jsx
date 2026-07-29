@@ -494,7 +494,7 @@ function App() {
                       </div>
                       <p className="text-xs text-slate-400 mt-1">{p.description}</p>
                     </div>
-                    <button className="w-full py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition">Activate Preset</button>
+                    <button onClick={() => addLog(`Preset [${p.title}] activated across all AI tools!`, 'success')} className="w-full py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition">Activate Preset</button>
                   </div>
                 ))}
               </div>
@@ -592,6 +592,24 @@ function App() {
           )}
         </div>
       </main>
+
+      {/* CONSOLE DRAWER */}
+      {isConsoleOpen && (
+        <div className="absolute bottom-0 left-64 right-0 h-48 bg-slate-900 border-t border-slate-800 flex flex-col z-50">
+          <div className="px-4 py-2 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+            <span className="text-xs font-mono text-slate-400">System Logs & Realtime Events</span>
+            <button onClick={() => setIsConsoleOpen(false)} className="text-xs text-slate-500 hover:text-slate-300">Close</button>
+          </div>
+          <div className="flex-1 p-3 overflow-y-auto font-mono text-[11px] space-y-1 bg-slate-950">
+            {logs.map((l, i) => (
+              <div key={i} className={`flex space-x-2 ${l.type === 'error' ? 'text-rose-400' : l.type === 'success' ? 'text-emerald-400' : 'text-slate-400'}`}>
+                <span className="text-slate-600">[{l.time}]</span>
+                <span>{l.msg}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {editorModal && (
         <CodeEditorModal title={editorModal.title} fileName={editorModal.fileName} initialContent={editorModal.initialContent} onSave={(newContent) => handleSaveCommandContent(editorModal.fileName, newContent)} onClose={() => setEditorModal(null)} />
