@@ -3,17 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>⚡ Multi-AI Skill & Framework Hub Node.js App</title>
+  <title>⚡ Multi-AI Skill Hub — React 18 App</title>
   
-  <!-- Tailwind CSS CDN (v3) -->
+  <!-- Tailwind CSS v3 CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- React 18 & ReactDOM CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel Standalone (In-browser JSX Compiler) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500" rel="stylesheet">
   
-  <!-- Tailwind Config Customization -->
+  <!-- Tailwind Config -->
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -30,553 +37,429 @@
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
 
-  <!-- Background Glow Accents -->
-  <div class="fixed top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
-  <div class="fixed top-1/3 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+  <!-- React Root Container -->
+  <div id="root"></div>
 
-  <!-- Two-Column Layout with Left Sidebar -->
-  <div class="flex flex-col lg:flex-row min-h-screen">
+  <!-- React 18 JSX Application Script -->
+  <script type="text/babel">
+    const { useState, useEffect, useCallback } = React;
 
-    <!-- LEFT SIDEBAR: Interactive Categories Navigation -->
-    <aside class="w-full lg:w-80 bg-slate-900/80 backdrop-blur-xl border-r border-slate-800/80 p-6 flex flex-col justify-between shrink-0">
-      <div>
-        <!-- Brand Header -->
-        <div class="flex items-center gap-3 pb-6 mb-6 border-b border-slate-800/80">
-          <span class="text-3xl">⚡</span>
-          <div>
-            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
-              Multi-AI Node App
-            </h1>
-            <p class="text-xs text-slate-400">Canlı REST API & Skill Engine</p>
-          </div>
-        </div>
-
-        <!-- Section 1: Interactive Skill Categories (Clickable) -->
-        <div class="mb-6">
-          <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 px-1">
-            📂 Gezilebilir Kategoriler
-          </h3>
-          <nav class="space-y-1.5" id="category-nav">
-            <button onclick="switchCategory('overview')" id="nav-overview" class="w-full flex items-center justify-between px-3 py-2.5 text-xs font-semibold rounded-xl bg-indigo-600 text-white transition-all shadow-lg shadow-indigo-600/20">
-              <span class="flex items-center gap-2">📊 Genel Yönetim Dashboard</span>
-              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded">Ana Sayfa</span>
-            </button>
-            <button onclick="switchCategory('core')" id="nav-core" class="w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition-all">
-              <span class="flex items-center gap-2">🧠 Çekirdek Davranışlar</span>
-              <span class="text-[10px] text-slate-500 font-mono">/caveman</span>
-            </button>
-            <button onclick="switchCategory('web')" id="nav-web" class="w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition-all">
-              <span class="flex items-center gap-2">🎨 Web & UI/UX Tasarım</span>
-              <span class="text-[10px] text-slate-500 font-mono">/ux-ui</span>
-            </button>
-            <button onclick="switchCategory('mobile')" id="nav-mobile" class="w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition-all">
-              <span class="flex items-center gap-2">📱 Mobil (iOS & Android)</span>
-              <span class="text-[10px] text-slate-500 font-mono">/mobile</span>
-            </button>
-            <button onclick="switchCategory('game')" id="nav-game" class="w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition-all">
-              <span class="flex items-center gap-2">🎮 Oyun Geliştirme Stüdyosu</span>
-              <span class="text-[10px] text-slate-500 font-mono">/game</span>
-            </button>
-            <button onclick="switchCategory('security')" id="nav-security" class="w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition-all">
-              <span class="flex items-center gap-2">🔐 Siber Güvenlik Denetimi</span>
-              <span class="text-[10px] text-slate-500 font-mono">/security</span>
-            </button>
-            <button onclick="switchCategory('planning')" id="nav-planning" class="w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition-all">
-              <span class="flex items-center gap-2">📐 Proje & Mimari Planlama</span>
-              <span class="text-[10px] text-slate-500 font-mono">/planning</span>
-            </button>
-            <button onclick="switchCategory('marketing')" id="nav-marketing" class="w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition-all">
-              <span class="flex items-center gap-2">📈 Pazarlama & ASO / CRO</span>
-              <span class="text-[10px] text-slate-500 font-mono">/marketing</span>
-            </button>
-          </nav>
-        </div>
-
-        <!-- Section 2: Dynamic Live GitHub Repos (Submodules from Node.js) -->
-        <div class="mb-6">
-          <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 px-1 flex justify-between items-center">
-            <span>🔗 Canlı Repolar (Node.js)</span>
-            <span class="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-mono" id="submodule-count">Taranıyor...</span>
-          </h3>
-          <div class="space-y-1.5 font-mono text-[11px]" id="sidebar-repos-list">
-            <div class="text-[11px] text-slate-500 p-2">Yükleniyor...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Footer Info -->
-      <div class="pt-4 border-t border-slate-800/80 text-[11px] text-slate-500 flex justify-between items-center">
-        <span>Repo: awesome-ai-agent-skills-manager</span>
-        <a href="https://github.com/imyigo/awesome-ai-agent-skills-manager" target="_blank" class="text-indigo-400 hover:underline">GitHub ⭐</a>
-      </div>
-    </aside>
-
-    <!-- RIGHT CONTENT AREA (Dynamic SPA Views) -->
-    <main class="flex-1 p-6 lg:p-10 max-w-5xl">
-      
-      <!-- Top Bar -->
-      <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-8 mb-8 border-b border-slate-800/80">
-        <div>
-          <h2 class="text-2xl font-extrabold tracking-tight text-white" id="view-title">
-            Yönetim Dashboard & AI Bağlantıları
-          </h2>
-          <p class="text-xs text-slate-400 mt-1" id="view-subtitle">
-            Node.js REST API & Canlı Sistem Taraması
-          </p>
-        </div>
-
-        <div class="flex items-center gap-3">
-          <button onclick="refreshAll()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all">
-            <span>🔄 Taramayı Yenile</span>
-          </button>
-          <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            Node.js API Active
-          </span>
-        </div>
-      </header>
-
-      <!-- DYNAMIC VIEW CONTAINER -->
-      <div id="view-content">
-        
-        <!-- DEFAULT OVERVIEW VIEW -->
-        <div id="view-overview-content">
-          
-          <!-- AI Assistants Detection & Link Management Section -->
-          <section class="mb-10">
-            <div class="flex justify-between items-center mb-4">
-              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Bilgisayardaki AI Asistanları & Tercihli Bağlantılar</h3>
-              <span class="text-[11px] text-slate-500">İstediğiniz AI aracını bağlayabilir veya bağsız bırakabilirsiniz.</span>
-            </div>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="ai-cards-container">
-              <!-- Antigravity -->
-              <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-5 shadow-xl flex flex-col justify-between" id="card-antigravity">
-                <div>
-                  <div class="flex justify-between items-center mb-3">
-                    <span class="text-2xl">🌌</span>
-                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" id="badge-detect-antigravity">Yüklü</span>
-                  </div>
-                  <h4 class="font-semibold text-sm text-slate-200">Google Antigravity</h4>
-                  <p class="text-[11px] text-slate-500 mt-1 truncate">~/.gemini/antigravity</p>
-                </div>
-                <div class="mt-4 pt-3 border-t border-slate-800/60 flex justify-between items-center">
-                  <span class="text-xs text-emerald-400 font-medium" id="label-link-antigravity">Durum: ✅ Bağlı</span>
-                  <button onclick="toggleAILink('antigravity')" id="btn-link-antigravity" class="text-xs px-3 py-1.5 rounded-lg font-semibold bg-rose-600/80 hover:bg-rose-500 text-white transition-all">
-                    🔌 Bağlantıyı Kes
-                  </button>
-                </div>
-              </article>
-
-              <!-- Claude Code -->
-              <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-5 shadow-xl flex flex-col justify-between" id="card-claude">
-                <div>
-                  <div class="flex justify-between items-center mb-3">
-                    <span class="text-2xl">🤖</span>
-                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" id="badge-detect-claude">Yüklü</span>
-                  </div>
-                  <h4 class="font-semibold text-sm text-slate-200">Claude Code</h4>
-                  <p class="text-[11px] text-slate-500 mt-1 truncate">~/.claude</p>
-                </div>
-                <div class="mt-4 pt-3 border-t border-slate-800/60 flex justify-between items-center">
-                  <span class="text-xs text-emerald-400 font-medium" id="label-link-claude">Durum: ✅ Bağlı</span>
-                  <button onclick="toggleAILink('claude')" id="btn-link-claude" class="text-xs px-3 py-1.5 rounded-lg font-semibold bg-rose-600/80 hover:bg-rose-500 text-white transition-all">
-                    🔌 Bağlantıyı Kes
-                  </button>
-                </div>
-              </article>
-
-              <!-- Cursor IDE -->
-              <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-5 shadow-xl flex flex-col justify-between" id="card-cursor">
-                <div>
-                  <div class="flex justify-between items-center mb-3">
-                    <span class="text-2xl">🖱️</span>
-                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" id="badge-detect-cursor">Yüklü</span>
-                  </div>
-                  <h4 class="font-semibold text-sm text-slate-200">Cursor IDE</h4>
-                  <p class="text-[11px] text-slate-500 mt-1 truncate">~/.cursor</p>
-                </div>
-                <div class="mt-4 pt-3 border-t border-slate-800/60 flex justify-between items-center">
-                  <span class="text-xs text-slate-500 font-medium" id="label-link-cursor">Durum: ❌ Bağsız</span>
-                  <button onclick="toggleAILink('cursor')" id="btn-link-cursor" class="text-xs px-3 py-1.5 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all">
-                    🔗 Bağla
-                  </button>
-                </div>
-              </article>
-
-              <!-- OpenAI Codex -->
-              <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-5 shadow-xl flex flex-col justify-between" id="card-codex">
-                <div>
-                  <div class="flex justify-between items-center mb-3">
-                    <span class="text-2xl">📜</span>
-                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" id="badge-detect-codex">Yüklü</span>
-                  </div>
-                  <h4 class="font-semibold text-sm text-slate-200">OpenAI Codex</h4>
-                  <p class="text-[11px] text-slate-500 mt-1 truncate">~/.codex</p>
-                </div>
-                <div class="mt-4 pt-3 border-t border-slate-800/60 flex justify-between items-center">
-                  <span class="text-xs text-emerald-400 font-medium" id="label-link-codex">Durum: ✅ Bağlı</span>
-                  <button onclick="toggleAILink('codex')" id="btn-link-codex" class="text-xs px-3 py-1.5 rounded-lg font-semibold bg-rose-600/80 hover:bg-rose-500 text-white transition-all">
-                    🔌 Bağlantıyı Kes
-                  </button>
-                </div>
-              </article>
-            </div>
-          </section>
-
-          <!-- Management Actions -->
-          <section class="mb-10">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Yönetim İşlemleri</h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
-                <div>
-                  <h4 class="text-base font-semibold text-white flex items-center gap-2">
-                    <span>🔄</span> Canlı Skill Güncelleme (Node.js API)
-                  </h4>
-                  <p class="text-xs text-slate-400 mt-2">
-                    Sol menüdeki tüm canlı GitHub repolarından en son güncellemeleri çeker ve commit bazında raporlar.
-                  </p>
-                </div>
-                <button onclick="runAction('update')" class="mt-6 w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg shadow-purple-600/25 active:scale-[0.98] text-sm flex items-center justify-center gap-2">
-                  <span>🔄 Tüm Skill'leri Güncelle</span>
-                </button>
-              </div>
-
-              <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
-                <div>
-                  <h4 class="text-base font-semibold text-white flex items-center gap-2">
-                    <span>➕</span> Canlı Yeni GitHub Skill Reposu Ekle
-                  </h4>
-                  <p class="text-xs text-slate-400 mt-1">
-                    Herhangi bir GitHub repo URL'si yapıştırarak yeni yetenek ekleyin.
-                  </p>
-                </div>
-                <div class="mt-4 flex flex-col sm:flex-row gap-2">
-                  <input type="url" id="repo-url-input" placeholder="https://github.com/user/repo.git" 
-                         class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono">
-                  <button onclick="addCustomSkill()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2 px-4 rounded-xl text-xs whitespace-nowrap">
-                    <span>➕ Ekle</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
-
-      </div>
-
-      <!-- Console Log & Reporting Output (Always Visible Below Views) -->
-      <section class="mt-8">
-        <div class="flex justify-between items-center mb-3">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Canlı Konsol & Güncelleme Logları</h3>
-          <button onclick="clearConsole()" class="text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors">
-            Temizle
-          </button>
-        </div>
-        
-        <div class="bg-slate-950 border border-slate-800/80 rounded-2xl p-5 font-mono text-xs shadow-2xl overflow-hidden">
-          <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/60 text-slate-500">
-            <div class="flex items-center gap-2">
-              <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
-              <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
-              <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
-              <span class="ml-2 font-mono">node-app.log</span>
-            </div>
-            <span id="log-time" class="text-[10px]">Ready</span>
-          </div>
-          
-          <pre id="console-log" class="text-indigo-300 whitespace-pre-wrap max-h-72 overflow-y-auto leading-relaxed">⚡ Multi-AI Skill Hub Node.js REST API Uygulaması Hazır.
-Node.js backend diski ve submodule repolarını canlı olarak taradı.</pre>
-        </div>
-      </section>
-
-    </main>
-  </div>
-
-  <!-- Dynamic Categories SPA Data & Interactive Navigation Script -->
-  <script>
-    let currentAIStatus = {};
-    let liveSkillCategories = {};
-
-    function refreshAll() {
-      loadAIStatus();
-      loadLiveSkills();
-    }
-
-    async function loadAIStatus() {
-      try {
-        const res = await fetch('/api/status');
-        if (!res.ok) throw new Error('Sunucu hatası: ' + res.status);
-        currentAIStatus = await res.json();
-        renderAICards(currentAIStatus);
-      } catch (err) {
-        log(`❌ AI durum verisi alınamadı: ${err.message}`);
-      }
-    }
-
-    async function loadLiveSkills() {
-      try {
-        const res = await fetch('/api/skills');
-        if (!res.ok) throw new Error('Sunucu hatası: ' + res.status);
-        liveSkillCategories = await res.json();
-        renderSidebarRepos(liveSkillCategories);
-      } catch (err) {
-        log(`❌ Canlı skill verisi okunamadı: ${err.message}`);
-      }
-    }
-
-    function renderSidebarRepos(skillsData) {
-      const container = document.getElementById('sidebar-repos-list');
-      const countEl = document.getElementById('submodule-count');
-      if (!container) return;
-
+    // 1. SIDEBAR COMPONENT
+    function Sidebar({ activeCategory, onSelectCategory, liveSkills }) {
       const allRepos = [];
-      for (const cat of Object.values(skillsData)) {
-        if (cat.repos) {
-          cat.repos.forEach(r => {
-            if (!allRepos.some(existing => existing.name === r.name)) {
-              allRepos.push(r);
-            }
-          });
-        }
-      }
-
-      if (countEl) countEl.textContent = `${allRepos.length} Repo`;
-
-      if (allRepos.length === 0) {
-        container.innerHTML = `<div class="text-[11px] text-slate-500 p-2">Repo bulunamadı.</div>`;
-        return;
-      }
-
-      container.innerHTML = allRepos.map(r => `
-        <a href="${r.url}" target="_blank" class="flex items-center justify-between p-2 rounded-lg bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 transition-all">
-          <span class="truncate">${r.name}</span>
-          <span class="text-[10px] text-emerald-400 font-mono">${r.tag}</span>
-        </a>
-      `).join('');
-    }
-
-    function renderAICards(status) {
-      for (const [aiKey, info] of Object.entries(status)) {
-        const badgeDetect = document.getElementById(`badge-detect-${aiKey}`);
-        const labelLink = document.getElementById(`label-link-${aiKey}`);
-        const btnLink = document.getElementById(`btn-link-${aiKey}`);
-        
-        if (!badgeDetect || !labelLink || !btnLink) continue;
-
-        if (info.installed) {
-          badgeDetect.textContent = "Yüklü";
-          badgeDetect.className = "text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-        } else {
-          badgeDetect.textContent = "Sistemde Yok";
-          badgeDetect.className = "text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-500";
-        }
-
-        if (info.linked) {
-          labelLink.textContent = "Durum: ✅ Bağlı";
-          labelLink.className = "text-xs text-emerald-400 font-medium";
-          btnLink.textContent = "🔌 Bağlantıyı Kes";
-          btnLink.className = "text-xs px-3 py-1.5 rounded-lg font-semibold bg-rose-600/80 hover:bg-rose-500 text-white transition-all shadow-lg shadow-rose-600/20";
-        } else {
-          labelLink.textContent = "Durum: ❌ Bağsız";
-          labelLink.className = "text-xs text-slate-500 font-medium";
-          btnLink.textContent = "🔗 Bağla";
-          btnLink.className = "text-xs px-3 py-1.5 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-lg shadow-indigo-600/20";
-        }
-      }
-    }
-
-    async function toggleAILink(aiKey) {
-      const isCurrentlyLinked = currentAIStatus[aiKey] ? currentAIStatus[aiKey].linked : false;
-      const newState = !isCurrentlyLinked;
-      
-      log(`⌛ [${aiKey}] için işlem yapılıyor (${newState ? 'Bağlanıyor' : 'Kaldırılıyor'})...`);
-
-      try {
-        const res = await fetch('/api/toggle-link', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ai: aiKey, state: newState })
+      if (liveSkills) {
+        Object.values(liveSkills).forEach(cat => {
+          if (cat.repos) {
+            cat.repos.forEach(r => {
+              if (!allRepos.some(e => e.name === r.name)) allRepos.push(r);
+            });
+          }
         });
-        const data = await res.json();
-        log(data.message);
-        loadAIStatus();
-      } catch (err) {
-        log(`❌ İşlem hatası: ${err.message}`);
       }
+
+      const categories = [
+        { id: 'overview', name: '📊 Genel Dashboard', tag: 'Ana Sayfa' },
+        { id: 'core', name: '🧠 Çekirdek Davranışlar', tag: '/caveman' },
+        { id: 'web', name: '🎨 Web & UI/UX Tasarım', tag: '/ux-ui' },
+        { id: 'mobile', name: '📱 Mobil (iOS & Android)', tag: '/mobile' },
+        { id: 'game', name: '🎮 Oyun Stüdyosu', tag: '/game' },
+        { id: 'security', name: '🔐 Siber Güvenlik', tag: '/security' },
+        { id: 'planning', name: '📐 Mimari Planlama', tag: '/planning' },
+        { id: 'marketing', name: '📈 Pazarlama & ASO', tag: '/marketing' },
+      ];
+
+      return (
+        <aside class="w-full lg:w-80 bg-slate-900/80 backdrop-blur-xl border-r border-slate-800/80 p-6 flex flex-col justify-between shrink-0">
+          <div>
+            <div class="flex items-center gap-3 pb-6 mb-6 border-b border-slate-800/80">
+              <span class="text-3xl">⚛️</span>
+              <div>
+                <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
+                  Multi-AI React App
+                </h1>
+                <p class="text-xs text-slate-400">React 18 + Node.js REST API</p>
+              </div>
+            </div>
+
+            {/* Categories Navigation */}
+            <div class="mb-6">
+              <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 px-1">
+                📂 React Gezilebilir Kategoriler
+              </h3>
+              <nav class="space-y-1.5">
+                {categories.map(cat => (
+                  <button
+                    key={cat.id}
+                    onClick={() => onSelectCategory(cat.id)}
+                    class={`w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl transition-all ${
+                      activeCategory === cat.id
+                        ? 'bg-indigo-600 text-white font-semibold shadow-lg shadow-indigo-600/20'
+                        : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+                    }`}
+                  >
+                    <span class="flex items-center gap-2">{cat.name}</span>
+                    <span class={`text-[10px] ${activeCategory === cat.id ? 'bg-white/20' : 'text-slate-500 font-mono'} px-1.5 py-0.5 rounded`}>
+                      {cat.tag}
+                    </span>
+                  </button>
+                ))}
+              </nav>
+            </div>
+
+            {/* Live Repos List */}
+            <div class="mb-6">
+              <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 px-1 flex justify-between items-center">
+                <span>🔗 Canlı Repolar</span>
+                <span class="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-mono">
+                  {allRepos.length} Repo
+                </span>
+              </h3>
+              <div class="space-y-1.5 font-mono text-[11px]">
+                {allRepos.map(r => (
+                  <a
+                    key={r.name}
+                    href={r.url}
+                    target="_blank"
+                    class="flex items-center justify-between p-2 rounded-lg bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 transition-all"
+                  >
+                    <span class="truncate">{r.name}</span>
+                    <span class="text-[10px] text-emerald-400 font-mono">{r.tag}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-800/80 text-[11px] text-slate-500 flex justify-between items-center">
+            <span>React 18 Engine</span>
+            <a href="https://github.com/imyigo/awesome-ai-agent-skills-manager" target="_blank" class="text-indigo-400 hover:underline">GitHub ⭐</a>
+          </div>
+        </aside>
+      );
     }
 
-    function switchCategory(catKey) {
-      const navButtons = document.querySelectorAll('#category-nav button');
-      navButtons.forEach(btn => {
-        btn.className = "w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition-all";
-      });
+    // 2. AI ASSISTANTS CARDS GRID COMPONENT
+    function AICardsGrid({ status, onToggleLink }) {
+      const aiList = [
+        { key: 'antigravity', name: 'Google Antigravity', icon: '🌌', path: '~/.gemini/antigravity' },
+        { key: 'claude', name: 'Claude Code', icon: '🤖', path: '~/.claude' },
+        { key: 'cursor', name: 'Cursor IDE', icon: '🖱️', path: '~/.cursor' },
+        { key: 'codex', name: 'OpenAI Codex', icon: '📜', path: '~/.codex' },
+      ];
 
-      const activeNav = document.getElementById(`nav-${catKey}`);
-      if (activeNav) {
-        activeNav.className = "w-full flex items-center justify-between px-3 py-2.5 text-xs font-semibold rounded-xl bg-indigo-600 text-white transition-all shadow-lg shadow-indigo-600/20";
-      }
+      return (
+        <section class="mb-10">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Bilgisayardaki AI Asistanları & Tercihli Bağlantılar</h3>
+            <span class="text-[11px] text-slate-500">React State ile yönetilen canlı bağlantılar.</span>
+          </div>
 
-      const viewContent = document.getElementById('view-content');
-      const viewTitle = document.getElementById('view-title');
-      const viewSubtitle = document.getElementById('view-subtitle');
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {aiList.map(ai => {
+              const info = status[ai.key] || { installed: false, linked: false };
+              return (
+                <article key={ai.key} class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+                  <div>
+                    <div class="flex justify-between items-center mb-3">
+                      <span class="text-2xl">{ai.icon}</span>
+                      <span class={`text-[10px] font-semibold px-2 py-0.5 rounded ${
+                        info.installed
+                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                          : 'bg-slate-800 text-slate-500'
+                      }`}>
+                        {info.installed ? 'Yüklü' : 'Sistemde Yok'}
+                      </span>
+                    </div>
+                    <h4 class="font-semibold text-sm text-slate-200">{ai.name}</h4>
+                    <p class="text-[11px] text-slate-500 mt-1 truncate">{ai.path}</p>
+                  </div>
+                  <div class="mt-4 pt-3 border-t border-slate-800/60 flex justify-between items-center">
+                    <span class={`text-xs font-medium ${info.linked ? 'text-emerald-400' : 'text-slate-500'}`}>
+                      {info.linked ? '✅ Bağlı' : '❌ Bağsız'}
+                    </span>
+                    <button
+                      onClick={() => onToggleLink(ai.key)}
+                      class={`text-xs px-3 py-1.5 rounded-lg font-semibold transition-all ${
+                        info.linked
+                          ? 'bg-rose-600/80 hover:bg-rose-500 text-white shadow-lg shadow-rose-600/20'
+                          : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20'
+                      }`}
+                    >
+                      {info.linked ? '🔌 Bağlantıyı Kes' : '🔗 Bağla'}
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      );
+    }
 
-      if (catKey === 'overview') {
-        document.getElementById('view-overview-content').style.display = 'block';
-        const detailEl = document.getElementById('category-detail-panel');
-        if (detailEl) detailEl.remove();
-        viewTitle.textContent = "Yönetim Dashboard & AI Bağlantıları";
-        viewSubtitle.textContent = "Node.js REST API & Canlı Sistem Taraması";
-        loadAIStatus();
-        return;
-      }
+    // 3. CATEGORY DETAIL COMPONENT
+    function CategoryDetail({ category, onBack }) {
+      if (!category) return null;
 
-      document.getElementById('view-overview-content').style.display = 'none';
-
-      const existingPanel = document.getElementById('category-detail-panel');
-      if (existingPanel) existingPanel.remove();
-
-      const cat = liveSkillCategories[catKey] || {
-        title: "Kategori Yükleniyor...",
-        subtitle: "",
-        command: "",
-        description: "",
-        rules: [],
-        repos: [],
-        files: []
-      };
-
-      viewTitle.textContent = cat.title;
-      viewSubtitle.textContent = cat.subtitle;
-
-      const panel = document.createElement('div');
-      panel.id = 'category-detail-panel';
-      panel.className = 'space-y-6';
-      panel.innerHTML = `
+      return (
         <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl space-y-6">
-          
           <div class="flex justify-between items-center pb-4 border-b border-slate-800/60">
             <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Tetikleyici Slash Komutu</span>
-            <code class="bg-slate-950 text-indigo-300 px-3 py-1.5 rounded-lg border border-slate-800 font-mono text-xs font-semibold">${cat.command}</code>
+            <code class="bg-slate-950 text-indigo-300 px-3 py-1.5 rounded-lg border border-slate-800 font-mono text-xs font-semibold">{category.command}</code>
           </div>
           
-          <p class="text-xs text-slate-300 leading-relaxed">${cat.description}</p>
+          <p class="text-xs text-slate-300 leading-relaxed">{category.description}</p>
           
-          ${cat.repos && cat.repos.length > 0 ? `
-          <div>
-            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
-              <span>🔗</span> İletişimli Canlı GitHub Skill Repoları (Node.js REST API)
-            </h4>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              ${cat.repos.map(r => `
-                <a href="${r.url}" target="_blank" class="flex items-center justify-between p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 hover:border-indigo-500/50 transition-all group">
-                  <span class="font-mono text-xs text-slate-200 group-hover:text-indigo-300 truncate">${r.name}</span>
-                  <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono">${r.tag}</span>
-                </a>
-              `).join('')}
+          {category.repos && category.repos.length > 0 && (
+            <div>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                <span>🔗</span> İlgili Canlı GitHub Repoları (Node.js REST API)
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {category.repos.map(r => (
+                  <a key={r.name} href={r.url} target="_blank" class="flex items-center justify-between p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 hover:border-indigo-500/50 transition-all group">
+                    <span class="font-mono text-xs text-slate-200 group-hover:text-indigo-300 truncate">{r.name}</span>
+                    <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono">{r.tag}</span>
+                  </a>
+                ))}
+              </div>
             </div>
-          </div>
-          ` : ''}
+          )}
 
-          ${cat.files && cat.files.length > 0 ? `
-          <div>
-            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
-              <span>📄</span> İlgili Yetenek & Doküman Dosyaları (Node.js Diski)
-            </h4>
-            <div class="flex flex-wrap gap-2">
-              ${cat.files.map(f => `
-                <span class="bg-slate-950 text-slate-300 font-mono text-[11px] px-3 py-1.5 rounded-lg border border-slate-800/80 flex items-center gap-1.5">
-                  <span class="text-indigo-400">#</span> ${f}
-                </span>
-              `).join('')}
+          {category.files && category.files.length > 0 && (
+            <div>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                <span>📄</span> İlgili Skill Dosyaları (Node.js Diski)
+              </h4>
+              <div class="flex flex-wrap gap-2">
+                {category.files.map(f => (
+                  <span key={f} class="bg-slate-950 text-slate-300 font-mono text-[11px] px-3 py-1.5 rounded-lg border border-slate-800/80 flex items-center gap-1.5">
+                    <span class="text-indigo-400">#</span> {f}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
-          ` : ''}
+          )}
 
           <div>
             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
               <span>📜</span> Rehber Kuralları & Standartlar
             </h4>
             <ul class="space-y-2.5">
-              ${cat.rules.map(rule => `
-                <li class="flex items-start gap-2.5 text-xs text-slate-300">
+              {category.rules && category.rules.map((rule, idx) => (
+                <li key={idx} class="flex items-start gap-2.5 text-xs text-slate-300">
                   <span class="text-emerald-400 font-bold">✓</span>
-                  <span>${rule}</span>
+                  <span>{rule}</span>
                 </li>
-              `).join('')}
+              ))}
             </ul>
           </div>
 
           <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-800/60">
-            <button onclick="log('💡 [${cat.title}] kuralları kopyalandı!')" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-xl text-xs transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2">
-              <span>📋 Kuralları Kopyala</span>
-            </button>
-            <button onclick="switchCategory('overview')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-2.5 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2">
+            <button onClick={onBack} class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-2.5 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2">
               <span>⬅️ Dashboard'a Dön</span>
             </button>
           </div>
         </div>
-      `;
-
-      viewContent.appendChild(panel);
+      );
     }
 
-    function updateTime() {
-      document.getElementById('log-time').textContent = new Date().toLocaleTimeString();
+    // 4. MAIN REACT APP COMPONENT
+    function App() {
+      const [activeCategory, setActiveCategory] = useState('overview');
+      const [aiStatus, setAiStatus] = useState({});
+      const [liveSkills, setLiveSkills] = useState({});
+      const [logs, setLogs] = useState(["⚡ React 18 Multi-AI Skill Hub Başlatıldı."]);
+      const [newRepoUrl, setNewRepoUrl] = useState('');
+
+      const addLog = (msg) => {
+        setLogs(prev => [...prev, msg]);
+      };
+
+      const fetchStatus = useCallback(async () => {
+        try {
+          const res = await fetch('/api/status');
+          const data = await res.json();
+          setAiStatus(data);
+        } catch (err) {
+          addLog(`❌ AI Durumu Alınamadı: ${err.message}`);
+        }
+      }, []);
+
+      const fetchSkills = useCallback(async () => {
+        try {
+          const res = await fetch('/api/skills');
+          const data = await res.json();
+          setLiveSkills(data);
+        } catch (err) {
+          addLog(`❌ Skill Verisi Alınamadı: ${err.message}`);
+        }
+      }, []);
+
+      useEffect(() => {
+        fetchStatus();
+        fetchSkills();
+      }, [fetchStatus, fetchSkills]);
+
+      const handleToggleLink = async (aiKey) => {
+        const isLinked = aiStatus[aiKey] ? aiStatus[aiKey].linked : false;
+        const newState = !isLinked;
+        addLog(`⌛ [${aiKey}] bağlantısı değiştiriliyor...`);
+
+        try {
+          const res = await fetch('/api/toggle-link', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ai: aiKey, state: newState })
+          });
+          const data = await res.json();
+          addLog(data.message);
+          fetchStatus();
+        } catch (err) {
+          addLog(`❌ Hata: ${err.message}`);
+        }
+      };
+
+      const handleUpdateSkills = async () => {
+        addLog("⌛ Canlı Git Submodule güncellemeleri çekiliyor...");
+        try {
+          const res = await fetch('/api/update', { method: 'POST' });
+          const data = await res.json();
+          addLog(data.output);
+          fetchStatus();
+          fetchSkills();
+        } catch (err) {
+          addLog(`❌ Güncelleme Hatası: ${err.message}`);
+        }
+      };
+
+      const handleAddSkill = async (e) => {
+        e.preventDefault();
+        if (!newRepoUrl.trim()) return alert("Lütfen geçerli bir GitHub URL girin!");
+        addLog(`⌛ Yeni repo ekleniyor: ${newRepoUrl}...`);
+
+        try {
+          const res = await fetch('/api/add-skill', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: newRepoUrl })
+          });
+          const data = await res.json();
+          addLog(data.output);
+          setNewRepoUrl('');
+          fetchStatus();
+          fetchSkills();
+        } catch (err) {
+          addLog(`❌ Ekleme Hatası: ${err.message}`);
+        }
+      };
+
+      return (
+        <div class="flex flex-col lg:flex-row min-h-screen">
+          <Sidebar
+            activeCategory={activeCategory}
+            onSelectCategory={setActiveCategory}
+            liveSkills={liveSkills}
+          />
+
+          <main class="flex-1 p-6 lg:p-10 max-w-5xl">
+            <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-8 mb-8 border-b border-slate-800/80">
+              <div>
+                <h2 class="text-2xl font-extrabold tracking-tight text-white">
+                  {activeCategory === 'overview' ? 'React 18 Dashboard & AI Bağlantıları' : liveSkills[activeCategory]?.title}
+                </h2>
+                <p class="text-xs text-slate-400 mt-1">
+                  {activeCategory === 'overview' ? 'React State & Node.js REST API canlı senkronizasyon' : liveSkills[activeCategory]?.subtitle}
+                </p>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <button onClick={() => { fetchStatus(); fetchSkills(); }} class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all">
+                  <span>🔄 Yenile</span>
+                </button>
+                <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  React 18 Engine
+                </span>
+              </div>
+            </header>
+
+            {/* Content View Routing */}
+            {activeCategory === 'overview' ? (
+              <div>
+                <AICardsGrid status={aiStatus} onToggleLink={handleToggleLink} />
+
+                {/* Management Actions */}
+                <section class="mb-10">
+                  <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Yönetim İşlemleri</h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                      <div>
+                        <h4 class="text-base font-semibold text-white flex items-center gap-2">
+                          <span>🔄</span> Canlı Skill Güncelleme
+                        </h4>
+                        <p class="text-xs text-slate-400 mt-2">
+                          Orijinal GitHub repolarından en son sürüm değişikliklerini çeker.
+                        </p>
+                      </div>
+                      <button onClick={handleUpdateSkills} class="mt-6 w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 px-4 rounded-xl transition-all text-sm flex items-center justify-center gap-2">
+                        <span>🔄 Tüm Skill'leri Güncelle</span>
+                      </button>
+                    </div>
+
+                    <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                      <div>
+                        <h4 class="text-base font-semibold text-white flex items-center gap-2">
+                          <span>➕</span> Canlı Yeni Skill Reposu Ekle
+                        </h4>
+                        <p class="text-xs text-slate-400 mt-1">
+                          Yeni bir GitHub repo URL'si girin.
+                        </p>
+                      </div>
+                      <form onSubmit={handleAddSkill} class="mt-4 flex flex-col sm:flex-row gap-2">
+                        <input
+                          type="url"
+                          value={newRepoUrl}
+                          onChange={(e) => setNewRepoUrl(e.target.value)}
+                          placeholder="https://github.com/user/repo.git"
+                          class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 font-mono"
+                        />
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2 px-4 rounded-xl text-xs whitespace-nowrap">
+                          <span>➕ Ekle</span>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            ) : (
+              <CategoryDetail
+                category={liveSkills[activeCategory]}
+                onBack={() => setActiveCategory('overview')}
+              />
+            )}
+
+            {/* Console Log Component */}
+            <section class="mt-8">
+              <div class="flex justify-between items-center mb-3">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Canlı React Konsol Logları</h3>
+                <button onClick={() => setLogs(["⚡ React konsolu temizlendi."])} class="text-xs text-slate-400 hover:text-slate-200">
+                  Temizle
+                </button>
+              </div>
+              <div class="bg-slate-950 border border-slate-800/80 rounded-2xl p-5 font-mono text-xs shadow-2xl overflow-hidden">
+                <pre class="text-indigo-300 whitespace-pre-wrap max-h-64 overflow-y-auto leading-relaxed">
+                  {logs.join('\n')}
+                </pre>
+              </div>
+            </section>
+          </main>
+        </div>
+      );
     }
 
-    function log(msg) {
-      const consoleEl = document.getElementById('console-log');
-      consoleEl.textContent += '\n' + msg;
-      consoleEl.scrollTop = consoleEl.scrollHeight;
-      updateTime();
-    }
-
-    function clearConsole() {
-      document.getElementById('console-log').textContent = '⚡ Konsol temizlendi.';
-      updateTime();
-    }
-
-    async function runAction(action) {
-      log(`⌛ İşlem başlatılıyor: ${action}...`);
-      try {
-        const res = await fetch(`/api/${action}`, { method: 'POST' });
-        const data = await res.json();
-        log(data.output || data.message);
-        refreshAll();
-      } catch (err) {
-        log(`❌ Hata oluştu: ${err.message}`);
-      }
-    }
-
-    async function addCustomSkill() {
-      const input = document.getElementById('repo-url-input');
-      const url = input.value.trim();
-      if (!url) return alert('Lütfen geçerli bir GitHub Repo URL adresi girin!');
-      
-      log(`⌛ Yeni Skill ekleniyor: ${url}...`);
-      try {
-        const res = await fetch('/api/add-skill', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url })
-        });
-        const data = await res.json();
-        log(data.output || data.message);
-        input.value = '';
-        refreshAll();
-      } catch (err) {
-        log(`❌ Hata oluştu: ${err.message}`);
-      }
-    }
-
-    // Auto load status on page ready
-    window.addEventListener('DOMContentLoaded', () => {
-      refreshAll();
-    });
-
-    setInterval(updateTime, 1000);
+    // Render React Root
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
   </script>
 </body>
 </html>
