@@ -1396,6 +1396,7 @@ function App() {
                 ))}
               </div>
             </div>
+          )}
           {/* TAB: CORE ENGINES & DAEMON MANAGER */}
           {activeTab === 'engines' && (
             <div className="space-y-6">
