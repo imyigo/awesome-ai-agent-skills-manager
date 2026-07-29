@@ -772,6 +772,9 @@ function searchGitHubMarketplace(query, callback) {
   req.end();
 }
 
+// Engine daemon process registry (module scope — persists across requests)
+const engineProcesses = {};
+
 // REST API SUNUCUSU
 function createServer(port) {
   const server = http.createServer((req, res) => {
@@ -906,7 +909,7 @@ function createServer(port) {
           res.end(JSON.stringify({ success: false, message: e.message }));
         }
       });
-const engineProcesses = {};
+
 
     } else if (req.method === 'POST' && req.url === '/api/engines/toggle') {
       let body = '';
@@ -1054,10 +1057,10 @@ const engineProcesses = {};
                 stmt.run(row.name, row.url, row.category || 'core', row.custom_rule || '', row.disabled || 0);
                 if (row.url) {
                   const skillName = path.basename(row.url, '.git');
-                  const targetDir = path.join(SYNC_DIR, 'skills', 'originals', skillName);
+                  const targetDir = path.join(SYNC_DIR, 'repo', 'skills', skillName);
                   if (!fs.existsSync(targetDir)) {
                     try {
-                      execSync(`git submodule add -f "${row.url}" "skills/originals/${skillName}"`, { cwd: SYNC_DIR });
+                      exec(`git clone "${row.url}" "repo/skills/${skillName}"`, { cwd: SYNC_DIR }, () => {});
                     } catch (err) {}
                   }
                 }
@@ -1121,7 +1124,7 @@ const engineProcesses = {};
         try {
           const { fileName, content } = JSON.parse(body);
           if (!fileName) throw new Error('Dosya adı eksik');
-          const cmdDir = path.join(SYNC_DIR, 'commands');
+          const cmdDir = path.join(SYNC_DIR, 'repo', 'commands');
           if (!fs.existsSync(cmdDir)) fs.mkdirSync(cmdDir, { recursive: true });
           fs.writeFileSync(path.join(cmdDir, fileName), content, 'utf8');
           res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -1156,7 +1159,7 @@ const engineProcesses = {};
       req.on('end', () => {
         try {
           const { presetId } = JSON.parse(body || '{}');
-          const skillsDir = path.join(SYNC_DIR, 'skills', 'originals');
+          const skillsDir = path.join(SYNC_DIR, 'repo', 'skills');
 
           if (presetId === 'all') {
             setSetting('activePresetId', '');
@@ -1244,7 +1247,8 @@ const engineProcesses = {};
       req.on('end', () => {
         try {
           const { name } = JSON.parse(body);
-          const skillDir = path.join(SYNC_DIR, 'skills', 'originals', name);
+          let skillDir = path.join(SYNC_DIR, 'repo', 'server-skills', name);
+          if (!fs.existsSync(skillDir)) skillDir = path.join(SYNC_DIR, 'repo', 'skills', name);
           const activeFile = path.join(skillDir, 'SKILL.md');
           const disabledFile = path.join(skillDir, 'SKILL.md.disabled');
 
