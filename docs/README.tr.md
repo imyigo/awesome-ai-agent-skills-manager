@@ -7,21 +7,8 @@
   <img src="https://img.shields.io/badge/Lisans-MIT-blue?style=for-the-badge" alt="MIT Lisansı" />
 </p>
 
-> **Yapay Zeka Kodlama Asistanları İçin Dünyanın En Gelişmiş Kontrol Yüzeyi.**  
+> **Yapay Zeka Kodlama Asistanları İçin Evrensel Kontrol Yüzeyi.**  
 > **19 farklı AI aracında** (Claude Code, Google Antigravity, Cursor, Codex, Windsurf vb.) **Skill'leri, MCP Server'ları ve Slash Komutlarını** tek bir merkezden sıfır kopyalama Junction Link mimarisi, SSE Canlı Push Motoru ve AST Güvenlik Analizi ile yönetin.
-
----
-
-## 💥 Neden Evrensel Skill Merkezi?
-
-| Problemler (Merkez Olmadan) | Çözümlerimiz (Evrensel Kontrol Merkezi) |
-|---|---|
-| **Klasör Karmaşası:** Skill'lerin `~/.claude`, `~/.cursor` gibi farklı yerlere kopyalanıp sürümlerin bozulması. | **Tek Kaynak Junction Mimarisi:** İlgili işletim sistemi seviyesinde bağlanan tek klasör. Tek `git pull` ile 19 aracın tamamı güncellenir. |
-| **Dağınık MCP ve Komutlar:** MCP ayarlarının ve slash komutlarının her araçta ayrı ayrı tutulması. | **3'ü 1 Arada Yönetim:** Skill'ler, MCP Server'lar (`mcp_config.json`) ve Slash Komutlar (`commands/`) tek panelden yönetilir. |
-| **Güvenlik Riskleri:** Zararlı kod, base64 payload'ları veya API anahtarı sızdıran güvensiz skill'ler. | **AST & LLM Güvenlik Analizi:** 0-100 Güvenlik Skoru ile tehditler canlı taranır ve uyarı verilir. |
-| **Elle Düzenleme Eziyeti:** SKILL.md dosyalarını sürekli terminalden açıp kopyalamak. | **Arayüz İçi Canlı Kod Editörü & Diff Preview:** Markdown içeriklerini canlı önizleme ve yan yana fark görünümü ile düzenleme. |
-| **Test Alanının Olmaması:** Skill'in AI asistanına verildiğinde nasıl yanıt vereceğinin bilinmemesi. | **Etkileşimli LLM Sandbox Tester:** Ajan yanıtlarını ajana yüklemeden önce GUI üzerinde simüle edebilme. |
-| **Ağır Kurulumlar:** Rakiplerin 2GB Rust derleyicileri veya Python/SQLite bağımlılıkları istemesi. | **Işık Hızında & Sıfır Bağımlılık:** Saf Node.js + React 18 SPA. **1 saniyenin altında** açılır (`./gui.sh`). |
 
 ---
 
@@ -41,6 +28,35 @@
 
 ---
 
+## 🌟 Öne Çıkan Yetenekler
+
+### 🔌 1. Gerçek Zamanlı SSE Push Motoru
+Manuel yenilemeye gerek yoktur. Dosya sistemindeki veya durumdaki her değişiklik **Server-Sent Events (SSE)** ile canlı olarak tüm web istemcilerine aktarılır.
+
+### 🔗 2. Sıfır-Kopya Junction Link Mimarisi
+Merkezi skill ve komut klasörünü işletim sistemi seviyesinde sembolik bağlar (Junction/Symlink) ile 19 araca bağlar. Tek bir `git pull` ile tüm araçlar anında güncellenir.
+
+### 🛠️ 3. 3'ü 1 Arada Yönetim Katmanı
+**Skill'leri** (`SKILL.md`), **MCP Server'ları** (`mcp_config.json`) ve **Slash Komutları** (`commands/`) tek panelden yönetir ve senkronize eder.
+
+### 🛡️ 4. AST Güvenlik ve Tehdit Taraması
+Zararlı kod kalıplarını tarar ve puanlar:
+* Dinamik kod çalıştırma (`eval`, `new Function`)
+* Gizlenmiş içerikler (`atob`, `btoa`, base64)
+* Sızdırılmış API anahtarları (`sk-`, `ghp_`)
+* Yıkıcı sistem komutları (`rm -rf /`, `format c:`)
+
+### ⚡ 5. Geliştirici Modları (Presets)
+Tek tıkla özelleştirilmiş skill gruplarını aktifleştirme ve kendi özel modlarınızı oluşturma.
+
+### 🧪 6. Etkileşimli LLM Sandbox Tester
+Skill'leri canlı AI ajanına vermeden önce GUI üzerinden test edebilme ortamı.
+
+### 🤖 7. Otomasyon CLI (`skills --json`)
+AI ajanları ve CI/CD süreçleri için `--json` çıktılı komut satırı kullanımı.
+
+---
+
 ## 🚀 Hızlı Başlangıç
 
 ### 1. Klonlayın
@@ -56,17 +72,6 @@ chmod +x gui.sh
 ```
 
 > **Web Kontrol Paneli `http://localhost:3777` adresinde otomatik açılır!**
-
----
-
-## 🤖 Otomasyon CLI (`skills --json`)
-
-AI ajanları ve CI/CD süreçleri için scriptable komut satırı kullanımı:
-```bash
-node gui/cli.js status --json
-node gui/cli.js list --json
-node gui/cli.js audit --json
-```
 
 ---
 
