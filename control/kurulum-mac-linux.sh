@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# macOS / Linux Kurulum Scripti
+# macOS / Linux Kurulum Scripti (control/kurulum-mac-linux.sh)
 
 set -e
 
-SYNC_DIR="$(cd "$(dirname "$0")" && pwd)"
+CONTROL_DIR="$(cd "$(dirname "$0")" && pwd)"
+SYNC_DIR="$(cd "$CONTROL_DIR/.." && pwd)"
 CONFIG_DIR="$HOME/.gemini/config"
 SKILLS_DIR="$HOME/.gemini/antigravity/skills"
 
@@ -14,7 +15,7 @@ echo "📂 Repo Dizini: $SYNC_DIR"
 mkdir -p "$CONFIG_DIR"
 mkdir -p "$HOME/.gemini/antigravity"
 
-# 2. mcp_config.json Symlink (Sembolik Bağ) Kur
+# 2. mcp_config.json Symlink Kur
 echo "🔗 mcp_config.json symlink kuruluyor..."
 if [ -L "$CONFIG_DIR/mcp_config.json" ] || [ -f "$CONFIG_DIR/mcp_config.json" ]; then
     rm -rf "$CONFIG_DIR/mcp_config.json"
@@ -46,7 +47,7 @@ echo "   ✅ Antigravity & Claude Code bağlantıları kuruldu"
 # 4. Git Submodule'leri Başlat ve Güncelle
 echo "🔄 Git Submodule'ler güncelleniyor..."
 cd "$SYNC_DIR"
-git submodule update --init --recursive
+git submodule update --init --recursive 2>/dev/null || true
 
 # 5. Git post-merge hook kurulumu
 mkdir -p "$SYNC_DIR/.git/hooks"
@@ -65,7 +66,4 @@ echo "   ✅ Git post-merge hook kuruldu"
 
 echo ""
 echo "🎉 Kurulum tamamlandı! Antigravity veya Claude Code'u yeniden başlatın."
-echo ""
-echo "  Sonraki güncellemeler için:"
-echo "  cd $SYNC_DIR && ./update-skills.sh"
 echo ""

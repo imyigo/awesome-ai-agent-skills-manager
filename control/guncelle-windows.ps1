@@ -1,9 +1,8 @@
-# guncelle-windows.ps1 — Skill'leri Canli Upstream Repolardan Guncelleme Scripti
+# control/guncelle-windows.ps1 — Skill'leri Canli Upstream Repolardan Guncelleme Scripti
 
-$ErrorActionPreference = "Stop"
-$ScriptDir = $PSScriptRoot
+$ScriptDir = Split-Path -Parent $PSScriptRoot
 if (-not $ScriptDir) {
-    $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+    $ScriptDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Definition)
 }
 
 Write-Host ""

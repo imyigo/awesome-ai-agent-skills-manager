@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# macOS / Linux Tek Tıkla Güncelleme Scripti
+# macOS / Linux Tek Tıkla Güncelleme Scripti (control/guncelle-mac-linux.sh)
 
 set -e
 
-SYNC_DIR="$(cd "$(dirname "$0")" && pwd)"
+CONTROL_DIR="$(cd "$(dirname "$0")" && pwd)"
+SYNC_DIR="$(cd "$CONTROL_DIR/.." && pwd)"
+
 echo "🔄 Orijinal Skill Repoları Güncelleniyor..."
 cd "$SYNC_DIR"
 
@@ -12,6 +14,4 @@ git submodule update --remote --merge
 
 echo ""
 echo "✅ Tüm orijinal skill'ler başarıyla güncellendi!"
-echo "📌 Güncellemeleri reponuza kaydetmek için:"
-echo "   git commit -am 'chore: update submodules' && git push"
 echo ""

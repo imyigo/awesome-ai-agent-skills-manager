@@ -1,8 +1,8 @@
-# kurulum-windows.ps1 — Antigravity & Claude Code Kurulum Scripti
+# control/kurulum-windows.ps1 — Antigravity & Claude Code Kurulum Scripti
 
-$ScriptDir = $PSScriptRoot
+$ScriptDir = Split-Path -Parent $PSScriptRoot
 if (-not $ScriptDir) {
-    $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+    $ScriptDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Definition)
 }
 
 Write-Host ""
@@ -36,8 +36,6 @@ if (Test-Path $mcpLink) {
 if (Test-Path $mcpTarget) {
     cmd /c "mklink /H `"$mcpLink`" `"$mcpTarget`"" 2>$null
     Write-Host "  mcp_config.json hardlink kuruldu." -ForegroundColor Green
-} else {
-    Write-Host "  mcp_config.json bulunamadi, atlandi." -ForegroundColor Yellow
 }
 
 # Helper function to remove link or folder safely
@@ -50,7 +48,7 @@ function Remove-LinkOrFolder($path) {
     }
 }
 
-# 3. skills/ junction (Antigravity & Claude Code)
+# 3. skills/ junction
 Write-Host ""
 Write-Host "skills/ baglantisi kuruluyor..." -ForegroundColor Yellow
 $skillsTarget = "$ScriptDir\skills"
@@ -65,7 +63,7 @@ Remove-LinkOrFolder $claudeSkills
 cmd /c "mklink /J `"$claudeSkills`" `"$skillsTarget`"" 2>$null
 Write-Host "  Claude Code skills/ junction kuruldu." -ForegroundColor Green
 
-# 4. commands/ junction (Antigravity & Claude Code)
+# 4. commands/ junction
 Write-Host ""
 Write-Host "commands/ baglantisi kuruluyor..." -ForegroundColor Yellow
 $commandsTarget = "$ScriptDir\commands"
