@@ -1,39 +1,39 @@
-[submodule "skills/originals/caveman"]
-	path = skills/originals/caveman
+[submodule "repo/skills/caveman"]
+	path = repo/skills/caveman
 	url = https://github.com/JuliusBrussee/caveman.git
-[submodule "skills/originals/karpathy"]
-	path = skills/originals/karpathy
+[submodule "repo/skills/karpathy"]
+	path = repo/skills/karpathy
 	url = https://github.com/multica-ai/andrej-karpathy-skills.git
-[submodule "skills/originals/planning-with-files"]
-	path = skills/originals/planning-with-files
+[submodule "repo/skills/planning-with-files"]
+	path = repo/skills/planning-with-files
 	url = https://github.com/OthmanAdi/planning-with-files.git
-[submodule "skills/originals/ux-ui"]
-	path = skills/originals/ux-ui
+[submodule "repo/skills/ux-ui"]
+	path = repo/skills/ux-ui
 	url = https://github.com/plugin87/ux-ui-agent-skills.git
-[submodule "skills/originals/marketingskills"]
-	path = skills/originals/marketingskills
+[submodule "repo/skills/marketingskills"]
+	path = repo/skills/marketingskills
 	url = https://github.com/coreyhaines31/marketingskills.git
-[submodule "skills/originals/game-studios"]
-	path = skills/originals/game-studios
+[submodule "repo/skills/game-studios"]
+	path = repo/skills/game-studios
 	url = https://github.com/Donchitos/Claude-Code-Game-Studios.git
-[submodule "skills/originals/graphify"]
-	path = skills/originals/graphify
+[submodule "repo/skills/graphify"]
+	path = repo/skills/graphify
 	url = https://github.com/Graphify-Labs/graphify.git
-[submodule "skills/originals/understand-anything"]
-	path = skills/originals/understand-anything
+[submodule "repo/skills/understand-anything"]
+	path = repo/skills/understand-anything
 	url = https://github.com/Egonex-AI/Understand-Anything.git
-[submodule "skills/originals/awesome-agent-skills"]
-	path = skills/originals/awesome-agent-skills
+[submodule "repo/skills/awesome-agent-skills"]
+	path = repo/skills/awesome-agent-skills
 	url = https://github.com/VoltAgent/awesome-agent-skills.git
-[submodule "skills/originals/skills"]
-	path = skills/originals/skills
+[submodule "repo/skills/skills"]
+	path = repo/skills/skills
 	url = https://github.com/anthropics/skills
-[submodule "skills/originals/ui-ux-pro-max-skill"]
-	path = skills/originals/ui-ux-pro-max-skill
+[submodule "repo/skills/ui-ux-pro-max-skill"]
+	path = repo/skills/ui-ux-pro-max-skill
 	url = https://github.com/nextlevelbuilder/ui-ux-pro-max-skill
-[submodule "skills/originals/superpowers"]
-	path = skills/originals/superpowers
+[submodule "repo/skills/superpowers"]
+	path = repo/skills/superpowers
 	url = https://github.com/obra/superpowers
-[submodule "skills/originals/antigravity-awesome-skills"]
-	path = skills/originals/antigravity-awesome-skills
+[submodule "repo/skills/antigravity-awesome-skills"]
+	path = repo/skills/antigravity-awesome-skills
 	url = https://github.com/sickn33/antigravity-awesome-skills

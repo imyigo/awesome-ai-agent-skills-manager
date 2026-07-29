@@ -129,7 +129,7 @@ function watchAIDirectories() {
     } catch (e) {}
   });
 
-  const skillsDir = path.join(SYNC_DIR, 'skills', 'originals');
+  const skillsDir = path.join(SYNC_DIR, 'repo', 'skills');
   if (fs.existsSync(skillsDir)) {
     try {
       fs.watch(skillsDir, { persistent: false }, () => {
@@ -314,8 +314,8 @@ function parseSkillMetadata(skillDir) {
 }
 
 function getLiveSkillsData() {
-  const skillsDir = path.join(SYNC_DIR, 'skills', 'originals');
-  const unifiedDir = path.join(SYNC_DIR, 'skills', 'unified-dev');
+  const skillsDir = path.join(SYNC_DIR, 'repo', 'skills');
+  const unifiedDir = path.join(SYNC_DIR, 'repo', 'skills', 'unified-dev');
 
   const categories = {
     core:      { title: "Çekirdek Davranışlar (Core)", command: "/caveman", rules: ["Karpathy Guardrails", "Caveman Protocol", "Minimal Intervention"], repos: [], files: [] },
@@ -458,7 +458,7 @@ function getPresetsConfig() {
 
   // Calculate currently active skills on disk
   const activeSkillsOnDisk = new Set();
-  const skillsDir = path.join(SYNC_DIR, 'skills', 'originals');
+  const skillsDir = path.join(SYNC_DIR, 'repo', 'skills');
   if (fs.existsSync(skillsDir)) {
     try {
       const subFolders = fs.readdirSync(skillsDir);
@@ -526,7 +526,7 @@ function saveCustomPreset(preset) {
 }
 
 function getMCPConfig() {
-  const mcpFile = path.join(SYNC_DIR, 'mcp_config.json');
+  const mcpFile = path.join(SYNC_DIR, 'repo', 'mcp', 'mcp_config.json');
   let config = { mcpServers: {} };
   if (fs.existsSync(mcpFile)) {
     try { config = JSON.parse(fs.readFileSync(mcpFile, 'utf8')); } catch (e) {}
@@ -550,7 +550,9 @@ function getMCPConfig() {
 }
 
 function saveMCPConfig(config) {
-  const mcpFile = path.join(SYNC_DIR, 'mcp_config.json');
+  const mcpDir = path.join(SYNC_DIR, 'repo', 'mcp');
+  if (!fs.existsSync(mcpDir)) fs.mkdirSync(mcpDir, { recursive: true });
+  const mcpFile = path.join(mcpDir, 'mcp_config.json');
   fs.writeFileSync(mcpFile, JSON.stringify(config, null, 2), 'utf8');
 
   const claudeJson = path.join(homeDir, '.claude.json');
@@ -588,7 +590,7 @@ function saveMCPAuthSecret(serverKey, envKey, authValue) {
 }
 
 function getCommandsList() {
-  const cmdDir = path.join(SYNC_DIR, 'commands');
+  const cmdDir = path.join(SYNC_DIR, 'repo', 'commands');
   if (!fs.existsSync(cmdDir)) return [];
   try {
     const files = fs.readdirSync(cmdDir);
@@ -668,8 +670,8 @@ function toggleLink(aiKey, targetState, callback) {
     removeLinkTarget(skillsDest);
     removeLinkTarget(commandsDest);
 
-    const winSrcSkills = path.join(SYNC_DIR, 'skills');
-    const winSrcCmds = path.join(SYNC_DIR, 'commands');
+    const winSrcSkills = path.join(SYNC_DIR, 'repo', 'skills');
+    const winSrcCmds = path.join(SYNC_DIR, 'repo', 'commands');
 
     if (currentLinkMode === 'copy') {
       try {
@@ -1164,11 +1166,11 @@ function createServer(port) {
           const { url, category, customRule } = JSON.parse(body);
           if (!url) throw new Error('URL eksik');
           const skillName = path.basename(url, '.git');
-          const cmd = `git submodule add -f "${url}" "skills/originals/${skillName}" && git submodule update --init --recursive`;
+          const cmd = `git submodule add -f "${url}" "repo/skills/${skillName}" && git submodule update --init --recursive`;
 
           exec(cmd, { cwd: SYNC_DIR }, (err, stdout, stderr) => {
             if (customRule && customRule.trim()) {
-              const ruleFile = path.join(SYNC_DIR, 'skills', 'unified-dev', '01-core-behavior.md');
+              const ruleFile = path.join(SYNC_DIR, 'repo', 'skills', 'unified-dev', '01-core-behavior.md');
               if (fs.existsSync(ruleFile)) {
                 fs.appendFileSync(ruleFile, `\n\n### Özel Kural [${skillName}]:\n- ${customRule}\n`);
               }
@@ -1189,7 +1191,7 @@ function createServer(port) {
         try {
           const { name } = JSON.parse(body);
           if (!name) throw new Error('Skill adı eksik');
-          const relPath = `skills/originals/${name}`;
+          const relPath = `repo/skills/${name}`;
           const cmd = `git submodule deinit -f "${relPath}" && git rm -f "${relPath}"`;
 
           exec(cmd, { cwd: SYNC_DIR }, (err, stdout, stderr) => {
