@@ -45,6 +45,7 @@
 
 ## 🌟 Key Features
 
+* **🎨 Modern Web GUI Dashboard:** Launch a visual dark-mode web dashboard (`./gui.sh`) at `http://localhost:3777` with live status badges, interactive action buttons, and live log console!
 * **🤖 Multi-AI Assistant Auto-Detection:** Automatically detects installed AI agents (Antigravity, Claude Code, Cursor IDE, OpenAI Codex) and manages symlinks seamlessly.
 * **🧠 Unified Super-Skill (`unified-dev`):** Distills 10+ top community skills into a non-conflicting core framework.
 * **⚡ 60-70% Token Savings:** 3-Tier **Lazy-Load** architecture. Only loads specific domain references when triggered.
@@ -53,9 +54,20 @@
 
 ---
 
-## 🖥️ Interactive CLI Control Panel Options
+## 🎨 Web GUI Dashboard & CLI Options
 
-When you run `./control.sh`, the interactive CLI dashboard opens:
+You can manage your skills using the **Visual Web Dashboard** (`./gui.sh`) OR the **Interactive CLI** (`./control.sh`):
+
+### Option A: Launch Visual Web Dashboard (Recommended)
+```bash
+./gui.sh
+# Opens http://localhost:3777 in your browser automatically!
+```
+
+### Option B: Interactive CLI Dashboard
+```bash
+./control.sh
+```
 
 ```text
 ========================================================

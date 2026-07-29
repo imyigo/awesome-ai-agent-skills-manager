@@ -307,10 +307,11 @@ while true; do
     echo "  [2] 🔄 Skill'leri Güncelle & GitHub Raporu Al (Update)"
     echo "  [3] 🔍 AI Tespiti & Sistem Bağlantı Durumu (Status)"
     echo "  [4] ➕ Canlı Yeni GitHub Skill Reposu Ekle (Add Skill)"
-    echo "  [5] ⚙️ AI Bağlantı Hedef Ayarları (Settings)"
-    echo "  [6] ❌ Çıkış (Exit)"
+    echo "  [5] 🎨 Görsel Web Dashboard'u Aç (Open Web GUI)"
+    echo "  [6] ⚙️ AI Bağlantı Hedef Ayarları (Settings)"
+    echo "  [7] ❌ Çıkış (Exit)"
     echo "========================================================"
-    read -p "Seçiminiz [1-6]: " choice
+    read -p "Seçiminiz [1-7]: " choice
 
     case "$choice" in
         1)
@@ -330,14 +331,18 @@ while true; do
             read -p "Devam etmek için Enter'a basın..." dummy
             ;;
         5)
-            do_settings
+            echo "🌐 Görsel Web Dashboard Başlatılıyor (http://localhost:3777)..."
+            node "$SYNC_DIR/gui_server.js"
             ;;
         6)
+            do_settings
+            ;;
+        7)
             echo "Çıkış yapılıyor. Harika kodlamalar! 👋"
             exit 0
             ;;
         *)
-            echo "Geçersiz seçim! Lütfen 1-6 arasında bir seçim yapın."
+            echo "Geçersiz seçim! Lütfen 1-7 arasında bir seçim yapın."
             ;;
     esac
 done

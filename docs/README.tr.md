@@ -28,6 +28,7 @@
 
 ## 🌟 Önemli Özellikler
 
+* **🎨 Modern Görsel Web Dashboard:** Tarayıcınızda açılan görsel karanlık-mod kontrol paneli (`./gui.sh`) ile tek tıkla kurulum, canlı loglar ve durum rozetleri!
 * **🤖 Otomatik Çoklu-AI Tespiti:** Bilgisayarınızda yüklü AI araçlarını (Antigravity, Claude Code, Cursor IDE, OpenAI Codex) otomatik tespit eder ve sembolik bağları yönetir.
 * **🧠 Birleşik Süper-Skill (`unified-dev`):** Topluluğun en iyi 10+ skill'ini çakışmasız tek bir çatı altında toplar.
 * **⚡ %60-70 Token Tasarrufu:** 3 Katmanlı **Lazy-Load** mimarisi kullanır.
@@ -36,9 +37,20 @@
 
 ---
 
-## 🖥️ İnteraktif Kontrol Paneli Seçenekleri
+## 🎨 Görsel Web Dashboard & CLI Seçenekleri
 
-`./control.sh` komutunu çalıştırdığınızda açılan menü:
+Yeteneklerinizi **Görsel Web Dashboard** (`./gui.sh`) VEYA **İnteraktif CLI** (`./control.sh`) ile yönetebilirsiniz:
+
+### Seçenek A: Görsel Web Dashboard'u Başlat (Önerilen)
+```bash
+./gui.sh
+# Tarayıcınızda http://localhost:3777 adresini otomatik açar!
+```
+
+### Seçenek B: İnteraktif Terminal Kontrol Paneli
+```bash
+./control.sh
+```
 
 ```text
 ========================================================
