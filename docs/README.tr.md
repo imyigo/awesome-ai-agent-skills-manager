@@ -70,30 +70,25 @@ git clone --recursive https://github.com/imyigo/claude-antigravity-skills.git ~/
 
 ### 2. Kurulum Scriptini Çalıştırın
 
-**Windows (PowerShell):**
+**Windows (Çift Tıklama veya PowerShell):**
+- `kurulum-windows.bat` dosyasına **çift tıklayın** VEYA terminalde çalıştırın:
 ```powershell
 cd ~/.gemini/claude-antigravity-best-skills
 .\kurulum-windows.ps1
 ```
 
-**macOS / Linux (Bash/Zsh):**
+**macOS / Linux (Finder Çift Tıklama veya Terminal):**
+- Finder'da `kurulum-mac.command` dosyasına **çift tıklayın** VEYA terminalde çalıştırın:
 ```bash
 cd ~/.gemini/claude-antigravity-best-skills
-chmod +x kurulum-mac-linux.sh guncelle-mac-linux.sh
+chmod +x *.sh *.command
 ./kurulum-mac-linux.sh
 ```
 
 ### 3. Tek Tıkla Güncelleme
 
-**Windows:**
-```powershell
-.\guncelle-windows.ps1
-```
-
-**macOS / Linux:**
-```bash
-./guncelle-mac-linux.sh
-```
+**Windows:** `guncelle-windows.bat` dosyasına çift tıklayın VEYA `.\guncelle-windows.ps1` çalıştırın.
+**macOS / Linux:** `guncelle-mac.command` dosyasına çift tıklayın VEYA `./guncelle-mac-linux.sh` çalıştırın.
 
 ---
 
