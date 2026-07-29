@@ -1479,7 +1479,17 @@ function createServer(port) {
       dproc.stdout.on('data', d => d.toString().split('\n').filter(l => l.trim()).forEach(line => broadcast('live_log', { jobId, line, type: 'stdout' })));
       dproc.stderr.on('data', d => d.toString().split('\n').filter(l => l.trim()).forEach(line => broadcast('live_log', { jobId, line, type: 'stderr' })));
       dproc.on('close', code => {
-        broadcast('live_log', { jobId, line: code === 0 ? '✅ Docker CLI başarıyla kuruldu! Terminalde: docker --version' : `❌ Docker kurulumu başarısız (çıkış kodu: ${code})`, type: 'done' });
+        // winget: 2316632107 = "No applicable upgrade found" (already up to date)
+        // winget: 2316616721 = "Package already installed"
+        const wingetOk = isWin && (code === 2316632107 || code === 2316616721 || code === -1978401733 || code === -1978401749);
+        const isSuccess = code === 0 || wingetOk;
+        broadcast('live_log', {
+          jobId,
+          line: isSuccess
+            ? '✅ Docker zaten yüklü veya başarıyla kuruldu! Terminalde: docker --version'
+            : `❌ Docker kurulumu başarısız (kod: ${code}). Admin yetkisiyle veya winget.exe aracılığıyla deneyin.`,
+          type: 'done'
+        });
       });
     } else if (req.method === 'GET' && req.url === '/api/engines/port-status') {
       const engines = [
@@ -1492,6 +1502,33 @@ function createServer(port) {
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
         res.end(JSON.stringify(results));
       });
+    } else if (req.method === 'GET' && req.url === '/api/system/info') {
+      const os = require('os');
+      const probe = (cmd, args) => {
+        try {
+          const r = spawnSync(cmd, args, { encoding: 'utf8', timeout: 3000 });
+          return { ok: r.status === 0, version: (r.stdout || r.stderr || '').trim().split('\n')[0] };
+        } catch (e) { return { ok: false, version: '' }; }
+      };
+      const platform = process.platform;
+      const osLabel = platform === 'win32' ? 'Windows' : platform === 'darwin' ? 'macOS' : 'Linux';
+      const git    = probe('git', ['--version']);
+      const docker = probe(isWin ? 'docker.exe' : 'docker', ['--version']);
+      const node   = { ok: true, version: process.version };
+      const npxV   = probe(isWin ? 'npx.cmd' : 'npx', ['--version']);
+      const python = probe('python', ['--version']).ok ? probe('python', ['--version']) : probe('python3', ['--version']);
+      const info = {
+        os: { label: osLabel, platform, arch: os.arch(), totalMemGB: (os.totalmem()/(1024**3)).toFixed(1), freeMemGB: (os.freemem()/(1024**3)).toFixed(1) },
+        requirements: {
+          git:    { required: true,  label: 'Git',                      ...git },
+          node:   { required: true,  label: 'Node.js',                  ...node },
+          npx:    { required: true,  label: 'npx (Node ile gelir)',     ...npxV },
+          docker: { required: false, label: 'Docker CLI (opsiyonel)',   ...docker },
+          python: { required: false, label: 'Python (opsiyonel)',       ...python },
+        }
+      };
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify(info));
     } else {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
       res.end('404 Not Found');

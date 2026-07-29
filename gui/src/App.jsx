@@ -616,6 +616,11 @@ function App() {
   // Settings State
   const [settingLinkMode, setSettingLinkMode] = useState('copy');
   const [settingAutoSync, setSettingAutoSync] = useState('true');
+  const [systemInfo, setSystemInfo] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/system/info').then(r => r.ok ? r.json() : null).then(d => { if (d) setSystemInfo(d); }).catch(() => {});
+  }, []);
 
   // Form loading states
   const [newSkillUrl, setNewSkillUrl] = useState('');
@@ -2070,103 +2075,154 @@ function App() {
 
           {/* TAB: SETTINGS */}
           {activeTab === 'settings' && (
-            <div className="space-y-6 p-5 rounded-xl bg-slate-900/80 border border-slate-800">
-              <div className="border-b border-slate-800 pb-4 flex items-center justify-between">
-                <div>
-                  <h3 className="text-base font-semibold text-slate-100 flex items-center space-x-2">
-                    <Icons.Database /> <span>System & SQLite Database Settings</span>
+            <div className="space-y-6">
+
+              {/* SYSTEM REQUIREMENTS */}
+              <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-slate-100 flex items-center space-x-2">
+                    <Icons.Cpu /> <span>Sistem Gereksinimleri</span>
                   </h3>
-                  <p className="text-xs text-slate-400 mt-1">Configure global storage, linking modes, and SQLite database settings.</p>
+                  <button onClick={() => fetch('/api/system/info').then(r => r.json()).then(d => setSystemInfo(d))}
+                    className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-mono transition flex items-center space-x-1">
+                    <Icons.Refresh /> <span>Tara</span>
+                  </button>
                 </div>
-                <span className="px-2.5 py-1 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono">
-                  Engine: Built-in node:sqlite
-                </span>
+                {systemInfo ? (<>
+                  <div className="flex flex-wrap items-center gap-3 p-3 rounded-lg bg-slate-950 border border-slate-800">
+                    <span className="text-2xl">{systemInfo.os.platform === 'win32' ? '🪟' : systemInfo.os.platform === 'darwin' ? '🍎' : '🐧'}</span>
+                    <div>
+                      <div className="text-xs font-bold text-slate-200">{systemInfo.os.label} ({systemInfo.os.arch})</div>
+                      <div className="text-[10px] font-mono text-slate-500">{systemInfo.os.platform}</div>
+                    </div>
+                    <div className="ml-auto flex items-center space-x-4 text-[11px] font-mono">
+                      <span className="text-slate-400">🖥️ RAM: <span className="text-slate-200">{systemInfo.os.totalMemGB} GB</span></span>
+                      <span className="text-slate-400">🟢 Serbest: <span className="text-emerald-300">{systemInfo.os.freeMemGB} GB</span></span>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {Object.entries(systemInfo.requirements).map(([key, req]) => (
+                      <div key={key} className={`flex items-center justify-between px-3 py-2.5 rounded-lg border ${req.ok ? 'bg-emerald-950/20 border-emerald-500/20' : req.required ? 'bg-rose-950/20 border-rose-500/20' : 'bg-slate-950 border-slate-800'}`}>
+                        <div className="flex items-center space-x-2">
+                          <span className={`w-2 h-2 rounded-full flex-shrink-0 ${req.ok ? 'bg-emerald-400' : req.required ? 'bg-rose-400 animate-pulse' : 'bg-slate-600'}`} />
+                          <div>
+                            <div className="text-[11px] font-semibold text-slate-200">{req.label}</div>
+                            {req.version && <div className="text-[10px] font-mono text-slate-500 truncate max-w-[180px]">{req.version}</div>}
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {req.required && !req.ok && <span className="text-[9px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30 font-mono">Gerekli!</span>}
+                          {!req.required && <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-500 font-mono">opsiyonel</span>}
+                          <span className={`text-[11px] font-mono font-semibold ${req.ok ? 'text-emerald-400' : req.required ? 'text-rose-400' : 'text-slate-500'}`}>{req.ok ? '✓' : '✗'}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {!systemInfo.requirements.docker.ok && (
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-indigo-950/20 border border-indigo-500/20">
+                      <div>
+                        <div className="text-xs font-semibold text-indigo-300">Docker CLI Kur</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">
+                          {systemInfo.os.platform === 'win32' ? 'winget ile kurulur (yönetici gerekmez)' : systemInfo.os.platform === 'darwin' ? 'brew install docker' : 'get.docker.com scripti'}
+                        </div>
+                      </div>
+                      <button onClick={() => fetch('/api/docker/install', { method: 'POST' })}
+                        className="px-3 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-1">
+                        <Icons.Plus /> <span>Kur</span>
+                      </button>
+                    </div>
+                  )}
+                </>) : (
+                  <div className="flex items-center justify-center py-8 text-slate-500">
+                    <span className="text-xs font-mono animate-pulse">Sistem taranıyor...</span>
+                  </div>
+                )}
               </div>
 
-              <form onSubmit={handleSaveSettings} className="space-y-4 max-w-xl">
-                <div>
-                  <label className="text-xs font-mono text-slate-400 block mb-1">SQLite Database Location</label>
-                  <input type="text" value={settingsData.dbPath || 'db.sqlite'} disabled className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs font-mono text-slate-500" />
-                </div>
-
-                <div>
-                  <label className="text-xs font-mono text-slate-400 block mb-1">Windows & Universal Sync Strategy</label>
-                  <select value={settingLinkMode} onChange={e => setSettingLinkMode(e.target.value)} className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-                    <option value="copy">Copy (Önerilen — Dosyaları doğrudan kopyalar, AI chatbotlar görebilir)</option>
-                    <option value="junction">Junction Link (Windows — Link klasörü, bazı chatbotlar göremez)</option>
-                    <option value="symlink">Symlink (Linux/Mac — Sembolik link)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs font-mono text-slate-400 block mb-1">Auto-Sync SSE Live Engine</label>
-                  <select value={settingAutoSync} onChange={e => setSettingAutoSync(e.target.value)} className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-                    <option value="true">Enabled (Real-time filesystem push)</option>
-                    <option value="false">Disabled</option>
-                  </select>
-                </div>
-
-                <button type="submit" className="px-4 py-2.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-2">
-                  <Icons.Check /> <span>{t.saveSettings}</span>
-                </button>
-              </form>
-
-              {/* SQL DUMP EXPORT & IMPORT BACKUP SYSTEM */}
-              <div className="pt-6 border-t border-slate-800 space-y-4 max-w-xl">
-                <div>
-                  <h4 className="text-sm font-semibold text-slate-200 flex items-center space-x-2">
-                    <Icons.Lock /> <span>SQLite Tam Sistem Yedeği (SQL Export & Import Restore)</span>
-                  </h4>
-                  <div className="p-4 rounded-lg bg-amber-500/5 border border-amber-500/20">
-                    <p className="text-xs text-amber-400">💡 <strong>Import notu:</strong> JSON yedek dosyasından tüm presetler, MCP ayarları ve repo URL'leri geri yüklenir. Bulunan her repo otomatik olarak <code>git clone</code> ile indirilir. Bu işlem internet bağlantısı ve birkaç dakika gerektirebilir.</p>
+              {/* MAIN SETTINGS PANEL */}
+              <div className="space-y-6 p-5 rounded-xl bg-slate-900/80 border border-slate-800">
+                <div className="border-b border-slate-800 pb-4 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-base font-semibold text-slate-100 flex items-center space-x-2">
+                      <Icons.Database /> <span>System &amp; SQLite Database Settings</span>
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-1">Configure global storage, linking modes, and SQLite database settings.</p>
                   </div>
+                  <span className="px-2.5 py-1 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono">
+                    Engine: Built-in node:sqlite
+                  </span>
                 </div>
 
-                <div className="flex items-center space-x-3">
-                  <a
-                    href="/api/db/export"
-                    download
-                    className="px-4 py-2.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition flex items-center space-x-2 shadow-lg"
-                  >
-                    <Icons.Sliders /> <span>Tam Sistem Yedeği Al (Export JSON)</span>
-                  </a>
+                <form onSubmit={handleSaveSettings} className="space-y-4 max-w-xl">
+                  <div>
+                    <label className="text-xs font-mono text-slate-400 block mb-1">SQLite Database Location</label>
+                    <input type="text" value={settingsData.dbPath || 'db.sqlite'} disabled className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs font-mono text-slate-500" />
+                  </div>
 
-                  <label className="px-4 py-2.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-2 cursor-pointer shadow-lg">
-                    <Icons.Plus /> <span>Yedeği Geri Yükle + Repoları İndir (Import)</span>
-                    <input
-                      type="file"
-                      accept=".json"
-                      className="hidden"
-                      onChange={e => {
+                  <div>
+                    <label className="text-xs font-mono text-slate-400 block mb-1">Windows &amp; Universal Sync Strategy</label>
+                    <select value={settingLinkMode} onChange={e => setSettingLinkMode(e.target.value)} className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                      <option value="copy">Copy (Önerilen — Dosyaları doğrudan kopyalar, AI chatbotlar görebilir)</option>
+                      <option value="junction">Junction Link (Windows — Link klasörü, bazı chatbotlar göremez)</option>
+                      <option value="symlink">Symlink (Linux/Mac — Sembolik link)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-mono text-slate-400 block mb-1">Auto-Sync SSE Live Engine</label>
+                    <select value={settingAutoSync} onChange={e => setSettingAutoSync(e.target.value)} className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                      <option value="true">Enabled (Real-time filesystem push)</option>
+                      <option value="false">Disabled</option>
+                    </select>
+                  </div>
+
+                  <button type="submit" className="px-4 py-2.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-2">
+                    <Icons.Check /> <span>{t.saveSettings}</span>
+                  </button>
+                </form>
+
+                {/* SQL DUMP EXPORT & IMPORT BACKUP SYSTEM */}
+                <div className="pt-6 border-t border-slate-800 space-y-4 max-w-xl">
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-200 flex items-center space-x-2">
+                      <Icons.Lock /> <span>SQLite Tam Sistem Yedeği (SQL Export &amp; Import Restore)</span>
+                    </h4>
+                    <div className="p-4 rounded-lg bg-amber-500/5 border border-amber-500/20 mt-2">
+                      <p className="text-xs text-amber-400">💡 <strong>Import notu:</strong> JSON yedek dosyasından tüm presetler, MCP ayarları ve repo URL'leri geri yüklenir. Bulunan her repo otomatik olarak <code>git clone</code> ile indirilir. Bu işlem internet bağlantısı ve birkaç dakika gerektirebilir.</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3">
+                    <a href="/api/db/export" download className="px-4 py-2.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition flex items-center space-x-2 shadow-lg">
+                      <Icons.Sliders /> <span>Tam Sistem Yedeği Al (Export JSON)</span>
+                    </a>
+                    <label className="px-4 py-2.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-2 cursor-pointer shadow-lg">
+                      <Icons.Plus /> <span>Yedeği Geri Yükle + Repoları İndir (Import)</span>
+                      <input type="file" accept=".json" className="hidden" onChange={e => {
                         const file = e.target.files[0];
                         if (file) {
                           const reader = new FileReader();
                           reader.onload = async (evt) => {
                             try {
                               showToast('Import Başladı', 'Veriler geri yükleniyor ve repolar klonlanıyor...', 'info');
-                              const res = await fetch('/api/db/import', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: evt.target.result
-                              });
+                              const res = await fetch('/api/db/import', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: evt.target.result });
                               const data = await res.json();
                               addLog(data.message, data.success ? 'success' : 'error');
                               if (data.log) data.log.forEach(line => addLog(line, line.startsWith('✓') ? 'success' : line.startsWith('✗') ? 'error' : 'info'));
                               showToast(data.success ? '✓ Sistem Geri Yüklendi' : 'Import Hatası', data.message, data.success ? 'success' : 'error');
                               fetchData();
-                            } catch (err) {
-                              addLog('SQL Import Hatası: ' + err.message, 'error');
-                            }
+                            } catch (err) { addLog('SQL Import Hatası: ' + err.message, 'error'); }
                           };
                           reader.readAsText(file);
                         }
-                      }}
-                    />
-                  </label>
+                      }} />
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
           )}
+
 
           {activeTab === 'sandbox' && (
             <div className="space-y-6">
