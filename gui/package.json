@@ -1,0 +1,13 @@
+{
+  "name": "multi-ai-skills-hub-react",
+  "version": "2.0.0",
+  "description": "Multi-AI Skill Hub Official React 18 Web Application",
+  "main": "gui_server.js",
+  "scripts": {
+    "start": "node gui_server.js"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

@@ -133,7 +133,6 @@ function getLiveSkillsData() {
     }
   };
 
-  // Submodule Repolarını Git ve Diskle Taramak
   if (fs.existsSync(skillsDir)) {
     try {
       const subFolders = fs.readdirSync(skillsDir);
@@ -152,7 +151,6 @@ function getLiveSkillsData() {
 
           const repoObj = { name: folder, url: gitUrl, tag: commitHash };
 
-          // Kategoriye Eşleme
           if (folder.includes("caveman") || folder.includes("karpathy") || folder.includes("planning")) {
             liveData.core.repos.push(repoObj);
             if (folder.includes("planning")) liveData.planning.repos.push(repoObj);
@@ -172,7 +170,6 @@ function getLiveSkillsData() {
     } catch (err) {}
   }
 
-  // Unified-Dev Dosyalarını Taramak
   if (fs.existsSync(unifiedDir)) {
     try {
       const files = fs.readdirSync(unifiedDir);
@@ -215,7 +212,6 @@ function removeLinkTarget(targetPath) {
   }
 }
 
-// 3. SEÇMELİ AI BAĞLANTI İŞLEYİCİSİ
 function toggleLink(aiKey, targetState, callback) {
   const targetDir = AI_PATHS[aiKey];
   if (!targetDir) return callback(new Error('Bilinmeyen AI aracı'));
@@ -255,19 +251,28 @@ function toggleLink(aiKey, targetState, callback) {
   }
 }
 
-// 4. NODE.JS REST API SUNUCUSU
+// 4. REACT APP SUNUCUSU
 function createServer(port) {
   const server = http.createServer((req, res) => {
-    // CORS & JSON Headers
     res.setHeader('Access-Control-Allow-Origin', '*');
 
-    if (req.method === 'GET' && req.url === '/') {
-      fs.readFile(path.join(GUI_DIR, 'gui.html'), (err, data) => {
+    if (req.method === 'GET' && (req.url === '/' || req.url === '/index.html')) {
+      fs.readFile(path.join(GUI_DIR, 'index.html'), (err, data) => {
         if (err) {
           res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
-          return res.end('Sunucu Hatası: gui.html okunamadı.');
+          return res.end('Sunucu Hatası: index.html okunamadı.');
         }
         res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(data);
+      });
+    } else if (req.method === 'GET' && req.url.startsWith('/src/')) {
+      const filePath = path.join(GUI_DIR, req.url);
+      fs.readFile(filePath, (err, data) => {
+        if (err) {
+          res.writeHead(404, { 'Content-Type': 'text/plain' });
+          return res.end('404 File Not Found');
+        }
+        res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
         res.end(data);
       });
     } else if (req.method === 'GET' && req.url === '/api/status') {
@@ -333,8 +338,8 @@ function createServer(port) {
 
   server.listen(port, () => {
     console.log(`\n====================================================`);
-    console.log(` ⚡ Multi-AI Skill Hub Node.js REST API Server`);
-    console.log(` 🌐 Dashboard UI: http://localhost:${port}`);
+    console.log(` ⚡ Multi-AI Skill Hub Official React App Server`);
+    console.log(` ⚛️ React Entry: http://localhost:${port}`);
     console.log(`====================================================\n`);
 
     const startCmd = isWin ? `start http://localhost:${port}` :
