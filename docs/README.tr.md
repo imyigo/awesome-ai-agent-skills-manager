@@ -14,27 +14,27 @@
 
 ---
 
-## 🚀 Hızlı Kurulum (Tüm Platformlar: Windows, macOS, Linux)
+## 🚀 İnteraktif Kontrol Paneli (Tüm Platformlar: Windows, macOS, Linux)
 
 ### 1. Submodule'ler İle Klonlayın
 ```bash
 git clone --recursive https://github.com/imyigo/claude-antigravity-skills.git ~/.gemini/claude-antigravity-best-skills
 ```
 
-### 2. Evrensel Kurulum Scriptini Çalıştırın
+### 2. Kontrol Panelini Çalıştırın
 
 Terminal / Git Bash ekranında:
 ```bash
 cd ~/.gemini/claude-antigravity-best-skills
-chmod +x install.sh update.sh
-./install.sh
+chmod +x control.sh
+./control.sh
 ```
 
-### 3. Tek Tıkla Güncelleme
-Orijinal kaynak repolardaki en son güncellemeleri çekmek için:
-```bash
-./update.sh
-```
+**Panel Seçenekleri:**
+* **`[1]` 🚀 Kurulum Yap:** Antigravity ve Claude Code bağlantılarını otomatik kurar.
+* **`[2]` 🔄 Güncelle:** Tüm canlı skill'leri GitHub kaynaklarından günceller.
+* **`[3]` 🔍 Sistem Durumu:** Bağlantıları ve dizin bütünlüğünü denetler.
+* **`[4]` ❌ Çıkış:** Kontrol panelinden çıkar.
 
 ---
 

@@ -61,27 +61,27 @@
 
 ---
 
-## 🚀 Quick Setup (All Platforms: Windows, macOS, Linux)
+## 🚀 Interactive Control Panel (All Platforms: Windows, macOS, Linux)
 
 ### 1. Clone with Submodules
 ```bash
 git clone --recursive https://github.com/imyigo/claude-antigravity-skills.git ~/.gemini/claude-antigravity-best-skills
 ```
 
-### 2. Run Universal Setup Script
+### 2. Run Control Panel
 
-Run the universal setup script in Terminal / Git Bash:
+Run the single interactive control panel (in Git Bash / Terminal):
 ```bash
 cd ~/.gemini/claude-antigravity-best-skills
-chmod +x install.sh update.sh
-./install.sh
+chmod +x control.sh
+./control.sh
 ```
 
-### 3. One-Click Updates
-To update all skills from live original GitHub sources:
-```bash
-./update.sh
-```
+**Panel Options:**
+* **`[1]` 🚀 Install:** Links all skills, commands & MCP configs to Antigravity & Claude Code.
+* **`[2]` 🔄 Update:** Upgrades all skills from their live upstream GitHub repositories.
+* **`[3]` 🔍 Status:** Verifies system symlinks, junctions, and directory integrity.
+* **`[4]` ❌ Exit:** Closes the control panel.
 
 ---
 
