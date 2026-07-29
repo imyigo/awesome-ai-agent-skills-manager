@@ -431,28 +431,11 @@ function McpEditorModal({ serverKey, serverData, onSave, onClose }) {
 
 // PRESET EDITOR MODAL
 function PresetEditorModal({ preset, availableSkills, onSave, onClose }) {
+  const isAutoMode = preset?.id?.includes('auto') || (preset?.skills || []).length === 0;
   const [title, setTitle] = useState(preset?.title || '');
   const [desc, setDesc] = useState(preset?.description || '');
+  const [customRule, setCustomRule] = useState(preset?.customRule || '');
   const [skills, setSkills] = useState(preset?.skills || []);
-  const [catFilter, setCatFilter] = useState('all');
-
-  const toggleSkill = (s) => {
-    setSkills(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
-  };
-
-  const getSkillCategory = (s) => {
-    const name = s.toLowerCase();
-    if (name.includes('sec') || name.includes('audit')) return 'security';
-    if (name.includes('ux') || name.includes('ui') || name.includes('css') || name.includes('web')) return 'web';
-    if (name.includes('game') || name.includes('3d')) return 'game';
-    if (name.includes('market') || name.includes('growth') || name.includes('seo')) return 'marketing';
-    return 'core';
-  };
-
-  const filteredSkills = availableSkills.filter(s => {
-    if (catFilter === 'all') return true;
-    return getSkillCategory(s) === catFilter;
-  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -460,7 +443,8 @@ function PresetEditorModal({ preset, availableSkills, onSave, onClose }) {
       id: preset?.id || 'preset-' + Date.now(),
       title,
       description: desc,
-      skills,
+      skills: isAutoMode ? [] : skills,
+      customRule,
       custom: true
     });
   };
@@ -470,7 +454,7 @@ function PresetEditorModal({ preset, availableSkills, onSave, onClose }) {
       <div className="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-lg overflow-hidden shadow-2xl space-y-4 p-6 max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <h3 className="text-sm font-semibold text-white flex items-center space-x-2">
-            <Icons.Sliders /> <span>{preset ? `Preset Düzenle [${preset.title}]` : 'Yeni Preset Oluştur'}</span>
+            <Icons.Sliders /> <span>{preset?.id ? `Preset Düzenle — ${preset.title}` : 'Yeni Preset Oluştur'}</span>
           </h3>
           <button onClick={onClose} className="text-xs text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-800">Kapat</button>
         </div>
@@ -486,74 +470,48 @@ function PresetEditorModal({ preset, availableSkills, onSave, onClose }) {
             <input type="text" value={desc} onChange={e => setDesc(e.target.value)} className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500" />
           </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-mono text-indigo-300 font-semibold">Eklenecek / Çıkarılacak Yetenekler ({skills.length} Seçili):</label>
+          {isAutoMode ? (
+            <div className="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
+              <p className="text-xs text-emerald-400 flex items-center space-x-1">
+                <Icons.Zap /><span><strong>Otomatik Mod:</strong> Tüm yüklü yetenekleri aktif eder. AI tüm skill setini görür ve göreve göre otomatik seçim yapar.</span>
+              </p>
             </div>
-
-            {/* CATEGORY FILTER TABS FOR PRESET EDITOR */}
-            <div className="flex flex-wrap gap-1 mb-2">
-              {[
-                { id: 'all', label: 'Tümü' },
-                { id: 'core', label: 'Core & Agent' },
-                { id: 'web', label: 'Web & UI/UX' },
-                { id: 'security', label: 'Güvenlik' },
-                { id: 'game', label: 'Oyun Dev' },
-                { id: 'marketing', label: 'Pazarlama' }
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setCatFilter(tab.id)}
-                  className={`px-2 py-1 rounded text-[10px] font-mono transition ${catFilter === tab.id ? 'bg-indigo-600 text-white font-bold' : 'bg-slate-950 text-slate-400 hover:text-slate-200 border border-slate-800'}`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="space-y-2 max-h-56 overflow-y-auto p-3 rounded-lg bg-slate-950 border border-slate-800">
-              {filteredSkills.map(s => {
-                const isSelected = skills.includes(s);
-                return (
+          ) : (
+            <div>
+              <label className="text-xs font-mono text-indigo-300 font-semibold block mb-2">
+                Aktifleştirilecek Yetenekler ({skills.length} Seçili)
+              </label>
+              <div className="space-y-1 max-h-48 overflow-y-auto p-3 rounded-lg bg-slate-950 border border-slate-800">
+                {availableSkills.map(s => (
                   <div
                     key={s}
-                    onClick={() => toggleSkill(s)}
-                    className={`p-2.5 rounded-lg border transition cursor-pointer flex items-start justify-between ${isSelected ? 'bg-indigo-600/20 border-indigo-500/50 text-indigo-200' : 'bg-slate-900/60 border-slate-800/80 text-slate-400 hover:border-slate-700 hover:text-slate-200'}`}
+                    onClick={() => setSkills(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])}
+                    className={`p-2 rounded border cursor-pointer flex items-center space-x-2 transition ${skills.includes(s) ? 'bg-indigo-600/20 border-indigo-500/40 text-indigo-200' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700'}`}
                   >
-                    <div className="flex items-start space-x-2.5 min-w-0">
-                      <span className={`mt-0.5 font-mono text-xs ${isSelected ? 'text-indigo-400 font-bold' : 'text-slate-600'}`}>
-                        {isSelected ? '[x]' : '[ ]'}
-                      </span>
-                      <div className="min-w-0">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-xs font-mono font-semibold block text-slate-200">{s}</span>
-                          <span className="px-1.5 py-0.2 rounded bg-slate-800 text-[9px] font-mono text-indigo-300 uppercase">
-                            {getSkillCategory(s)}
-                          </span>
-                        </div>
-                        <span className="text-[11px] text-slate-400 block leading-tight truncate mt-0.5">
-                          {s.includes('ux-ui') ? 'WCAG 2.2 AA erişilebilirlik & OKLCH renk sistemli UI/UX tasarım standartları' :
-                           s.includes('caveman') ? 'Minimalist ve özlü AI iletişim protokolü (%40-60 token tasarrufu)' :
-                           s.includes('karpathy') ? 'Kod değişikliği yapmadan önce varsayımları doğrulayan muhafazakar guardrails' :
-                           s.includes('security') ? 'OWASP Top 10 ve STRIDE tehdit analizi ile kod güvenlik denetimi' :
-                           s.includes('game') ? '60 FPS performans, Object Pooling ve Juice oyun geliştirme rehberi' :
-                           s.includes('marketing') ? 'PAS & AIDA reklam metin yazarlığı, ASO ve CRO optimizasyonları' :
-                           s.includes('planning') ? 'PRD belgeleri ve ADR mimari karar kayıtları oluşturan rehber' :
-                           'AI ajanı için geliştirilmiş özel yetenek ve davranış seti.'}
-                        </span>
-                      </div>
-                    </div>
+                    <span className="font-mono text-xs">{skills.includes(s) ? '[x]' : '[ ]'}</span>
+                    <span className="text-xs font-mono">{s}</span>
                   </div>
-                );
-              })}
+                ))}
+                {availableSkills.length === 0 && <p className="text-xs text-slate-500 text-center py-4">Henüz yüklü yetenek yok. Skills Hub'dan repo ekleyin.</p>}
+              </div>
             </div>
+          )}
+
+          <div>
+            <label className="text-xs font-mono text-slate-400 block mb-1">Özel Kural / Custom Rule (İsteğe Bağlı)</label>
+            <textarea
+              value={customRule}
+              onChange={e => setCustomRule(e.target.value)}
+              rows="3"
+              placeholder="Örn: Her yanıtta kaynak kodu için test yaz. Yanıtları Türkçe ver."
+              className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500"
+            />
           </div>
 
           <div className="pt-3 flex justify-end space-x-2 border-t border-slate-800">
-            <button type="button" onClick={onClose} className="px-4 py-2 rounded bg-slate-800 text-xs text-slate-300">Cancel</button>
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded bg-slate-800 text-xs text-slate-300">İptal</button>
             <button type="submit" className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-1">
-              <Icons.Check /> <span>Save Preset</span>
+              <Icons.Check /> <span>Preset Kaydet</span>
             </button>
           </div>
         </form>
@@ -654,7 +612,7 @@ function App() {
   const [sandboxResult, setSandboxResult] = useState(null);
 
   // Settings State
-  const [settingLinkMode, setSettingLinkMode] = useState('junction');
+  const [settingLinkMode, setSettingLinkMode] = useState('copy');
   const [settingAutoSync, setSettingAutoSync] = useState('true');
 
   // Form loading states
@@ -1500,15 +1458,32 @@ function App() {
               <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-semibold text-slate-100 flex items-center space-x-2">
-                    <Icons.Cpu /> <span>Çekirdek Servisler & Bağımlılık Yöneticisi (Core Engine Daemons)</span>
+                    <Icons.Cpu /> <span>Çekirdek Servisler (Core Engine Daemons)</span>
                   </h3>
                   <p className="text-xs text-slate-400 mt-1">
-                    WordPress Astra teması mantığı: Uzun süreli hafıza, 3D mimari haritalama ve derin kod analizi servislerini tek tıkla kurun ve çalıştırın.
+                    Uzun süreli hafıza, 3D mimari haritalama ve derin kod analizi servislerini Docker üzerinden tek tıkla çalıştırın.
                   </p>
                 </div>
-                <span className="px-2.5 py-1 rounded bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-mono">
-                  Daemon Hub Active
-                </span>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={async () => {
+                      showToast('Docker CLI Kuruluyor...', 'winget/brew/apt ile Docker CLI indiriliyor (Docker Desktop değil)', 'info');
+                      try {
+                        const res = await fetch('/api/docker/install', { method: 'POST' });
+                        const d = await res.json();
+                        showToast(d.success ? '✓ Docker Kuruldu' : '⚠ Docker Kurulum Hatası', d.message, d.success ? 'success' : 'error');
+                        addLog(d.message, d.success ? 'success' : 'error');
+                      } catch (e) { showToast('Hata', e.message, 'error'); }
+                    }}
+                    className="px-3 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold transition flex items-center space-x-1.5 shadow-lg"
+                    title="Docker Desktop değil, hafif Docker CLI (Engine) kurar"
+                  >
+                    <Icons.Server /> <span>Docker CLI Kur</span>
+                  </button>
+                  <span className="px-2.5 py-1 rounded bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-mono">
+                    Daemon Hub Active
+                  </span>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 gap-4">
@@ -1794,9 +1769,9 @@ function App() {
                 <div>
                   <label className="text-xs font-mono text-slate-400 block mb-1">Windows & Universal Sync Strategy</label>
                   <select value={settingLinkMode} onChange={e => setSettingLinkMode(e.target.value)} className="w-full p-2.5 rounded bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-                    <option value="junction">Windows Junction (mklink /J) - Canlı Senkronizasyon (Önerilen)</option>
-                    <option value="symlink">Symlink (mklink /D)</option>
-                    <option value="copy">Klasör / Dosya Kopyalama (Direct Copy - Bağımsız)</option>
+                    <option value="copy">Copy (Önerilen — Dosyaları doğrudan kopyalar, AI chatbotlar görebilir)</option>
+                    <option value="junction">Junction Link (Windows — Link klasörü, bazı chatbotlar göremez)</option>
+                    <option value="symlink">Symlink (Linux/Mac — Sembolik link)</option>
                   </select>
                 </div>
 
@@ -1819,25 +1794,25 @@ function App() {
                   <h4 className="text-sm font-semibold text-slate-200 flex items-center space-x-2">
                     <Icons.Lock /> <span>SQLite Tam Sistem Yedeği (SQL Export & Import Restore)</span>
                   </h4>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Tüm veritabanını, GitHub yetenek submodüllerini, custom preset modlarını ve MCP sunucu ayarlarınızı tek dosyada yedekleyin veya felaket anında tüm sistemi geriye yükleyin.
-                  </p>
+                  <div className="p-4 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                    <p className="text-xs text-amber-400">💡 <strong>Import notu:</strong> JSON yedek dosyasından tüm presetler, MCP ayarları ve repo URL'leri geri yüklenir. Bulunan her repo otomatik olarak <code>git clone</code> ile indirilir. Bu işlem internet bağlantısı ve birkaç dakika gerektirebilir.</p>
+                  </div>
                 </div>
 
                 <div className="flex items-center space-x-3">
                   <a
                     href="/api/db/export"
-                    download="skills_hub_backup.sql.json"
+                    download
                     className="px-4 py-2.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition flex items-center space-x-2 shadow-lg"
                   >
-                    <Icons.Sliders /> <span>SQL Yedeği İndir (Export)</span>
+                    <Icons.Sliders /> <span>Tam Sistem Yedeği Al (Export JSON)</span>
                   </a>
 
                   <label className="px-4 py-2.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition flex items-center space-x-2 cursor-pointer shadow-lg">
-                    <Icons.Plus /> <span>SQL Yedeği Yükle & Geri Getir (Import)</span>
+                    <Icons.Plus /> <span>Yedeği Geri Yükle + Repoları İndir (Import)</span>
                     <input
                       type="file"
-                      accept=".json,.sql"
+                      accept=".json"
                       className="hidden"
                       onChange={e => {
                         const file = e.target.files[0];
@@ -1845,6 +1820,7 @@ function App() {
                           const reader = new FileReader();
                           reader.onload = async (evt) => {
                             try {
+                              showToast('Import Başladı', 'Veriler geri yükleniyor ve repolar klonlanıyor...', 'info');
                               const res = await fetch('/api/db/import', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
@@ -1852,7 +1828,8 @@ function App() {
                               });
                               const data = await res.json();
                               addLog(data.message, data.success ? 'success' : 'error');
-                              showToast('Sistem Geri Yüklendi', data.message, data.success ? 'success' : 'error');
+                              if (data.log) data.log.forEach(line => addLog(line, line.startsWith('✓') ? 'success' : line.startsWith('✗') ? 'error' : 'info'));
+                              showToast(data.success ? '✓ Sistem Geri Yüklendi' : 'Import Hatası', data.message, data.success ? 'success' : 'error');
                               fetchData();
                             } catch (err) {
                               addLog('SQL Import Hatası: ' + err.message, 'error');

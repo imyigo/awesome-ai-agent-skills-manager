@@ -990,7 +990,7 @@ function createServer(port) {
     } else if (req.method === 'GET' && req.url === '/api/settings') {
       const settingsObj = {
         dbPath: DB_PATH,
-        linkMode: getSetting('linkMode', isWin ? 'junction' : 'symlink'),
+        linkMode: getSetting('linkMode', 'copy'),
         autoSync: getSetting('autoSync', 'true'),
         theme: getSetting('theme', 'dark')
       };
@@ -1014,18 +1014,42 @@ function createServer(port) {
       });
     } else if (req.method === 'GET' && req.url === '/api/db/export') {
       try {
+        // Collect repo URLs from installed_skills table
+        const installedSkillsRows = db ? db.prepare('SELECT * FROM installed_skills').all() : [];
+        // Also scan repo/skills and repo/server-skills directories for repo URLs via .git/config
+        const repoUrls = [];
+        const scanForGitRemote = (dir) => {
+          if (!fs.existsSync(dir)) return;
+          const entries = fs.readdirSync(dir, { withFileTypes: true });
+          entries.forEach(entry => {
+            if (!entry.isDirectory()) return;
+            const gitConfig = path.join(dir, entry.name, '.git', 'config');
+            if (fs.existsSync(gitConfig)) {
+              try {
+                const content = fs.readFileSync(gitConfig, 'utf8');
+                const match = content.match(/url\s*=\s*(.+)/);
+                if (match) repoUrls.push({ name: entry.name, url: match[1].trim(), dir: path.relative(SYNC_DIR, path.join(dir, entry.name)) });
+              } catch (e) {}
+            }
+          });
+        };
+        scanForGitRemote(path.join(SYNC_DIR, 'repo', 'skills'));
+        scanForGitRemote(path.join(SYNC_DIR, 'repo', 'server-skills'));
+
         const dumpData = {
           timestamp: new Date().toISOString(),
+          version: '2.5',
           settings: db ? db.prepare('SELECT * FROM settings').all() : [],
           custom_presets: db ? db.prepare('SELECT * FROM custom_presets').all() : [],
           mcp_auth: db ? db.prepare('SELECT * FROM mcp_auth').all() : [],
-          installed_skills: db ? db.prepare('SELECT * FROM installed_skills').all() : [],
+          installed_skills: installedSkillsRows,
           mcp_servers: db ? db.prepare('SELECT * FROM mcp_servers').all() : [],
-          mcp_config: getMCPConfig()
+          mcp_config: getMCPConfig(),
+          repo_urls: repoUrls,
         };
         res.writeHead(200, {
           'Content-Type': 'application/json; charset=utf-8',
-          'Content-Disposition': 'attachment; filename="skills_hub_backup.sql.json"'
+          'Content-Disposition': `attachment; filename="skills_hub_backup_${new Date().toISOString().slice(0,10)}.json"`
         });
         res.end(JSON.stringify(dumpData, null, 2));
       } catch (e) {
@@ -1038,14 +1062,18 @@ function createServer(port) {
       req.on('end', async () => {
         try {
           const dump = JSON.parse(body || '{}');
+          const importLog = [];
+
           if (db) {
             if (Array.isArray(dump.settings)) {
               const stmt = db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value');
               dump.settings.forEach(row => stmt.run(row.key, row.value));
+              importLog.push(`${dump.settings.length} ayar geri yüklendi`);
             }
             if (Array.isArray(dump.custom_presets)) {
               const stmt = db.prepare('INSERT INTO custom_presets (id, title, description, skills, custom) VALUES (?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, description=excluded.description, skills=excluded.skills, custom=excluded.custom');
               dump.custom_presets.forEach(row => stmt.run(row.id, row.title, row.description, row.skills, row.custom));
+              importLog.push(`${dump.custom_presets.length} preset geri yüklendi`);
             }
             if (Array.isArray(dump.mcp_auth)) {
               const stmt = db.prepare('INSERT INTO mcp_auth (server_key, env_key, auth_value) VALUES (?, ?, ?) ON CONFLICT(server_key) DO UPDATE SET env_key=excluded.env_key, auth_value=excluded.auth_value');
@@ -1053,28 +1081,47 @@ function createServer(port) {
             }
             if (Array.isArray(dump.installed_skills)) {
               const stmt = db.prepare('INSERT INTO installed_skills (name, url, category, custom_rule, disabled) VALUES (?, ?, ?, ?, ?) ON CONFLICT(name) DO UPDATE SET url=excluded.url, category=excluded.category, disabled=excluded.disabled');
-              dump.installed_skills.forEach(row => {
-                stmt.run(row.name, row.url, row.category || 'core', row.custom_rule || '', row.disabled || 0);
-                if (row.url) {
-                  const skillName = path.basename(row.url, '.git');
-                  const targetDir = path.join(SYNC_DIR, 'repo', 'skills', skillName);
-                  if (!fs.existsSync(targetDir)) {
-                    try {
-                      exec(`git clone "${row.url}" "repo/skills/${skillName}"`, { cwd: SYNC_DIR }, () => {});
-                    } catch (err) {}
-                  }
-                }
-              });
+              dump.installed_skills.forEach(row => stmt.run(row.name, row.url, row.category || 'core', row.custom_rule || '', row.disabled || 0));
             }
           }
+
+          // ─── Auto-clone all repos from repo_urls list ───
+          const reposToClone = dump.repo_urls || [];
+          // Also pick up repos from installed_skills that have URLs
+          if (Array.isArray(dump.installed_skills)) {
+            dump.installed_skills.forEach(row => {
+              if (row.url && !reposToClone.find(r => r.name === row.name)) {
+                reposToClone.push({ name: path.basename(row.url, '.git'), url: row.url, dir: `repo/skills/${path.basename(row.url, '.git')}` });
+              }
+            });
+          }
+
+          let cloneCount = 0;
+          for (const repo of reposToClone) {
+            const targetDir = path.join(SYNC_DIR, repo.dir || `repo/skills/${repo.name}`);
+            if (!fs.existsSync(targetDir)) {
+              try {
+                execSync(`git clone "${repo.url}" "${repo.dir || `repo/skills/${repo.name}`}"`, { cwd: SYNC_DIR, timeout: 60000, stdio: 'ignore' });
+                cloneCount++;
+                importLog.push(`✓ ${repo.name} klonlandı`);
+              } catch (err) {
+                importLog.push(`✗ ${repo.name} klonlama başarısız: ${err.message}`);
+              }
+            } else {
+              importLog.push(`◦ ${repo.name} zaten mevcut`);
+            }
+          }
+
           if (dump.mcp_config) {
             saveMCPConfig(dump.mcp_config);
+            importLog.push('MCP konfigürasyonu geri yüklendi');
           }
+
           broadcast('skills_update', getLiveSkillsData());
           broadcast('presets_update', getPresetsConfig());
           broadcast('mcp_update', getMCPConfig());
           res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-          res.end(JSON.stringify({ success: true, message: 'SQLite Veritabanı ve Tüm Sistem Başarıyla Geri Yüklendi!' }));
+          res.end(JSON.stringify({ success: true, message: `Yedek geri yüklendi! ${cloneCount} repo klonlandı.`, log: importLog }));
         } catch (e) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
           res.end(JSON.stringify({ success: false, message: 'Yükleme Hatası: ' + e.message }));
@@ -1391,6 +1438,33 @@ function createServer(port) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
           res.end(JSON.stringify({ success: false, output: 'Silme Hatası: ' + e.message }));
         }
+      });
+    } else if (req.method === 'POST' && req.url === '/api/docker/install') {
+      // Install Docker CLI (Engine) via winget / brew / apt (no Docker Desktop)
+      let cmd = '';
+      if (isWin) {
+        cmd = 'winget install -e --id Docker.DockerCLI --accept-package-agreements --accept-source-agreements';
+      } else if (process.platform === 'darwin') {
+        cmd = 'brew install docker';
+      } else {
+        cmd = 'curl -fsSL https://get.docker.com | sh';
+      }
+      exec(cmd, { timeout: 180000 }, (err, stdout, stderr) => {
+        const success = !err;
+        const msg = success ? 'Docker CLI başarıyla kuruldu! Terminal: docker --version ile kontrol edin.' : `Docker kurulumu başarısız: ${stderr || err.message}`;
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ success, message: msg, output: stdout || stderr }));
+      });
+    } else if (req.method === 'GET' && req.url === '/api/engines/port-status') {
+      const engines = [
+        { id: 'claude-mem', port: 3780 },
+        { id: 'graphify', port: 3781 },
+        { id: 'understand-anything', port: 3782 },
+        { id: 'n8n', port: 5678 },
+      ];
+      Promise.all(engines.map(async e => ({ ...e, running: await checkPortActive(e.port) }))).then(results => {
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify(results));
       });
     } else {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
