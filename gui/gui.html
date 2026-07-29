@@ -37,7 +37,7 @@
   <!-- Two-Column Layout with Left Sidebar -->
   <div class="flex flex-col lg:flex-row min-h-screen">
 
-    <!-- LEFT SIDEBAR: Skills, Categories & Live GitHub Links -->
+    <!-- LEFT SIDEBAR: Interactive Categories Navigation -->
     <aside class="w-full lg:w-80 bg-slate-900/80 backdrop-blur-xl border-r border-slate-800/80 p-6 flex flex-col justify-between shrink-0">
       <div>
         <!-- Brand Header -->
@@ -47,40 +47,48 @@
             <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
               Multi-AI Hub
             </h1>
-            <p class="text-xs text-slate-400">Yetenek & Repo Paneli</p>
+            <p class="text-xs text-slate-400">Interaktif Skill Gezgini</p>
           </div>
         </div>
 
-        <!-- Section 1: Main Skill Categories -->
+        <!-- Section 1: Interactive Skill Categories (Clickable) -->
         <div class="mb-6">
           <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 px-1">
-            📂 Ana Kategoriler & Skills
+            📂 Gezilebilir Kategoriler
           </h3>
-          <nav class="space-y-1">
-            <a href="#" class="flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg bg-indigo-600/15 text-indigo-300 border border-indigo-500/20">
-              <span class="flex items-center gap-2">🧠 unified-dev</span>
-              <span class="text-[10px] bg-indigo-500/20 px-1.5 py-0.5 rounded text-indigo-300">7 Domain</span>
-            </a>
-            <a href="#" class="flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-slate-300 hover:bg-slate-800/60 transition-colors">
-              <span class="flex items-center gap-2">🎨 ux-ui</span>
-              <span class="text-[10px] text-slate-500">WCAG 2.2</span>
-            </a>
-            <a href="#" class="flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-slate-300 hover:bg-slate-800/60 transition-colors">
-              <span class="flex items-center gap-2">📈 marketingskills</span>
-              <span class="text-[10px] text-slate-500">ASO & CRO</span>
-            </a>
-            <a href="#" class="flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-slate-300 hover:bg-slate-800/60 transition-colors">
-              <span class="flex items-center gap-2">🎮 game-studios</span>
-              <span class="text-[10px] text-slate-500">Game Feel</span>
-            </a>
-            <a href="#" class="flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-slate-300 hover:bg-slate-800/60 transition-colors">
-              <span class="flex items-center gap-2">📊 graphify</span>
-              <span class="text-[10px] text-slate-500">Graph CLI</span>
-            </a>
-            <a href="#" class="flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-slate-300 hover:bg-slate-800/60 transition-colors">
-              <span class="flex items-center gap-2">🔍 understand-anything</span>
-              <span class="text-[10px] text-slate-500">Code Tour</span>
-            </a>
+          <nav class="space-y-1.5" id="category-nav">
+            <button onclick="switchCategory('overview')" id="nav-overview" class="w-full flex items-center justify-between px-3 py-2.5 text-xs font-semibold rounded-xl bg-indigo-600 text-white transition-all shadow-lg shadow-indigo-600/20">
+              <span class="flex items-center gap-2">📊 Genel Yönetim Dashboard</span>
+              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded">Ana Sayfa</span>
+            </button>
+            <button onclick="switchCategory('core')" id="nav-core" class="w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition-all">
+              <span class="flex items-center gap-2">🧠 Çekirdek Davranışlar</span>
+              <span class="text-[10px] text-slate-500 font-mono">/caveman</span>
+            </button>
+            <button onclick="switchCategory('web')" id="nav-web" class="w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition-all">
+              <span class="flex items-center gap-2">🎨 Web & UI/UX Tasarım</span>
+              <span class="text-[10px] text-slate-500 font-mono">/ux-ui</span>
+            </button>
+            <button onclick="switchCategory('mobile')" id="nav-mobile" class="w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition-all">
+              <span class="flex items-center gap-2">📱 Mobil (iOS & Android)</span>
+              <span class="text-[10px] text-slate-500 font-mono">/mobile</span>
+            </button>
+            <button onclick="switchCategory('game')" id="nav-game" class="w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition-all">
+              <span class="flex items-center gap-2">🎮 Oyun Geliştirme Stüdyosu</span>
+              <span class="text-[10px] text-slate-500 font-mono">/game</span>
+            </button>
+            <button onclick="switchCategory('security')" id="nav-security" class="w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition-all">
+              <span class="flex items-center gap-2">🔐 Siber Güvenlik Denetimi</span>
+              <span class="text-[10px] text-slate-500 font-mono">/security</span>
+            </button>
+            <button onclick="switchCategory('planning')" id="nav-planning" class="w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition-all">
+              <span class="flex items-center gap-2">📐 Proje & Mimari Planlama</span>
+              <span class="text-[10px] text-slate-500 font-mono">/planning</span>
+            </button>
+            <button onclick="switchCategory('marketing')" id="nav-marketing" class="w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition-all">
+              <span class="flex items-center gap-2">📈 Pazarlama & ASO / CRO</span>
+              <span class="text-[10px] text-slate-500 font-mono">/marketing</span>
+            </button>
           </nav>
         </div>
 
@@ -125,16 +133,16 @@
       </div>
     </aside>
 
-    <!-- RIGHT CONTENT AREA -->
+    <!-- RIGHT CONTENT AREA (Dynamic SPA Views) -->
     <main class="flex-1 p-6 lg:p-10 max-w-5xl">
       
       <!-- Top Bar -->
       <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-8 mb-8 border-b border-slate-800/80">
         <div>
-          <h2 class="text-2xl font-extrabold tracking-tight text-white">
+          <h2 class="text-2xl font-extrabold tracking-tight text-white" id="view-title">
             Yönetim Dashboard & AI Bağlantıları
           </h2>
-          <p class="text-xs text-slate-400 mt-1">
+          <p class="text-xs text-slate-400 mt-1" id="view-subtitle">
             Google Antigravity • Claude Code • Cursor IDE • OpenAI Codex
           </p>
         </div>
@@ -147,103 +155,111 @@
         </div>
       </header>
 
-      <!-- AI Assistants Status Section -->
-      <section class="mb-10">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Bağlı AI Asistanları</h3>
+      <!-- DYNAMIC VIEW CONTAINER -->
+      <div id="view-content">
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-4 hover:border-indigo-500/40 transition-all duration-300 shadow-xl">
-            <div class="flex justify-between items-center mb-2">
-              <span class="text-2xl">🌌</span>
-              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
-            </div>
-            <h4 class="font-semibold text-sm text-slate-200">Google Antigravity</h4>
-            <p class="text-[11px] text-slate-500 mt-1">~/.gemini/antigravity</p>
-          </article>
-
-          <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-4 hover:border-indigo-500/40 transition-all duration-300 shadow-xl">
-            <div class="flex justify-between items-center mb-2">
-              <span class="text-2xl">🤖</span>
-              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
-            </div>
-            <h4 class="font-semibold text-sm text-slate-200">Claude Code</h4>
-            <p class="text-[11px] text-slate-500 mt-1">~/.claude</p>
-          </article>
-
-          <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-4 hover:border-indigo-500/40 transition-all duration-300 shadow-xl">
-            <div class="flex justify-between items-center mb-2">
-              <span class="text-2xl">🖱️</span>
-              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
-            </div>
-            <h4 class="font-semibold text-sm text-slate-200">Cursor IDE</h4>
-            <p class="text-[11px] text-slate-500 mt-1">~/.cursor</p>
-          </article>
-
-          <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-4 hover:border-indigo-500/40 transition-all duration-300 shadow-xl">
-            <div class="flex justify-between items-center mb-2">
-              <span class="text-2xl">📜</span>
-              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
-            </div>
-            <h4 class="font-semibold text-sm text-slate-200">OpenAI Codex</h4>
-            <p class="text-[11px] text-slate-500 mt-1">~/.codex</p>
-          </article>
-        </div>
-      </section>
-
-      <!-- Management Actions -->
-      <section class="mb-10">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Yönetim İşlemleri</h3>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
-            <div>
-              <h4 class="text-base font-semibold text-white flex items-center gap-2">
-                <span>🚀</span> Çoklu-AI Kurulum Yap
-              </h4>
-              <p class="text-xs text-slate-400 mt-2">
-                Tüm skill ve komutları Antigravity, Claude, Cursor ve Codex asistanlarınıza otomatik bağlar.
-              </p>
-            </div>
-            <button onclick="runAction('install')" class="mt-6 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg shadow-indigo-600/25 active:scale-[0.98] text-sm flex items-center justify-center gap-2">
-              <span>🚀 Şimdi Kur & Bağla</span>
-            </button>
-          </div>
-
-          <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
-            <div>
-              <h4 class="text-base font-semibold text-white flex items-center gap-2">
-                <span>🔄</span> Canlı Skill Güncelleme
-              </h4>
-              <p class="text-xs text-slate-400 mt-2">
-                Sol menüdeki tüm canlı GitHub repolarından en son güncellemeleri çeker ve commit bazında raporlar.
-              </p>
-            </div>
-            <button onclick="runAction('update')" class="mt-6 w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg shadow-purple-600/25 active:scale-[0.98] text-sm flex items-center justify-center gap-2">
-              <span>🔄 Skill'leri Güncelle</span>
-            </button>
-          </div>
-
-          <div class="md:col-span-2 bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl">
-            <h4 class="text-base font-semibold text-white flex items-center gap-2">
-              <span>➕</span> Canlı Yeni GitHub Skill Reposu Ekle
-            </h4>
-            <p class="text-xs text-slate-400 mt-1">
-              Herhangi bir GitHub repo URL'si yapıştırarak yeni yeteneği ekleyin ve sol menü ile tüm AI'larınıza canlı bağlayın.
-            </p>
+        <!-- DEFAULT OVERVIEW VIEW -->
+        <div id="view-overview-content">
+          <!-- AI Assistants Status Section -->
+          <section class="mb-10">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Bağlı AI Asistanları</h3>
             
-            <div class="mt-4 flex flex-col sm:flex-row gap-3">
-              <input type="url" id="repo-url-input" placeholder="https://github.com/kullanici/yeni-skill-repo.git" 
-                     class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors font-mono">
-              <button onclick="addCustomSkill()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg shadow-emerald-600/25 active:scale-[0.98] whitespace-nowrap text-xs flex items-center justify-center gap-2">
-                <span>➕ Ekle & Bağla</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-4 hover:border-indigo-500/40 transition-all duration-300 shadow-xl">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-2xl">🌌</span>
+                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
+                </div>
+                <h4 class="font-semibold text-sm text-slate-200">Google Antigravity</h4>
+                <p class="text-[11px] text-slate-500 mt-1">~/.gemini/antigravity</p>
+              </article>
 
-      <!-- Console Log & Reporting Output -->
-      <section>
+              <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-4 hover:border-indigo-500/40 transition-all duration-300 shadow-xl">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-2xl">🤖</span>
+                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
+                </div>
+                <h4 class="font-semibold text-sm text-slate-200">Claude Code</h4>
+                <p class="text-[11px] text-slate-500 mt-1">~/.claude</p>
+              </article>
+
+              <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-4 hover:border-indigo-500/40 transition-all duration-300 shadow-xl">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-2xl">🖱️</span>
+                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
+                </div>
+                <h4 class="font-semibold text-sm text-slate-200">Cursor IDE</h4>
+                <p class="text-[11px] text-slate-500 mt-1">~/.cursor</p>
+              </article>
+
+              <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-4 hover:border-indigo-500/40 transition-all duration-300 shadow-xl">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-2xl">📜</span>
+                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
+                </div>
+                <h4 class="font-semibold text-sm text-slate-200">OpenAI Codex</h4>
+                <p class="text-[11px] text-slate-500 mt-1">~/.codex</p>
+              </article>
+            </div>
+          </section>
+
+          <!-- Management Actions -->
+          <section class="mb-10">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Yönetim İşlemleri</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                <div>
+                  <h4 class="text-base font-semibold text-white flex items-center gap-2">
+                    <span>🚀</span> Çoklu-AI Kurulum Yap
+                  </h4>
+                  <p class="text-xs text-slate-400 mt-2">
+                    Tüm skill ve komutları Antigravity, Claude, Cursor ve Codex asistanlarınıza otomatik bağlar.
+                  </p>
+                </div>
+                <button onclick="runAction('install')" class="mt-6 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg shadow-indigo-600/25 active:scale-[0.98] text-sm flex items-center justify-center gap-2">
+                  <span>🚀 Şimdi Kur & Bağla</span>
+                </button>
+              </div>
+
+              <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                <div>
+                  <h4 class="text-base font-semibold text-white flex items-center gap-2">
+                    <span>🔄</span> Canlı Skill Güncelleme
+                  </h4>
+                  <p class="text-xs text-slate-400 mt-2">
+                    Sol menüdeki tüm canlı GitHub repolarından en son güncellemeleri çeker ve commit bazında raporlar.
+                  </p>
+                </div>
+                <button onclick="runAction('update')" class="mt-6 w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg shadow-purple-600/25 active:scale-[0.98] text-sm flex items-center justify-center gap-2">
+                  <span>🔄 Skill'leri Güncelle</span>
+                </button>
+              </div>
+
+              <div class="md:col-span-2 bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl">
+                <h4 class="text-base font-semibold text-white flex items-center gap-2">
+                  <span>➕</span> Canlı Yeni GitHub Skill Reposu Ekle
+                </h4>
+                <p class="text-xs text-slate-400 mt-1">
+                  Herhangi bir GitHub repo URL'si yapıştırarak yeni yeteneği ekleyin ve sol menü ile tüm AI'larınıza canlı bağlayın.
+                </p>
+                
+                <div class="mt-4 flex flex-col sm:flex-row gap-3">
+                  <input type="url" id="repo-url-input" placeholder="https://github.com/kullanici/yeni-skill-repo.git" 
+                         class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors font-mono">
+                  <button onclick="addCustomSkill()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg shadow-emerald-600/25 active:scale-[0.98] whitespace-nowrap text-xs flex items-center justify-center gap-2">
+                    <span>➕ Ekle & Bağla</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+      </div>
+
+      <!-- Console Log & Reporting Output (Always Visible Below Views) -->
+      <section class="mt-8">
         <div class="flex justify-between items-center mb-3">
           <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Canlı Konsol & Güncelleme Logları</h3>
           <button onclick="clearConsole()" class="text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors">
@@ -263,14 +279,171 @@
           </div>
           
           <pre id="console-log" class="text-indigo-300 whitespace-pre-wrap max-h-72 overflow-y-auto leading-relaxed">⚡ Multi-AI Skill Hub Dashboard Görsel Arayüzü Hazır.
-Sol taraftaki menüden tüm yüklü yetenekleri ve canlı GitHub repolarını inceleyebilirsiniz.</pre>
+Sol taraftaki menüden kategoriler arasında özgürce gezebilirsiniz.</pre>
         </div>
       </section>
 
     </main>
   </div>
 
+  <!-- Dynamic Categories SPA Data & Interactive Navigation Script -->
   <script>
+    const categoryData = {
+      core: {
+        title: "🧠 Çekirdek Davranışlar (Core Behavior)",
+        subtitle: "Karpathy Anti-Hallucination Guardrails + Caveman Token Reduction",
+        command: "/caveman veya /unified-dev",
+        description: "Her istekte otomatik çalışan temel kalite ve token koruma kuralları.",
+        rules: [
+          "Karpathy Guardrails: Kod yazmadan önce varsayımları doğrula ve kullanıcıya sor.",
+          "Minimal Intervention: Sadece istenen bölgeye cerrahi müdahale yap, diğer kodları bozma.",
+          "Caveman Protocol: Boş dolgu cümlelerini (Certainly!, Great question!) sil, konuya gir.",
+          "File-based Task Planning: 3+ adımlı karmaşık görevlerde hafıza dosyası tut."
+        ]
+      },
+      web: {
+        title: "🎨 Web & UI/UX Tasarım Mimarisi",
+        subtitle: "WCAG 2.2 AA/AAA, Design Tokens & 138 Component System",
+        command: "/ux-ui",
+        description: "Üretime hazır, erişilebilir ve modern web/UI arayüz tasarımları için kıdemli mimar kuralları.",
+        rules: [
+          "Color Contrast: Metin kontrast oranı en az 4.5:1 (WCAG AA), UI elemanları min 3:1.",
+          "Touch Target: Dokunmatik buton yüksekliği en az 44x44px.",
+          "Tokens First: Sihirli sayı (magic number) kullanma, 4px/8px grid scale kullan.",
+          "Fluid Typography: Font boyutlarında clamp() ve responsive breakpoint'ler kullan."
+        ]
+      },
+      mobile: {
+        title: "📱 Mobil & Masaüstü Uygulama Mimari",
+        subtitle: "iOS SwiftUI, Android Jetpack Compose, macOS & Flutter",
+        command: "/mobile",
+        description: "Yerel mobil platform kuralları ve Apple HIG / Material Design 3 kılavuzu.",
+        rules: [
+          "iOS/macOS: Apple Human Interface Guidelines (HIG) ve SwiftUI declarative state yapısı.",
+          "Android: Jetpack Compose, Material Design 3 ve Unidirectional Data Flow (UDF).",
+          "Dynamic Type: Sistem font ölçeklemesini (Accessibility scaling) destekle.",
+          "Main Thread Safety: Ağ ve veritabanı işlemlerini arka plan thread'lerine al."
+        ]
+      },
+      game: {
+        title: "🎮 Oyun Geliştirme Stüdyosu",
+        subtitle: "GDD Şablonları, Engine Selection & Game Feel / Juice",
+        command: "/game",
+        description: "49 farklı oyun geliştirici ajanından damıtılmış stüdyo workflow kuralları.",
+        rules: [
+          "Core Loop: Oyunun döngüsünü (Core -> Session -> Meta) net tanımla.",
+          "Performance: 60 FPS hedefi, Garbage Collection azaltımı ve Object Pooling.",
+          "Game Feel (Juice): Görsel ve işitsel geri bildirimler (screen shake, hit stop, particle)."
+        ]
+      },
+      security: {
+        title: "🔐 Siber Güvenlik & Kod Denetimi",
+        subtitle: "OWASP Top 10, STRIDE Threat Modeling & Security Headers",
+        command: "/security",
+        description: "Yazılım güvenlik açıkları tespiti ve savunma mimarisi rehberi.",
+        rules: [
+          "OWASP Top 10: SQL Injection, XSS, CSRF ve güvensiz doğrudan nesne başvuruları taraması.",
+          "STRIDE Modeling: Spoofing, Tampering, Repudiation, Info Disclosure, DoS, Escalation.",
+          "HTTP Headers: Content-Security-Policy, Strict-Transport-Security, X-Frame-Options."
+        ]
+      },
+      planning: {
+        title: "📐 Proje & Mimari Planlama",
+        subtitle: "PRD, ADR Karar Belgeleri & Sprint Task Breakdown",
+        command: "/planning",
+        description: "Yazılım mimarisi kararlarını ve proje aşamalarını belgeleme kılavuzu.",
+        rules: [
+          "PRD (Product Requirement Doc): İhtiyaçları ve veri akışlarını tanımla.",
+          "ADR (Architectural Decision Record): Alınan mimari kararları ve gerekçelerini kaydet.",
+          "Sprint Breakdown: Görevleri küçük, bağımsız ve test edilebilir parçalara böl."
+        ]
+      },
+      marketing: {
+        title: "📈 Pazarlama & ASO / CRO",
+        subtitle: "PAS/AIDA Copywriting, App Store Optimization & Landing CRO",
+        command: "/marketing",
+        description: "Dönüşüm oranlarını (Conversion) ve indirmeleri artıran büyüme rehberi.",
+        rules: [
+          "Copywriting: PAS (Problem-Agitate-Solution) ve AIDA (Attention-Interest-Desire-Action).",
+          "ASO: iOS App Store ve Google Play anahtar kelime, başlık ve ekran görüntüsü optimizasyonu.",
+          "Landing Page CRO: Açık değer teklifi (Value Prop), sosyal kanıt (Social Proof) ve tek CTA."
+        ]
+      }
+    };
+
+    function switchCategory(catKey) {
+      // 1. Navigation Button Styles Update
+      const navButtons = document.querySelectorAll('#category-nav button');
+      navButtons.forEach(btn => {
+        btn.className = "w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition-all";
+      });
+
+      const activeNav = document.getElementById(`nav-${catKey}`);
+      if (activeNav) {
+        activeNav.className = "w-full flex items-center justify-between px-3 py-2.5 text-xs font-semibold rounded-xl bg-indigo-600 text-white transition-all shadow-lg shadow-indigo-600/20";
+      }
+
+      // 2. Render View
+      const viewContent = document.getElementById('view-content');
+      const viewTitle = document.getElementById('view-title');
+      const viewSubtitle = document.getElementById('view-subtitle');
+
+      if (catKey === 'overview') {
+        document.getElementById('view-overview-content').style.display = 'block';
+        const detailEl = document.getElementById('category-detail-panel');
+        if (detailEl) detailEl.remove();
+        viewTitle.textContent = "Yönetim Dashboard & AI Bağlantıları";
+        viewSubtitle.textContent = "Google Antigravity • Claude Code • Cursor IDE • OpenAI Codex";
+        return;
+      }
+
+      // Hide overview view
+      document.getElementById('view-overview-content').style.display = 'none';
+
+      // Remove existing detail panel if any
+      const existingPanel = document.getElementById('category-detail-panel');
+      if (existingPanel) existingPanel.remove();
+
+      const cat = categoryData[catKey];
+      viewTitle.textContent = cat.title;
+      viewSubtitle.textContent = cat.subtitle;
+
+      // Build Interactive Category Detail Panel
+      const panel = document.createElement('div');
+      panel.id = 'category-detail-panel';
+      panel.className = 'space-y-6';
+      panel.innerHTML = `
+        <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl">
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Tetikleyici Slash Komutu</span>
+            <code class="bg-slate-950 text-indigo-300 px-3 py-1 rounded-lg border border-slate-800 font-mono text-xs">${cat.command}</code>
+          </div>
+          <p class="text-sm text-slate-300 mb-6">${cat.description}</p>
+          
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Rehber Kuralları & Standartlar</h4>
+          <ul class="space-y-2.5 mb-6">
+            ${cat.rules.map(rule => `
+              <li class="flex items-start gap-2.5 text-xs text-slate-300">
+                <span class="text-emerald-400 font-bold">✓</span>
+                <span>${rule}</span>
+              </li>
+            `).join('')}
+          </ul>
+
+          <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-800/60">
+            <button onclick="log('💡 [${cat.title}] kuralları kopyalandı!')" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-xl text-xs transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2">
+              <span>📋 Kuralları Kopyala</span>
+            </button>
+            <button onclick="switchCategory('overview')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-2.5 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2">
+              <span>⬅️ Dashboard'a Dön</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      viewContent.appendChild(panel);
+    }
+
     function updateTime() {
       document.getElementById('log-time').textContent = new Date().toLocaleTimeString();
     }
