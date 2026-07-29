@@ -1,7 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
+const { exec, execSync } = require('child_process');
 
 let PORT = process.env.PORT || 3777;
 const GUI_DIR = __dirname;
@@ -17,7 +17,7 @@ const AI_PATHS = {
   codex: path.join(homeDir, '.codex')
 };
 
-// Check installation and link status
+// 1. CANLI AI İZLEME & BAĞLANTI TARAMASI
 function getAIStatus() {
   const result = {};
   for (const [key, dirPath] of Object.entries(AI_PATHS)) {
@@ -37,7 +37,162 @@ function getAIStatus() {
   return result;
 }
 
-// Remove directory / link safely
+// 2. CANLI SKILL & SUBMODULE TARAMASI (DİSKTEN NATIVE OKUMA)
+function getLiveSkillsData() {
+  const skillsDir = path.join(SYNC_DIR, 'skills', 'originals');
+  const unifiedDir = path.join(SYNC_DIR, 'skills', 'unified-dev');
+
+  const liveData = {
+    core: {
+      title: "🧠 Çekirdek Davranışlar (Core Behavior)",
+      subtitle: "Karpathy Anti-Hallucination Guardrails + Caveman Token Reduction",
+      command: "/caveman veya /unified-dev",
+      description: "Her istekte otomatik çalışan temel kalite ve token koruma kuralları.",
+      rules: [
+        "Karpathy Guardrails: Kod yazmadan önce varsayımları doğrula ve kullanıcıya sor.",
+        "Minimal Intervention: Sadece istenen bölgeye cerrahi müdahale yap, diğer kodları bozma.",
+        "Caveman Protocol: Boş dolgu cümlelerini sil, konuya gir.",
+        "File-based Task Planning: 3+ adımlı karmaşık görevlerde hafıza dosyası tut."
+      ],
+      repos: [],
+      files: []
+    },
+    web: {
+      title: "🎨 Web & UI/UX Tasarım Mimarisi",
+      subtitle: "WCAG 2.2 AA/AAA, Design Tokens & Component System",
+      command: "/ux-ui",
+      description: "Üretime hazır, erişilebilir ve modern web/UI arayüz tasarımları için kıdemli mimar kuralları.",
+      rules: [
+        "Color Contrast: Metin kontrast oranı en az 4.5:1 (WCAG AA).",
+        "Touch Target: Dokunmatik buton yüksekliği en az 44x44px.",
+        "Tokens First: Sihirli sayı kullanma, 4px/8px grid scale kullan."
+      ],
+      repos: [],
+      files: []
+    },
+    mobile: {
+      title: "📱 Mobil & Masaüstü Uygulama Mimari",
+      subtitle: "iOS SwiftUI, Android Jetpack Compose, macOS & Flutter",
+      command: "/mobile",
+      description: "Yerel mobil platform kuralları ve Apple HIG / Material Design 3 kılavuzu.",
+      rules: [
+        "iOS/macOS: Apple Human Interface Guidelines (HIG) ve SwiftUI declarative state yapısı.",
+        "Android: Jetpack Compose, Material Design 3 ve Unidirectional Data Flow (UDF)."
+      ],
+      repos: [],
+      files: []
+    },
+    game: {
+      title: "🎮 Oyun Geliştirme Stüdyosu",
+      subtitle: "GDD Şablonları, Engine Selection & Game Feel / Juice",
+      command: "/game",
+      description: "Oyun stüdyosu workflow kuralları.",
+      rules: [
+        "Core Loop: Oyunun döngüsünü net tanımla.",
+        "Performance: 60 FPS hedefi, Object Pooling.",
+        "Game Feel: Görsel ve işitsel geri bildirimler."
+      ],
+      repos: [],
+      files: []
+    },
+    security: {
+      title: "🔐 Siber Güvenlik & Kod Denetimi",
+      subtitle: "OWASP Top 10, STRIDE Threat Modeling",
+      command: "/security",
+      description: "Yazılım güvenlik açıkları tespiti ve savunma mimarisi rehberi.",
+      rules: [
+        "OWASP Top 10: SQL Injection, XSS, CSRF taraması.",
+        "STRIDE Modeling: Threat Modeling denetimi."
+      ],
+      repos: [],
+      files: []
+    },
+    planning: {
+      title: "📐 Proje & Mimari Planlama",
+      subtitle: "PRD, ADR Karar Belgeleri & Sprint Task Breakdown",
+      command: "/planning",
+      description: "Yazılım mimarisi kararlarını ve proje aşamalarını belgeleme kılavuzu.",
+      rules: [
+        "PRD: İhtiyaçları tanımla.",
+        "ADR: Alınan mimari kararları ve gerekçelerini kaydet."
+      ],
+      repos: [],
+      files: []
+    },
+    marketing: {
+      title: "📈 Pazarlama & ASO / CRO",
+      subtitle: "PAS/AIDA Copywriting, App Store Optimization",
+      command: "/marketing",
+      description: "Dönüşüm oranlarını ve indirmeleri artıran büyüme rehberi.",
+      rules: [
+        "Copywriting: PAS ve AIDA modelleri.",
+        "ASO: Anahtar kelime ve başlık optimizasyonu."
+      ],
+      repos: [],
+      files: []
+    }
+  };
+
+  // Submodule Repolarını Git ve Diskle Taramak
+  if (fs.existsSync(skillsDir)) {
+    try {
+      const subFolders = fs.readdirSync(skillsDir);
+      subFolders.forEach(folder => {
+        const subPath = path.join(skillsDir, folder);
+        if (fs.statSync(subPath).isDirectory()) {
+          let gitUrl = "";
+          let commitHash = "";
+          try {
+            gitUrl = execSync("git config --get remote.origin.url", { cwd: subPath }).toString().trim();
+            commitHash = execSync("git rev-parse --short HEAD", { cwd: subPath }).toString().trim();
+          } catch (e) {
+            gitUrl = "https://github.com/" + folder;
+            commitHash = "HEAD";
+          }
+
+          const repoObj = { name: folder, url: gitUrl, tag: commitHash };
+
+          // Kategoriye Eşleme
+          if (folder.includes("caveman") || folder.includes("karpathy") || folder.includes("planning")) {
+            liveData.core.repos.push(repoObj);
+            if (folder.includes("planning")) liveData.planning.repos.push(repoObj);
+          } else if (folder.includes("ux-ui") || folder.includes("ui-ux")) {
+            liveData.web.repos.push(repoObj);
+          } else if (folder.includes("game")) {
+            liveData.game.repos.push(repoObj);
+          } else if (folder.includes("marketing")) {
+            liveData.marketing.repos.push(repoObj);
+          } else if (folder.includes("security") || folder.includes("cybersecurity")) {
+            liveData.security.repos.push(repoObj);
+          } else {
+            liveData.core.repos.push(repoObj);
+          }
+        }
+      });
+    } catch (err) {}
+  }
+
+  // Unified-Dev Dosyalarını Taramak
+  if (fs.existsSync(unifiedDir)) {
+    try {
+      const files = fs.readdirSync(unifiedDir);
+      files.forEach(file => {
+        const relPath = `skills/unified-dev/${file}`;
+        if (file.includes("01") || file.includes("SKILL")) liveData.core.files.push(relPath);
+        if (file.includes("02")) liveData.web.files.push(relPath);
+        if (file.includes("03")) liveData.mobile.files.push(relPath);
+        if (file.includes("04")) liveData.game.files.push(relPath);
+        if (file.includes("05")) liveData.security.files.push(relPath);
+        if (file.includes("06")) liveData.planning.files.push(relPath);
+        if (file.includes("07")) liveData.marketing.files.push(relPath);
+      });
+    } catch (e) {}
+  }
+
+  return liveData;
+}
+
+// Güvenli Bağlantı Silme Yardımcısı
 function removeLinkTarget(targetPath) {
   if (!fs.existsSync(targetPath)) return;
   try {
@@ -46,7 +201,7 @@ function removeLinkTarget(targetPath) {
       fs.unlinkSync(targetPath);
     } else if (isWin && stat.isDirectory()) {
       try {
-        fs.rmdirSync(targetPath); // Removes Windows Junction
+        fs.rmdirSync(targetPath);
       } catch (e) {
         fs.rmSync(targetPath, { recursive: true, force: true });
       }
@@ -60,7 +215,7 @@ function removeLinkTarget(targetPath) {
   }
 }
 
-// Create or remove link helper
+// 3. SEÇMELİ AI BAĞLANTI İŞLEYİCİSİ
 function toggleLink(aiKey, targetState, callback) {
   const targetDir = AI_PATHS[aiKey];
   if (!targetDir) return callback(new Error('Bilinmeyen AI aracı'));
@@ -73,7 +228,6 @@ function toggleLink(aiKey, targetState, callback) {
   const commandsDest = path.join(targetDir, 'commands');
 
   if (targetState === true) {
-    // LINK
     removeLinkTarget(skillsDest);
     removeLinkTarget(commandsDest);
 
@@ -95,15 +249,18 @@ function toggleLink(aiKey, targetState, callback) {
       });
     }
   } else {
-    // UNLINK
     removeLinkTarget(skillsDest);
     removeLinkTarget(commandsDest);
     callback(null, `${aiKey} bağlantısı kaldırıldı.`);
   }
 }
 
+// 4. NODE.JS REST API SUNUCUSU
 function createServer(port) {
   const server = http.createServer((req, res) => {
+    // CORS & JSON Headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
     if (req.method === 'GET' && req.url === '/') {
       fs.readFile(path.join(GUI_DIR, 'gui.html'), (err, data) => {
         if (err) {
@@ -117,6 +274,10 @@ function createServer(port) {
       const statusData = getAIStatus();
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify(statusData));
+    } else if (req.method === 'GET' && req.url === '/api/skills') {
+      const liveSkills = getLiveSkillsData();
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify(liveSkills));
     } else if (req.method === 'POST' && req.url === '/api/toggle-link') {
       let body = '';
       req.on('data', chunk => { body += chunk.toString(); });
@@ -172,8 +333,8 @@ function createServer(port) {
 
   server.listen(port, () => {
     console.log(`\n====================================================`);
-    console.log(` ⚡ Multi-AI Skill Hub Dashboard Çalışıyor!`);
-    console.log(` 🌐 Arayüz Adresi: http://localhost:${port}`);
+    console.log(` ⚡ Multi-AI Skill Hub Node.js REST API Server`);
+    console.log(` 🌐 Dashboard UI: http://localhost:${port}`);
     console.log(`====================================================\n`);
 
     const startCmd = isWin ? `start http://localhost:${port}` :

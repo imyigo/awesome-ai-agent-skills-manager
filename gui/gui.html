@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>⚡ Multi-AI Skill & Framework Hub Dashboard</title>
+  <title>⚡ Multi-AI Skill & Framework Hub Node.js App</title>
   
   <!-- Tailwind CSS CDN (v3) -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -45,9 +45,9 @@
           <span class="text-3xl">⚡</span>
           <div>
             <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
-              Multi-AI Hub
+              Multi-AI Node App
             </h1>
-            <p class="text-xs text-slate-400">Interaktif Skill Gezgini</p>
+            <p class="text-xs text-slate-400">Canlı REST API & Skill Engine</p>
           </div>
         </div>
 
@@ -92,36 +92,14 @@
           </nav>
         </div>
 
-        <!-- Section 2: Live GitHub Repos (Submodules) -->
+        <!-- Section 2: Dynamic Live GitHub Repos (Submodules from Node.js) -->
         <div class="mb-6">
-          <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 px-1">
-            🔗 Canlı GitHub Repoları
+          <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 px-1 flex justify-between items-center">
+            <span>🔗 Canlı Repolar (Node.js)</span>
+            <span class="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-mono" id="submodule-count">Taranıyor...</span>
           </h3>
-          <div class="space-y-1.5 font-mono text-[11px]">
-            <a href="https://github.com/JuliusBrussee/caveman" target="_blank" class="flex items-center justify-between p-2 rounded-lg bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 transition-all">
-              <span class="truncate">JuliusBrussee/caveman</span>
-              <span class="text-[10px] text-emerald-400">v1.9.1</span>
-            </a>
-            <a href="https://github.com/multica-ai/andrej-karpathy-skills" target="_blank" class="flex items-center justify-between p-2 rounded-lg bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 transition-all">
-              <span class="truncate">multica-ai/karpathy</span>
-              <span class="text-[10px] text-emerald-400">main</span>
-            </a>
-            <a href="https://github.com/OthmanAdi/planning-with-files" target="_blank" class="flex items-center justify-between p-2 rounded-lg bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 transition-all">
-              <span class="truncate">OthmanAdi/planning</span>
-              <span class="text-[10px] text-emerald-400">v3.8.2</span>
-            </a>
-            <a href="https://github.com/plugin87/ux-ui-agent-skills" target="_blank" class="flex items-center justify-between p-2 rounded-lg bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 transition-all">
-              <span class="truncate">plugin87/ux-ui</span>
-              <span class="text-[10px] text-emerald-400">v2.4.0</span>
-            </a>
-            <a href="https://github.com/coreyhaines31/marketingskills" target="_blank" class="flex items-center justify-between p-2 rounded-lg bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 transition-all">
-              <span class="truncate">coreyhaines31/marketing</span>
-              <span class="text-[10px] text-emerald-400">v2.10</span>
-            </a>
-            <a href="https://github.com/Donchitos/Claude-Code-Game-Studios" target="_blank" class="flex items-center justify-between p-2 rounded-lg bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 transition-all">
-              <span class="truncate">Donchitos/game-studios</span>
-              <span class="text-[10px] text-emerald-400">v1.0.0</span>
-            </a>
+          <div class="space-y-1.5 font-mono text-[11px]" id="sidebar-repos-list">
+            <div class="text-[11px] text-slate-500 p-2">Yükleniyor...</div>
           </div>
         </div>
       </div>
@@ -143,17 +121,17 @@
             Yönetim Dashboard & AI Bağlantıları
           </h2>
           <p class="text-xs text-slate-400 mt-1" id="view-subtitle">
-            Canlı Sistem Taraması ve Seçmeli AI Bağlantı Yönetimi
+            Node.js REST API & Canlı Sistem Taraması
           </p>
         </div>
 
         <div class="flex items-center gap-3">
-          <button onclick="loadAIStatus()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all">
+          <button onclick="refreshAll()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all">
             <span>🔄 Taramayı Yenile</span>
           </button>
           <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            Sunucu Aktif
+            Node.js API Active
           </span>
         </div>
       </header>
@@ -254,7 +232,7 @@
               <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
                 <div>
                   <h4 class="text-base font-semibold text-white flex items-center gap-2">
-                    <span>🔄</span> Canlı Skill Güncelleme
+                    <span>🔄</span> Canlı Skill Güncelleme (Node.js API)
                   </h4>
                   <p class="text-xs text-slate-400 mt-2">
                     Sol menüdeki tüm canlı GitHub repolarından en son güncellemeleri çeker ve commit bazında raporlar.
@@ -303,13 +281,13 @@
               <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
               <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
               <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
-              <span class="ml-2 font-mono">system.log</span>
+              <span class="ml-2 font-mono">node-app.log</span>
             </div>
             <span id="log-time" class="text-[10px]">Ready</span>
           </div>
           
-          <pre id="console-log" class="text-indigo-300 whitespace-pre-wrap max-h-72 overflow-y-auto leading-relaxed">⚡ Multi-AI Skill Hub Dashboard Hazır.
-Kategorileri tıklayarak ilişkili tüm GitHub repolarını ve skill dosyalarını inceleyebilirsiniz.</pre>
+          <pre id="console-log" class="text-indigo-300 whitespace-pre-wrap max-h-72 overflow-y-auto leading-relaxed">⚡ Multi-AI Skill Hub Node.js REST API Uygulaması Hazır.
+Node.js backend diski ve submodule repolarını canlı olarak taradı.</pre>
         </div>
       </section>
 
@@ -319,6 +297,12 @@ Kategorileri tıklayarak ilişkili tüm GitHub repolarını ve skill dosyaların
   <!-- Dynamic Categories SPA Data & Interactive Navigation Script -->
   <script>
     let currentAIStatus = {};
+    let liveSkillCategories = {};
+
+    function refreshAll() {
+      loadAIStatus();
+      loadLiveSkills();
+    }
 
     async function loadAIStatus() {
       try {
@@ -329,6 +313,48 @@ Kategorileri tıklayarak ilişkili tüm GitHub repolarını ve skill dosyaların
       } catch (err) {
         log(`❌ AI durum verisi alınamadı: ${err.message}`);
       }
+    }
+
+    async function loadLiveSkills() {
+      try {
+        const res = await fetch('/api/skills');
+        if (!res.ok) throw new Error('Sunucu hatası: ' + res.status);
+        liveSkillCategories = await res.json();
+        renderSidebarRepos(liveSkillCategories);
+      } catch (err) {
+        log(`❌ Canlı skill verisi okunamadı: ${err.message}`);
+      }
+    }
+
+    function renderSidebarRepos(skillsData) {
+      const container = document.getElementById('sidebar-repos-list');
+      const countEl = document.getElementById('submodule-count');
+      if (!container) return;
+
+      const allRepos = [];
+      for (const cat of Object.values(skillsData)) {
+        if (cat.repos) {
+          cat.repos.forEach(r => {
+            if (!allRepos.some(existing => existing.name === r.name)) {
+              allRepos.push(r);
+            }
+          });
+        }
+      }
+
+      if (countEl) countEl.textContent = `${allRepos.length} Repo`;
+
+      if (allRepos.length === 0) {
+        container.innerHTML = `<div class="text-[11px] text-slate-500 p-2">Repo bulunamadı.</div>`;
+        return;
+      }
+
+      container.innerHTML = allRepos.map(r => `
+        <a href="${r.url}" target="_blank" class="flex items-center justify-between p-2 rounded-lg bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 transition-all">
+          <span class="truncate">${r.name}</span>
+          <span class="text-[10px] text-emerald-400 font-mono">${r.tag}</span>
+        </a>
+      `).join('');
     }
 
     function renderAICards(status) {
@@ -381,114 +407,6 @@ Kategorileri tıklayarak ilişkili tüm GitHub repolarını ve skill dosyaların
       }
     }
 
-    const categoryData = {
-      core: {
-        title: "🧠 Çekirdek Davranışlar (Core Behavior)",
-        subtitle: "Karpathy Anti-Hallucination Guardrails + Caveman Token Reduction",
-        command: "/caveman veya /unified-dev",
-        description: "Her istekte otomatik çalışan temel kalite ve token koruma kuralları.",
-        rules: [
-          "Karpathy Guardrails: Kod yazmadan önce varsayımları doğrula ve kullanıcıya sor.",
-          "Minimal Intervention: Sadece istenen bölgeye cerrahi müdahale yap, diğer kodları bozma.",
-          "Caveman Protocol: Boş dolgu cümlelerini sil, konuya gir.",
-          "File-based Task Planning: 3+ adımlı karmaşık görevlerde hafıza dosyası tut."
-        ],
-        repos: [
-          { name: "JuliusBrussee/caveman", url: "https://github.com/JuliusBrussee/caveman", tag: "v1.9.1" },
-          { name: "multica-ai/andrej-karpathy-skills", url: "https://github.com/multica-ai/andrej-karpathy-skills", tag: "main" },
-          { name: "OthmanAdi/planning-with-files", url: "https://github.com/OthmanAdi/planning-with-files", tag: "v3.8.2" }
-        ],
-        files: ["skills/unified-dev/SKILL.md", "skills/unified-dev/01-core-behavior.md"]
-      },
-      web: {
-        title: "🎨 Web & UI/UX Tasarım Mimarisi",
-        subtitle: "WCAG 2.2 AA/AAA, Design Tokens & Component System",
-        command: "/ux-ui",
-        description: "Üretime hazır, erişilebilir ve modern web/UI arayüz tasarımları için kıdemli mimar kuralları.",
-        rules: [
-          "Color Contrast: Metin kontrast oranı en az 4.5:1 (WCAG AA).",
-          "Touch Target: Dokunmatik buton yüksekliği en az 44x44px.",
-          "Tokens First: Sihirli sayı kullanma, 4px/8px grid scale kullan."
-        ],
-        repos: [
-          { name: "plugin87/ux-ui-agent-skills", url: "https://github.com/plugin87/ux-ui-agent-skills", tag: "v2.4.0" },
-          { name: "nextlevelbuilder/ui-ux-pro-max-skill", url: "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill", tag: "latest" }
-        ],
-        files: ["skills/unified-dev/02-web.md"]
-      },
-      mobile: {
-        title: "📱 Mobil & Masaüstü Uygulama Mimari",
-        subtitle: "iOS SwiftUI, Android Jetpack Compose, macOS & Flutter",
-        command: "/mobile",
-        description: "Yerel mobil platform kuralları ve Apple HIG / Material Design 3 kılavuzu.",
-        rules: [
-          "iOS/macOS: Apple Human Interface Guidelines (HIG) ve SwiftUI declarative state yapısı.",
-          "Android: Jetpack Compose, Material Design 3 ve Unidirectional Data Flow (UDF)."
-        ],
-        repos: [
-          { name: "VoltAgent/awesome-agent-skills", url: "https://github.com/VoltAgent/awesome-agent-skills", tag: "main" }
-        ],
-        files: ["skills/unified-dev/03-mobile.md"]
-      },
-      game: {
-        title: "🎮 Oyun Geliştirme Stüdyosu",
-        subtitle: "GDD Şablonları, Engine Selection & Game Feel / Juice",
-        command: "/game",
-        description: "Oyun stüdyosu workflow kuralları.",
-        rules: [
-          "Core Loop: Oyunun döngüsünü net tanımla.",
-          "Performance: 60 FPS hedefi, Object Pooling.",
-          "Game Feel: Görsel ve işitsel geri bildirimler."
-        ],
-        repos: [
-          { name: "Donchitos/Claude-Code-Game-Studios", url: "https://github.com/Donchitos/Claude-Code-Game-Studios", tag: "v1.0.0" }
-        ],
-        files: ["skills/unified-dev/04-game.md"]
-      },
-      security: {
-        title: "🔐 Siber Güvenlik & Kod Denetimi",
-        subtitle: "OWASP Top 10, STRIDE Threat Modeling",
-        command: "/security",
-        description: "Yazılım güvenlik açıkları tespiti ve savunma mimarisi rehberi.",
-        rules: [
-          "OWASP Top 10: SQL Injection, XSS, CSRF taraması.",
-          "STRIDE Modeling: Threat Modeling denetimi."
-        ],
-        repos: [
-          { name: "mukul975/Anthropic-Cybersecurity-Skills", url: "https://github.com/mukul975/Anthropic-Cybersecurity-Skills", tag: "main" }
-        ],
-        files: ["skills/unified-dev/05-security.md"]
-      },
-      planning: {
-        title: "📐 Proje & Mimari Planlama",
-        subtitle: "PRD, ADR Karar Belgeleri & Sprint Task Breakdown",
-        command: "/planning",
-        description: "Yazılım mimarisi kararlarını ve proje aşamalarını belgeleme kılavuzu.",
-        rules: [
-          "PRD: İhtiyaçları tanımla.",
-          "ADR: Alınan mimari kararları ve gerekçelerini kaydet."
-        ],
-        repos: [
-          { name: "OthmanAdi/planning-with-files", url: "https://github.com/OthmanAdi/planning-with-files", tag: "v3.8.2" }
-        ],
-        files: ["skills/unified-dev/06-planning.md"]
-      },
-      marketing: {
-        title: "📈 Pazarlama & ASO / CRO",
-        subtitle: "PAS/AIDA Copywriting, App Store Optimization",
-        command: "/marketing",
-        description: "Dönüşüm oranlarını ve indirmeleri artıran büyüme rehberi.",
-        rules: [
-          "Copywriting: PAS ve AIDA modelleri.",
-          "ASO: Anahtar kelime ve başlık optimizasyonu."
-        ],
-        repos: [
-          { name: "coreyhaines31/marketingskills", url: "https://github.com/coreyhaines31/marketingskills", tag: "v2.10" }
-        ],
-        files: ["skills/unified-dev/07-marketing.md"]
-      }
-    };
-
     function switchCategory(catKey) {
       const navButtons = document.querySelectorAll('#category-nav button');
       navButtons.forEach(btn => {
@@ -509,7 +427,7 @@ Kategorileri tıklayarak ilişkili tüm GitHub repolarını ve skill dosyaların
         const detailEl = document.getElementById('category-detail-panel');
         if (detailEl) detailEl.remove();
         viewTitle.textContent = "Yönetim Dashboard & AI Bağlantıları";
-        viewSubtitle.textContent = "Canlı Sistem Taraması ve Seçmeli AI Bağlantı Yönetimi";
+        viewSubtitle.textContent = "Node.js REST API & Canlı Sistem Taraması";
         loadAIStatus();
         return;
       }
@@ -519,7 +437,16 @@ Kategorileri tıklayarak ilişkili tüm GitHub repolarını ve skill dosyaların
       const existingPanel = document.getElementById('category-detail-panel');
       if (existingPanel) existingPanel.remove();
 
-      const cat = categoryData[catKey];
+      const cat = liveSkillCategories[catKey] || {
+        title: "Kategori Yükleniyor...",
+        subtitle: "",
+        command: "",
+        description: "",
+        rules: [],
+        repos: [],
+        files: []
+      };
+
       viewTitle.textContent = cat.title;
       viewSubtitle.textContent = cat.subtitle;
 
@@ -529,19 +456,17 @@ Kategorileri tıklayarak ilişkili tüm GitHub repolarını ve skill dosyaların
       panel.innerHTML = `
         <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl space-y-6">
           
-          <!-- Slash Trigger Command -->
           <div class="flex justify-between items-center pb-4 border-b border-slate-800/60">
             <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Tetikleyici Slash Komutu</span>
             <code class="bg-slate-950 text-indigo-300 px-3 py-1.5 rounded-lg border border-slate-800 font-mono text-xs font-semibold">${cat.command}</code>
           </div>
           
-          <!-- Description -->
           <p class="text-xs text-slate-300 leading-relaxed">${cat.description}</p>
           
-          <!-- Linked Submodule Repositories -->
+          ${cat.repos && cat.repos.length > 0 ? `
           <div>
             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
-              <span>🔗</span> İletişimli Orijinal GitHub Skill Repoları
+              <span>🔗</span> İletişimli Canlı GitHub Skill Repoları (Node.js REST API)
             </h4>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               ${cat.repos.map(r => `
@@ -552,11 +477,12 @@ Kategorileri tıklayarak ilişkili tüm GitHub repolarını ve skill dosyaların
               `).join('')}
             </div>
           </div>
+          ` : ''}
 
-          <!-- Included Skill Files -->
+          ${cat.files && cat.files.length > 0 ? `
           <div>
             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
-              <span>📄</span> İlgili Yetenek & Doküman Dosyaları
+              <span>📄</span> İlgili Yetenek & Doküman Dosyaları (Node.js Diski)
             </h4>
             <div class="flex flex-wrap gap-2">
               ${cat.files.map(f => `
@@ -566,8 +492,8 @@ Kategorileri tıklayarak ilişkili tüm GitHub repolarını ve skill dosyaların
               `).join('')}
             </div>
           </div>
+          ` : ''}
 
-          <!-- Rules List -->
           <div>
             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
               <span>📜</span> Rehber Kuralları & Standartlar
@@ -582,7 +508,6 @@ Kategorileri tıklayarak ilişkili tüm GitHub repolarını ve skill dosyaların
             </ul>
           </div>
 
-          <!-- Action Footer -->
           <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-800/60">
             <button onclick="log('💡 [${cat.title}] kuralları kopyalandı!')" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-xl text-xs transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2">
               <span>📋 Kuralları Kopyala</span>
@@ -619,7 +544,7 @@ Kategorileri tıklayarak ilişkili tüm GitHub repolarını ve skill dosyaların
         const res = await fetch(`/api/${action}`, { method: 'POST' });
         const data = await res.json();
         log(data.output || data.message);
-        loadAIStatus();
+        refreshAll();
       } catch (err) {
         log(`❌ Hata oluştu: ${err.message}`);
       }
@@ -640,6 +565,7 @@ Kategorileri tıklayarak ilişkili tüm GitHub repolarını ve skill dosyaların
         const data = await res.json();
         log(data.output || data.message);
         input.value = '';
+        refreshAll();
       } catch (err) {
         log(`❌ Hata oluştu: ${err.message}`);
       }
@@ -647,7 +573,7 @@ Kategorileri tıklayarak ilişkili tüm GitHub repolarını ve skill dosyaların
 
     // Auto load status on page ready
     window.addEventListener('DOMContentLoaded', () => {
-      loadAIStatus();
+      refreshAll();
     });
 
     setInterval(updateTime, 1000);
