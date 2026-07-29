@@ -22,178 +22,254 @@
           fontFamily: {
             sans: ['Inter', 'sans-serif'],
             mono: ['JetBrains Mono', 'monospace'],
-          },
-          colors: {
-            brand: {
-              50: '#eef2ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-            }
           }
         }
       }
     }
   </script>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen antialiased selection:bg-indigo-500 selection:text-white pb-16">
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
 
   <!-- Background Glow Accents -->
   <div class="fixed top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
   <div class="fixed top-1/3 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-  <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-    
-    <!-- Top Navigation / Header -->
-    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-8 mb-8 border-b border-slate-800/80">
+  <!-- Two-Column Layout with Left Sidebar -->
+  <div class="flex flex-col lg:flex-row min-h-screen">
+
+    <!-- LEFT SIDEBAR: Skills, Categories & Live GitHub Links -->
+    <aside class="w-full lg:w-80 bg-slate-900/80 backdrop-blur-xl border-r border-slate-800/80 p-6 flex flex-col justify-between shrink-0">
       <div>
-        <h1 class="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
-          ⚡ Multi-AI Skill Hub Dashboard
-        </h1>
-        <p class="text-sm text-slate-400 mt-1">
-          Google Antigravity • Claude Code • Cursor IDE • OpenAI Codex
-        </p>
-      </div>
-
-      <div class="flex items-center gap-3">
-        <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          Sunucu Aktif (localhost:3777)
-        </span>
-      </div>
-    </header>
-
-    <!-- AI Assistants Status Section -->
-    <section class="mb-10">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Bağlı AI Asistanları</h2>
-      
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Antigravity -->
-        <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-5 hover:border-indigo-500/40 transition-all duration-300 shadow-xl group">
-          <div class="flex justify-between items-center mb-3">
-            <span class="text-2xl">🌌</span>
-            <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
-          </div>
-          <h3 class="font-semibold text-slate-200 group-hover:text-indigo-300 transition-colors">Google Antigravity</h3>
-          <p class="text-xs text-slate-500 mt-1">~/.gemini/antigravity</p>
-        </article>
-
-        <!-- Claude Code -->
-        <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-5 hover:border-indigo-500/40 transition-all duration-300 shadow-xl group">
-          <div class="flex justify-between items-center mb-3">
-            <span class="text-2xl">🤖</span>
-            <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
-          </div>
-          <h3 class="font-semibold text-slate-200 group-hover:text-indigo-300 transition-colors">Claude Code</h3>
-          <p class="text-xs text-slate-500 mt-1">~/.claude</p>
-        </article>
-
-        <!-- Cursor IDE -->
-        <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-5 hover:border-indigo-500/40 transition-all duration-300 shadow-xl group">
-          <div class="flex justify-between items-center mb-3">
-            <span class="text-2xl">🖱️</span>
-            <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
-          </div>
-          <h3 class="font-semibold text-slate-200 group-hover:text-indigo-300 transition-colors">Cursor IDE</h3>
-          <p class="text-xs text-slate-500 mt-1">~/.cursor</p>
-        </article>
-
-        <!-- OpenAI Codex -->
-        <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-5 hover:border-indigo-500/40 transition-all duration-300 shadow-xl group">
-          <div class="flex justify-between items-center mb-3">
-            <span class="text-2xl">📜</span>
-            <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
-          </div>
-          <h3 class="font-semibold text-slate-200 group-hover:text-indigo-300 transition-colors">OpenAI Codex</h3>
-          <p class="text-xs text-slate-500 mt-1">~/.codex</p>
-        </article>
-      </div>
-    </section>
-
-    <!-- Interactive Management Actions -->
-    <section class="mb-10">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Yönetim İşlemleri</h2>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Card 1: Install -->
-        <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+        <!-- Brand Header -->
+        <div class="flex items-center gap-3 pb-6 mb-6 border-b border-slate-800/80">
+          <span class="text-3xl">⚡</span>
           <div>
-            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-              <span>🚀</span> Çoklu-AI Kurulum Yap
-            </h3>
-            <p class="text-sm text-slate-400 mt-2">
-              Tüm skill, command ve MCP yapılandırmalarını bilgisayarınızdaki tüm AI araçlarına anında bağlar.
-            </p>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
+              Multi-AI Hub
+            </h1>
+            <p class="text-xs text-slate-400">Yetenek & Repo Paneli</p>
           </div>
-          <button onclick="runAction('install')" class="mt-6 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg shadow-indigo-600/25 active:scale-[0.98] flex items-center justify-center gap-2">
-            <span>🚀 Şimdi Kur & Bağla</span>
-          </button>
         </div>
 
-        <!-- Card 2: Update -->
-        <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
-          <div>
-            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-              <span>🔄</span> Canlı Skill Güncelleme
-            </h3>
-            <p class="text-sm text-slate-400 mt-2">
-              Orijinal GitHub repolarından en son güncellemeleri çeker ve commit logları ile raporlar.
-            </p>
-          </div>
-          <button onclick="runAction('update')" class="mt-6 w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg shadow-purple-600/25 active:scale-[0.98] flex items-center justify-center gap-2">
-            <span>🔄 Skill'leri Güncelle</span>
-          </button>
-        </div>
-
-        <!-- Card 3: Add Custom Skill (Full Width) -->
-        <div class="md:col-span-2 bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl">
-          <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-            <span>➕</span> Canlı Yeni GitHub Skill Reposu Ekle
+        <!-- Section 1: Main Skill Categories -->
+        <div class="mb-6">
+          <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 px-1">
+            📂 Ana Kategoriler & Skills
           </h3>
-          <p class="text-sm text-slate-400 mt-1">
-            İstediğiniz herhangi bir açık kaynak GitHub repo URL'sini yapıştırarak sisteme ekleyin ve tüm AI'larınıza bağlayın.
+          <nav class="space-y-1">
+            <a href="#" class="flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg bg-indigo-600/15 text-indigo-300 border border-indigo-500/20">
+              <span class="flex items-center gap-2">🧠 unified-dev</span>
+              <span class="text-[10px] bg-indigo-500/20 px-1.5 py-0.5 rounded text-indigo-300">7 Domain</span>
+            </a>
+            <a href="#" class="flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-slate-300 hover:bg-slate-800/60 transition-colors">
+              <span class="flex items-center gap-2">🎨 ux-ui</span>
+              <span class="text-[10px] text-slate-500">WCAG 2.2</span>
+            </a>
+            <a href="#" class="flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-slate-300 hover:bg-slate-800/60 transition-colors">
+              <span class="flex items-center gap-2">📈 marketingskills</span>
+              <span class="text-[10px] text-slate-500">ASO & CRO</span>
+            </a>
+            <a href="#" class="flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-slate-300 hover:bg-slate-800/60 transition-colors">
+              <span class="flex items-center gap-2">🎮 game-studios</span>
+              <span class="text-[10px] text-slate-500">Game Feel</span>
+            </a>
+            <a href="#" class="flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-slate-300 hover:bg-slate-800/60 transition-colors">
+              <span class="flex items-center gap-2">📊 graphify</span>
+              <span class="text-[10px] text-slate-500">Graph CLI</span>
+            </a>
+            <a href="#" class="flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-slate-300 hover:bg-slate-800/60 transition-colors">
+              <span class="flex items-center gap-2">🔍 understand-anything</span>
+              <span class="text-[10px] text-slate-500">Code Tour</span>
+            </a>
+          </nav>
+        </div>
+
+        <!-- Section 2: Live GitHub Repos (Submodules) -->
+        <div class="mb-6">
+          <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 px-1">
+            🔗 Canlı GitHub Repoları
+          </h3>
+          <div class="space-y-1.5 font-mono text-[11px]">
+            <a href="https://github.com/JuliusBrussee/caveman" target="_blank" class="flex items-center justify-between p-2 rounded-lg bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 transition-all">
+              <span class="truncate">JuliusBrussee/caveman</span>
+              <span class="text-[10px] text-emerald-400">v1.9.1</span>
+            </a>
+            <a href="https://github.com/multica-ai/andrej-karpathy-skills" target="_blank" class="flex items-center justify-between p-2 rounded-lg bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 transition-all">
+              <span class="truncate">multica-ai/karpathy</span>
+              <span class="text-[10px] text-emerald-400">main</span>
+            </a>
+            <a href="https://github.com/OthmanAdi/planning-with-files" target="_blank" class="flex items-center justify-between p-2 rounded-lg bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 transition-all">
+              <span class="truncate">OthmanAdi/planning</span>
+              <span class="text-[10px] text-emerald-400">v3.8.2</span>
+            </a>
+            <a href="https://github.com/plugin87/ux-ui-agent-skills" target="_blank" class="flex items-center justify-between p-2 rounded-lg bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 transition-all">
+              <span class="truncate">plugin87/ux-ui</span>
+              <span class="text-[10px] text-emerald-400">v2.4.0</span>
+            </a>
+            <a href="https://github.com/coreyhaines31/marketingskills" target="_blank" class="flex items-center justify-between p-2 rounded-lg bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 transition-all">
+              <span class="truncate">coreyhaines31/marketing</span>
+              <span class="text-[10px] text-emerald-400">v2.10</span>
+            </a>
+            <a href="https://github.com/Donchitos/Claude-Code-Game-Studios" target="_blank" class="flex items-center justify-between p-2 rounded-lg bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 transition-all">
+              <span class="truncate">Donchitos/game-studios</span>
+              <span class="text-[10px] text-emerald-400">v1.0.0</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Info -->
+      <div class="pt-4 border-t border-slate-800/80 text-[11px] text-slate-500 flex justify-between items-center">
+        <span>Repo: awesome-ai-agent-skills-manager</span>
+        <a href="https://github.com/imyigo/awesome-ai-agent-skills-manager" target="_blank" class="text-indigo-400 hover:underline">GitHub ⭐</a>
+      </div>
+    </aside>
+
+    <!-- RIGHT CONTENT AREA -->
+    <main class="flex-1 p-6 lg:p-10 max-w-5xl">
+      
+      <!-- Top Bar -->
+      <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-8 mb-8 border-b border-slate-800/80">
+        <div>
+          <h2 class="text-2xl font-extrabold tracking-tight text-white">
+            Yönetim Dashboard & AI Bağlantıları
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">
+            Google Antigravity • Claude Code • Cursor IDE • OpenAI Codex
           </p>
-          
-          <div class="mt-4 flex flex-col sm:flex-row gap-3">
-            <input type="url" id="repo-url-input" placeholder="https://github.com/kullanici/yeni-skill-repo.git" 
-                   class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors font-mono">
-            <button onclick="addCustomSkill()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg shadow-emerald-600/25 active:scale-[0.98] whitespace-nowrap flex items-center justify-center gap-2">
-              <span>➕ Ekle & Bağla</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Sunucu Aktif (localhost:3777)
+          </span>
+        </div>
+      </header>
+
+      <!-- AI Assistants Status Section -->
+      <section class="mb-10">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Bağlı AI Asistanları</h3>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-4 hover:border-indigo-500/40 transition-all duration-300 shadow-xl">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-2xl">🌌</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
+            </div>
+            <h4 class="font-semibold text-sm text-slate-200">Google Antigravity</h4>
+            <p class="text-[11px] text-slate-500 mt-1">~/.gemini/antigravity</p>
+          </article>
+
+          <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-4 hover:border-indigo-500/40 transition-all duration-300 shadow-xl">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-2xl">🤖</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
+            </div>
+            <h4 class="font-semibold text-sm text-slate-200">Claude Code</h4>
+            <p class="text-[11px] text-slate-500 mt-1">~/.claude</p>
+          </article>
+
+          <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-4 hover:border-indigo-500/40 transition-all duration-300 shadow-xl">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-2xl">🖱️</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
+            </div>
+            <h4 class="font-semibold text-sm text-slate-200">Cursor IDE</h4>
+            <p class="text-[11px] text-slate-500 mt-1">~/.cursor</p>
+          </article>
+
+          <article class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-4 hover:border-indigo-500/40 transition-all duration-300 shadow-xl">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-2xl">📜</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bağlı</span>
+            </div>
+            <h4 class="font-semibold text-sm text-slate-200">OpenAI Codex</h4>
+            <p class="text-[11px] text-slate-500 mt-1">~/.codex</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Management Actions -->
+      <section class="mb-10">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Yönetim İşlemleri</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+            <div>
+              <h4 class="text-base font-semibold text-white flex items-center gap-2">
+                <span>🚀</span> Çoklu-AI Kurulum Yap
+              </h4>
+              <p class="text-xs text-slate-400 mt-2">
+                Tüm skill ve komutları Antigravity, Claude, Cursor ve Codex asistanlarınıza otomatik bağlar.
+              </p>
+            </div>
+            <button onclick="runAction('install')" class="mt-6 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg shadow-indigo-600/25 active:scale-[0.98] text-sm flex items-center justify-center gap-2">
+              <span>🚀 Şimdi Kur & Bağla</span>
             </button>
           </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- Console Log & Reporting Output -->
-    <section>
-      <div class="flex justify-between items-center mb-3">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">Canlı Konsol & Rapor Ekranı</h2>
-        <button onclick="clearConsole()" class="text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors">
-          Temizle
-        </button>
-      </div>
-      
-      <div class="bg-slate-950 border border-slate-800/80 rounded-2xl p-5 font-mono text-xs shadow-2xl overflow-hidden">
-        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/60 text-slate-500">
-          <div class="flex items-center gap-2">
-            <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
-            <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
-            <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
-            <span class="ml-2 font-mono">system.log</span>
+          <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+            <div>
+              <h4 class="text-base font-semibold text-white flex items-center gap-2">
+                <span>🔄</span> Canlı Skill Güncelleme
+              </h4>
+              <p class="text-xs text-slate-400 mt-2">
+                Sol menüdeki tüm canlı GitHub repolarından en son güncellemeleri çeker ve commit bazında raporlar.
+              </p>
+            </div>
+            <button onclick="runAction('update')" class="mt-6 w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg shadow-purple-600/25 active:scale-[0.98] text-sm flex items-center justify-center gap-2">
+              <span>🔄 Skill'leri Güncelle</span>
+            </button>
           </div>
-          <span id="log-time" class="text-[10px]">Ready</span>
+
+          <div class="md:col-span-2 bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl">
+            <h4 class="text-base font-semibold text-white flex items-center gap-2">
+              <span>➕</span> Canlı Yeni GitHub Skill Reposu Ekle
+            </h4>
+            <p class="text-xs text-slate-400 mt-1">
+              Herhangi bir GitHub repo URL'si yapıştırarak yeni yeteneği ekleyin ve sol menü ile tüm AI'larınıza canlı bağlayın.
+            </p>
+            
+            <div class="mt-4 flex flex-col sm:flex-row gap-3">
+              <input type="url" id="repo-url-input" placeholder="https://github.com/kullanici/yeni-skill-repo.git" 
+                     class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors font-mono">
+              <button onclick="addCustomSkill()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg shadow-emerald-600/25 active:scale-[0.98] whitespace-nowrap text-xs flex items-center justify-center gap-2">
+                <span>➕ Ekle & Bağla</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Console Log & Reporting Output -->
+      <section>
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Canlı Konsol & Güncelleme Logları</h3>
+          <button onclick="clearConsole()" class="text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors">
+            Temizle
+          </button>
         </div>
         
-        <pre id="console-log" class="text-indigo-300 whitespace-pre-wrap max-h-72 overflow-y-auto leading-relaxed">⚡ Multi-AI Skill Hub Görsel Kontrol Paneline Hoş Geldiniz!
-HTML5 & Tailwind CSS v3 ile güçlendirildi.
-İşlem yapmak için yukarıdaki butonları kullanabilirsiniz.</pre>
-      </div>
-    </section>
+        <div class="bg-slate-950 border border-slate-800/80 rounded-2xl p-5 font-mono text-xs shadow-2xl overflow-hidden">
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/60 text-slate-500">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+              <span class="ml-2 font-mono">system.log</span>
+            </div>
+            <span id="log-time" class="text-[10px]">Ready</span>
+          </div>
+          
+          <pre id="console-log" class="text-indigo-300 whitespace-pre-wrap max-h-72 overflow-y-auto leading-relaxed">⚡ Multi-AI Skill Hub Dashboard Görsel Arayüzü Hazır.
+Sol taraftaki menüden tüm yüklü yetenekleri ve canlı GitHub repolarını inceleyebilirsiniz.</pre>
+        </div>
+      </section>
 
-  </main>
+    </main>
+  </div>
 
-  <!-- Interactive JavaScript API Integration -->
   <script>
     function updateTime() {
       document.getElementById('log-time').textContent = new Date().toLocaleTimeString();
