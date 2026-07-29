@@ -32,11 +32,11 @@ Tüm AI sisteminizi **Görsel Web Dashboard** üzerinden yönetin:
 
 ```bash
 cd ~/.gemini/claude-antigravity-best-skills
-chmod +x control.sh
-./control.sh
+chmod +x gui.sh
+./gui.sh
 ```
 
-> **`./control.sh` komutunu çalıştırdığınız an Görsel Web Arayüzü `http://localhost:3777` adresinde otomatik açılır!**
+> **`./gui.sh` komutunu çalıştırdığınız an Görsel Web Arayüzü `http://localhost:3777` adresinde otomatik açılır!**
 
 ### Görsel Web Dashboard Özellikleri:
 * 🚀 **Tek Tıkla Kurulum:** Tüm yetenekleri Antigravity, Claude Code, Cursor ve Codex'e bağlar.

@@ -49,11 +49,11 @@ Manage your entire AI stack using the **Visual Web Dashboard**:
 
 ```bash
 cd ~/.gemini/claude-antigravity-best-skills
-chmod +x control.sh
-./control.sh
+chmod +x gui.sh
+./gui.sh
 ```
 
-> **Running `./control.sh` automatically launches the Visual Web GUI at `http://localhost:3777` in your browser!**
+> **Running `./gui.sh` automatically launches the Visual Web GUI at `http://localhost:3777` in your browser!**
 
 ### Features in the Web Dashboard:
 * 🚀 **One-Click Install:** Link all skills to Antigravity, Claude Code, Cursor & Codex.

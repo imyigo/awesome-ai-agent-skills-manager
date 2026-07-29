@@ -19,7 +19,7 @@ function createServer(port) {
         res.end(data);
       });
     } else if (req.method === 'POST' && req.url === '/api/install') {
-      exec('bash control.sh --auto-install', { cwd: SYNC_DIR }, (err, stdout, stderr) => {
+      exec('bash gui.sh --auto-install', { cwd: SYNC_DIR }, (err, stdout, stderr) => {
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
         res.end(JSON.stringify({ success: !err, output: stdout || stderr || 'Kurulum tamamlandı.' }));
       });
