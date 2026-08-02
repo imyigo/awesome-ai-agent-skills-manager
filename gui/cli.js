@@ -35,10 +35,84 @@ const AI_PATHS = {
   agents:      { name: "Generic Agents",     path: path.join(homeDir, '.agents'),             skillsSub: 'skills', cmdSub: 'skills' },
 };
 
+function isCommandAvailable(cmd) {
+  try {
+    const res = spawnSync(isWin ? 'where' : 'which', [cmd], { encoding: 'utf8', timeout: 1000 });
+    return res.status === 0 && !!res.stdout && res.stdout.trim().length > 0;
+  } catch (e) {
+    return false;
+  }
+}
+
+function isNonEmptyDir(dirPath) {
+  try {
+    if (!fs.existsSync(dirPath)) return false;
+    const stat = fs.statSync(dirPath);
+    if (!stat.isDirectory()) return false;
+    const files = fs.readdirSync(dirPath);
+    return files.length > 0;
+  } catch (e) {
+    return false;
+  }
+}
+
+function checkAIInstalled(aiKey) {
+  const provider = AI_PATHS[aiKey];
+  if (!provider) return false;
+
+  switch (aiKey) {
+    case 'antigravity':
+      return isCommandAvailable('agy') || isCommandAvailable('antigravity') || fs.existsSync('/Applications/Antigravity.app') || isNonEmptyDir(provider.path);
+    case 'claude':
+      return isCommandAvailable('claude') || fs.existsSync('/Applications/Claude.app') || fs.existsSync(path.join(provider.path, 'settings.json')) || fs.existsSync(path.join(provider.path, 'CLAUDE.md')) || isNonEmptyDir(provider.path);
+    case 'cursor':
+      if (isWin) {
+        const cursorProg = path.join(process.env.LOCALAPPDATA || '', 'Programs', 'cursor');
+        const cursorProg64 = 'C:\\Program Files\\Cursor';
+        return fs.existsSync(cursorProg) || fs.existsSync(cursorProg64) || isCommandAvailable('cursor') || isNonEmptyDir(provider.path);
+      }
+      return fs.existsSync('/Applications/Cursor.app') || isCommandAvailable('cursor') || isNonEmptyDir(provider.path);
+    case 'codex':
+      return isCommandAvailable('codex') || isCommandAvailable('openai-codex') || isNonEmptyDir(provider.path);
+    case 'windsurf':
+      return fs.existsSync('/Applications/Windsurf.app') || isCommandAvailable('windsurf') || isNonEmptyDir(provider.path);
+    case 'cline':
+      return isNonEmptyDir(provider.path) || isNonEmptyDir(path.join(homeDir, 'Library', 'Application Support', 'Code', 'User', 'globalStorage', 'saoudrizwan.claude-dev'));
+    case 'roocode':
+      return isCommandAvailable('roo') || isCommandAvailable('roocode') || isNonEmptyDir(provider.path);
+    case 'continue':
+      return isCommandAvailable('continue') || isNonEmptyDir(provider.path);
+    case 'copilot':
+      return isCommandAvailable('copilot') || isNonEmptyDir(provider.path);
+    case 'aider':
+      return isCommandAvailable('aider') || fs.existsSync(path.join(homeDir, '.aider.conf.yml')) || isNonEmptyDir(provider.path);
+    case 'opencode':
+      return isCommandAvailable('opencode') || isNonEmptyDir(provider.path);
+    case 'zed':
+      return fs.existsSync('/Applications/Zed.app') || isCommandAvailable('zed') || isNonEmptyDir(provider.path);
+    case 'augment':
+      return isCommandAvailable('augment') || isNonEmptyDir(provider.path);
+    case 'amp':
+      return isCommandAvailable('amp') || isNonEmptyDir(provider.path);
+    case 'gemini':
+      return isCommandAvailable('gemini') || isNonEmptyDir(provider.path);
+    case 'pi':
+      return isCommandAvailable('pi') || isNonEmptyDir(provider.path);
+    case 'hermes':
+      return isCommandAvailable('hermes') || isNonEmptyDir(provider.path);
+    case 'openclaw':
+      return isCommandAvailable('openclaw') || isNonEmptyDir(provider.path);
+    case 'agents':
+      return isNonEmptyDir(provider.path);
+    default:
+      return isNonEmptyDir(provider.path);
+  }
+}
+
 function getAIStatus() {
   const result = {};
   for (const [key, provider] of Object.entries(AI_PATHS)) {
-    const installed = fs.existsSync(provider.path);
+    const installed = checkAIInstalled(key);
     const skillsPath = path.join(provider.path, provider.skillsSub);
     let linked = false;
     try {

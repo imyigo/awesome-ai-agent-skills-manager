@@ -13,6 +13,12 @@ mcp_config.json
 *.log
 *.tmp
 
+# Node modülleri ve build çıktıları (desktop app + vite web)
+node_modules/
+desktop/dist/
+gui/dist/
+gui/web/dist/
+
 # OS Özel
 Thumbs.db
 desktop.ini
@@ -26,7 +32,11 @@ repo/skills/*
 !repo/skills/.gitkeep
 repo/mcp/*
 !repo/mcp/.gitkeep
+!repo/mcp/mcp_config.example.json
 repo/commands/*
 !repo/commands/.gitkeep
 repo/server-skills/*
 !repo/server-skills/.gitkeep
+
+# Yerel gizli host listesi (pre-commit guard — public repo'ya girmez)
+.githooks/private-hosts

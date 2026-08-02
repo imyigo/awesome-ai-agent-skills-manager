@@ -115,9 +115,56 @@ const Icons = {
   CheckCircle: () => <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
   AlertTriangle: () => <svg className="w-5 h-5 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
   Cpu: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="15" x2="23" y2="15"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="15" x2="4" y2="15"/></svg>,
-  Zap: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
-  ShoppingBag: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>,
 };
+
+// ============================================================
+// PROVIDER BRAND LOGOS (inline SVG — self-contained, CSP-safe)
+// Desteklenen 5 araç. Marka renkleriyle sadeleştirilmiş işaretler.
+// ============================================================
+const PROVIDER_LOGOS = {
+  claude: ({ className = 'w-4 h-4' }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="#D97757" aria-label="Claude">
+      <path d="M4.7 15.9l4.2-2.36.07-.2-.07-.11h-.2l-.7-.05-2.38-.06-2.07-.09-2-.11-.5-.11L0 12.1l.05-.31.42-.28.6.05 1.33.09 2 .14 1.45.08 2.14.22h.34l.05-.14-.12-.09-.09-.08L6.1 10.4 3.9 8.94l-1.15-.84-.62-.42-.31-.4-.14-.86.56-.62.75.05.19.05.76.59 1.63 1.26 2.13 1.57.31.26.13-.09.015-.065-.14-.235L6.15 6.9 4.9 4.74l-.56-.9-.15-.54c-.05-.22-.09-.4-.09-.63l.64-.87.35-.11.85.11.36.31.53 1.21.86 1.91 1.33 2.6.39.77.21.71.08.22h.13v-.13l.11-1.42.2-1.74.19-2.24.07-.63.31-.76.62-.41.48.23.4.57-.05.37-.24 1.56-.47 2.44-.3 1.63h.18l.2-.2.81-1.08 1.36-1.7.6-.68.7-.74.45-.36h.85l.63.93-.28.96-.88 1.11-.73.94-1.04 1.4-.65 1.12.06.09.15-.01 2.34-.5 1.26-.23 1.51-.26.68.32.07.32-.27.66-1.6.4-1.87.37-2.79.66-.03.024.04.05 1.26.12.54.03h1.32l2.46.18.64.43.39.52-.06.4-1 .51-1.34-.32-3.13-.74-1.07-.27h-.15v.09l.89.87 1.64 1.48 2.05 1.91.1.47-.26.37-.28-.04-1.8-1.36-.69-.61-1.57-1.32h-.1v.14l.36.53 1.91 2.87.1.88-.14.29-.49.17-.54-.1-1.11-1.56-1.14-1.75-.92-1.57-.11.06-.55 5.9-.26.3-.59.23-.49-.38-.26-.6.26-1.19.31-1.55.25-1.24.23-1.53.13-.51-.01-.03h-.11l-1.11 1.52-1.69 2.28-1.33 1.43-.32.13-.55-.29.05-.51.31-.45 1.83-2.32.9-1.18.58-.68-.005-.1h-.03l-4.04 2.62-.72.09-.31-.29.04-.47.15-.16 2.63-1.81-.005.015z"/>
+    </svg>
+  ),
+  cursor: ({ className = 'w-4 h-4' }) => (
+    <svg className={className} viewBox="0 0 24 24" aria-label="Cursor">
+      <path d="M12 2L21 7v10l-9 5-9-5V7l9-5z" fill="#0f0f0f" stroke="#4b5563" strokeWidth="0.5" />
+      <path d="M12 2L21 7l-9 5-9-5 9-5z" fill="#6b7280" opacity="0.9" />
+      <path d="M12 12l9-5v10l-9 5V12z" fill="#111827" />
+      <path d="M12 12L3 7v10l9 5V12z" fill="#374151" />
+    </svg>
+  ),
+  copilot: ({ className = 'w-4 h-4' }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-label="GitHub Copilot">
+      <rect x="4" y="8" width="16" height="10" rx="5" fill="#111827" stroke="#9ca3af" strokeWidth="1" />
+      <path d="M12 5v3" stroke="#9ca3af" strokeWidth="1.4" strokeLinecap="round" />
+      <circle cx="12" cy="4.2" r="1.3" fill="#9ca3af" />
+      <ellipse cx="9" cy="13" rx="1.7" ry="2.1" fill="#e5e7eb" />
+      <ellipse cx="15" cy="13" rx="1.7" ry="2.1" fill="#e5e7eb" />
+    </svg>
+  ),
+  antigravity: ({ className = 'w-4 h-4' }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-label="Antigravity">
+      <circle cx="12" cy="12" r="9" stroke="#4285F4" strokeWidth="2" />
+      <path d="M12 3a9 9 0 0 1 0 18" stroke="#EA4335" strokeWidth="2" fill="none" />
+      <path d="M12 3a9 9 0 0 0-6.36 15.36" stroke="#FBBC05" strokeWidth="2" fill="none" />
+      <circle cx="12" cy="12" r="3" fill="#34A853" />
+    </svg>
+  ),
+  codex: ({ className = 'w-4 h-4' }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="#e5e7eb" strokeWidth="1.6" aria-label="OpenAI Codex">
+      <path d="M14.5 3.2a4 4 0 0 1 3.9 2.8 4 4 0 0 1 1.6 6.7 4 4 0 0 1-3.9 4.8 4 4 0 0 1-6.7 1.5 4 4 0 0 1-4.8-3.9 4 4 0 0 1-1.5-6.7 4 4 0 0 1 3.9-4.8 4 4 0 0 1 7.5-.7z" />
+      <path d="M9 10.5l3 1.7 3-1.7M12 12.2v3.3" stroke="#e5e7eb" strokeWidth="1.4" />
+    </svg>
+  ),
+};
+
+function ProviderLogo({ k, className }) {
+  const L = PROVIDER_LOGOS[k];
+  if (!L) return <span className={className || 'w-4 h-4'} />;
+  return <L className={className || 'w-4 h-4'} />;
+}
 
 // FLOATING TOAST NOTIFICATION CONTAINER
 function ToastContainer({ toasts, onDismiss }) {
@@ -171,6 +218,351 @@ function CodeEditorModal({ title, fileName, initialContent, onSave, onClose }) {
   );
 }
 
+// MCP AUTO-DETECTION ENGINE FOR REQUIREMENTS & VARIABLES
+const KNOWN_MCP_REQUIREMENTS = {
+  'brave-search': [
+    { key: 'BRAVE_API_KEY', type: 'env', description: 'Brave Search API Key (brave.com/search/api)', required: true }
+  ],
+  'github': [
+    { key: 'GITHUB_PERSONAL_ACCESS_TOKEN', type: 'env', description: 'GitHub Personal Access Token (repo & read permissions)', required: true }
+  ],
+  'slack': [
+    { key: 'SLACK_BOT_TOKEN', type: 'env', description: 'Slack Bot Token (xoxb-...)', required: true },
+    { key: 'SLACK_TEAM_ID', type: 'env', description: 'Slack Workspace Team ID (T000000)', required: true }
+  ],
+  'n8n': [
+    { key: 'N8N_HOST', type: 'env', description: 'n8n Instance Host URL (e.g. http://localhost:5678)', required: true },
+    { key: 'N8N_API_KEY', type: 'env', description: 'n8n Account API Key', required: true }
+  ],
+  'postgres': [
+    { key: 'POSTGRES_CONNECTION_STRING', type: 'env', description: 'PostgreSQL URI (postgresql://user:pass@localhost:5432/db)', required: true }
+  ],
+  'sqlite': [
+    { key: 'DB_PATH', type: 'arg', description: 'Local path to SQLite database file (.db / .sqlite)', required: true }
+  ],
+  'filesystem': [
+    { key: 'ALLOWED_PATHS', type: 'arg', description: 'Allowed directory paths for file operations', required: true }
+  ],
+  'sentry': [
+    { key: 'SENTRY_AUTH_TOKEN', type: 'env', description: 'Sentry Auth Token', required: true },
+    { key: 'SENTRY_ORG', type: 'env', description: 'Sentry Organization Slug', required: true }
+  ],
+  'gitlab': [
+    { key: 'GITLAB_PERSONAL_ACCESS_TOKEN', type: 'env', description: 'GitLab Access Token', required: true }
+  ],
+  'google-maps': [
+    { key: 'GOOGLE_MAPS_API_KEY', type: 'env', description: 'Google Maps API Key', required: true }
+  ],
+  'aws': [
+    { key: 'AWS_ACCESS_KEY_ID', type: 'env', description: 'AWS Access Key ID', required: true },
+    { key: 'AWS_SECRET_ACCESS_KEY', type: 'env', description: 'AWS Secret Access Key', required: true }
+  ],
+  's3': [
+    { key: 'AWS_ACCESS_KEY_ID', type: 'env', description: 'AWS Access Key ID', required: true },
+    { key: 'AWS_SECRET_ACCESS_KEY', type: 'env', description: 'AWS Secret Access Key', required: true }
+  ],
+  'neo4j': [
+    { key: 'NEO4J_URI', type: 'env', description: 'Neo4j Bolt URI (bolt://localhost:7687)', required: true },
+    { key: 'NEO4J_USERNAME', type: 'env', description: 'Neo4j Username', required: true },
+    { key: 'NEO4J_PASSWORD', type: 'env', description: 'Neo4j Password', required: true }
+  ],
+  'puppeteer': [
+    { key: 'PUPPETEER_EXECUTABLE_PATH', type: 'env', description: 'Chrome/Chromium executable binary path', required: false }
+  ],
+  'linear': [
+    { key: 'LINEAR_API_KEY', type: 'env', description: 'Linear Personal API Key', required: true }
+  ],
+  'notion': [
+    { key: 'NOTION_API_KEY', type: 'env', description: 'Notion Integration Secret', required: true }
+  ],
+  'cloudflare': [
+    { key: 'CLOUDFLARE_API_TOKEN', type: 'env', description: 'Cloudflare API Token', required: true }
+  ],
+  'supabase': [
+    { key: 'SUPABASE_URL', type: 'env', description: 'Supabase Project URL', required: true },
+    { key: 'SUPABASE_SERVICE_ROLE_KEY', type: 'env', description: 'Supabase Service Role Key', required: true }
+  ],
+  'redis': [
+    { key: 'REDIS_URL', type: 'env', description: 'Redis Connection URI (redis://:pass@host:6379)', required: true }
+  ]
+};
+
+function detectMcpRequirements(serverKey = '', serverData = {}) {
+  const reqMap = new Map();
+
+  const addReq = (reqObj) => {
+    if (!reqMap.has(reqObj.key)) {
+      reqMap.set(reqObj.key, reqObj);
+    }
+  };
+
+  const textToScan = [
+    serverKey || '',
+    serverData?.command || '',
+    ...(Array.isArray(serverData?.args) ? serverData.args : []),
+    serverData?.url || '',
+    JSON.stringify(serverData?.headers || {})
+  ].join(' ').toLowerCase();
+
+  // 1. Known Catalog Match
+  for (const [pkgKey, knownList] of Object.entries(KNOWN_MCP_REQUIREMENTS)) {
+    if (textToScan.includes(pkgKey)) {
+      knownList.forEach(k => addReq({ ...k }));
+    }
+  }
+
+  // 2. Scan Existing ENV Keys
+  const envObj = serverData?.env || {};
+  for (const [envKey, envVal] of Object.entries(envObj)) {
+    addReq({
+      key: envKey,
+      type: 'env',
+      description: `${envKey} çevre değişkeni`,
+      required: true
+    });
+  }
+
+  // 3. Scan placeholders (${VAR}, $VAR, <KEY>, YOUR_KEY)
+  const placeholderRegex = /\$\{?([A-Z0-9_]{2,})\}?|<([A-Z0-9_]{2,})>|(YOUR_[A-Z0-9_]+)/g;
+  const fullText = [
+    serverData?.command || '',
+    ...(Array.isArray(serverData?.args) ? serverData.args : []),
+    serverData?.url || '',
+    JSON.stringify(serverData?.headers || {})
+  ].join(' ');
+
+  let match;
+  while ((match = placeholderRegex.exec(fullText)) !== null) {
+    const varName = match[1] || match[2] || match[3];
+    if (varName && !['TRUE', 'FALSE', 'HTTP', 'HTTPS', 'JSON', 'STDIO'].includes(varName.toUpperCase())) {
+      addReq({
+        key: varName,
+        type: 'env',
+        description: `Otomatik algılanan gereksinim: ${varName}`,
+        required: true
+      });
+    }
+  }
+
+  // 4. Scan headers
+  if (serverData?.headers) {
+    for (const [hKey, hVal] of Object.entries(serverData.headers)) {
+      addReq({
+        key: `HEADER:${hKey}`,
+        type: 'header',
+        description: `HTTP Header: ${hKey}`,
+        required: true
+      });
+    }
+  }
+
+  // Calculate status & value for each requirement
+  return Array.from(reqMap.values()).map(req => {
+    let val = '';
+    if (req.type === 'header' && serverData?.headers) {
+      const hName = req.key.replace(/^HEADER:/, '');
+      val = serverData.headers[hName] || '';
+    } else {
+      val = envObj[req.key] || '';
+      if (!val && Array.isArray(serverData?.args)) {
+        const argMatch = serverData.args.find(a => typeof a === 'string' && a.includes(req.key));
+        if (argMatch) val = argMatch;
+      }
+    }
+
+    let status = 'configured';
+    if (!val || val.trim() === '') {
+      status = 'missing';
+    } else if (/YOUR_|ENTER_|<.*>|\$\{.*\}|FIXME|EXAMPLE|DEFAULT/i.test(val)) {
+      status = 'placeholder';
+    }
+
+    return {
+      ...req,
+      value: val,
+      status
+    };
+  });
+}
+
+function autoParsePastedMcpConfig(rawText) {
+  const result = {
+    key: '',
+    mcpType: 'stdio',
+    cmd: 'npx',
+    argsStr: '',
+    url: '',
+    headerKey: 'x-api-key',
+    headerVal: '',
+    envVars: {}
+  };
+
+  if (!rawText || !rawText.trim()) return null;
+  const text = rawText.trim();
+
+  // 1. Try JSON parse
+  try {
+    const obj = JSON.parse(text);
+    if (obj.mcpServers) {
+      const firstKey = Object.keys(obj.mcpServers)[0];
+      if (firstKey) {
+        const srv = obj.mcpServers[firstKey];
+        result.key = firstKey;
+        if (srv.url) {
+          result.mcpType = 'remote';
+          result.url = srv.url;
+          if (srv.headers) {
+            const hKeys = Object.keys(srv.headers);
+            if (hKeys.length > 0) {
+              result.headerKey = hKeys[0];
+              result.headerVal = srv.headers[hKeys[0]];
+            }
+          }
+        } else {
+          result.mcpType = 'stdio';
+          result.cmd = srv.command || 'npx';
+          result.argsStr = (srv.args || []).join(' ');
+        }
+        if (srv.env) result.envVars = { ...srv.env };
+        return result;
+      }
+    } else if (obj.url || obj.command) {
+      if (obj.url) {
+        result.mcpType = 'remote';
+        result.url = obj.url;
+      } else {
+        result.mcpType = 'stdio';
+        result.cmd = obj.command || 'npx';
+        result.argsStr = (obj.args || []).join(' ');
+      }
+      if (obj.headers) {
+        const hKeys = Object.keys(obj.headers);
+        if (hKeys.length > 0) {
+          result.headerKey = hKeys[0];
+          result.headerVal = obj.headers[hKeys[0]];
+        }
+      }
+      if (obj.env) result.envVars = { ...obj.env };
+      return result;
+    }
+  } catch (e) {}
+
+  // 2. URL Extraction
+  const urlMatch = text.match(/(https?:\/\/[^\s"']+)|(([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/[^\s"']*)?)/i);
+  if (urlMatch) {
+    let matchedUrl = urlMatch[0];
+    if (!matchedUrl.startsWith('http://') && !matchedUrl.startsWith('https://')) {
+      matchedUrl = 'https://' + matchedUrl;
+    }
+    result.mcpType = 'remote';
+    result.url = matchedUrl;
+
+    if (matchedUrl.includes('dokploy')) {
+      result.key = 'dokploy';
+    }
+  }
+
+  // 3. Token / API Key Extraction (24+ karakterlik token deseni)
+  const tokenMatch = text.match(/([a-zA-Z0-9_-]{24,})/);
+  if (tokenMatch) {
+    const token = tokenMatch[1];
+    result.headerKey = 'x-api-key';
+    result.headerVal = token;
+    result.envVars.API_KEY = token;
+
+    if (result.key === 'dokploy' || text.toLowerCase().includes('dokploy')) {
+      result.envVars.DOKPLOY_API_KEY = token;
+      if (result.url) result.envVars.DOKPLOY_URL = result.url;
+    }
+  }
+
+  // 4. Command extraction (if npx or python or node)
+  if (text.includes('npx') || text.includes('node') || text.includes('python')) {
+    result.mcpType = 'stdio';
+    const parts = text.split(/\s+/);
+    result.cmd = parts[0] || 'npx';
+    result.argsStr = parts.slice(1).join(' ');
+  }
+
+  return result;
+}
+
+// AGENT SETTINGS & HOOKS INSPECTOR MODAL
+function AgentSettingsInspectorModal({ onClose }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/settings/inspect')
+      .then(res => res.json())
+      .then(d => { setData(d); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
+  return (
+    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+      <div className="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-2xl overflow-hidden shadow-2xl space-y-4 p-6 max-h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="flex items-center space-x-2">
+            <span className="text-amber-400 font-mono text-base">⚙️</span>
+            <div>
+              <h3 className="text-sm font-semibold text-white">Agent Hooks & Settings Inspector</h3>
+              <p className="text-[11px] text-slate-400">Claude Code, Antigravity ve Cursor kural, oturum kancaları (SessionStart & UserPromptSubmit)</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-xs text-slate-400 hover:text-white px-2.5 py-1 rounded bg-slate-800">Kapat</button>
+        </div>
+
+        {loading ? (
+          <div className="p-8 text-center text-xs text-slate-400">Konfigürasyon ve kancalar taranıyor...</div>
+        ) : (
+          <div className="space-y-4 overflow-y-auto pr-1 text-xs">
+            {/* PERSISTENT HOOK RULES */}
+            <div className="p-3.5 rounded-lg bg-amber-950/30 border border-amber-500/30 space-y-2">
+              <span className="font-mono text-amber-300 font-bold block">⚡ Her Zaman Aktif (Persistent Session & Prompt Hook) Kuralları:</span>
+              {data?.activePersistentRules && data.activePersistentRules.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {data.activePersistentRules.map(r => (
+                    <span key={r} className="px-2 py-1 rounded bg-amber-500/20 text-amber-300 font-mono text-[11px] border border-amber-500/30 font-semibold">
+                      ⚡ {r.replace(/^always-active-/, '').replace(/\.md$/, '')} (Session & Prompt Hook)
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-[11px] text-slate-400 italic">Şu an her zaman aktif özel kural tanımlı değil. Skills sayfasından herhangi bir skill'i "⚡ Her Zaman Aktif" yapabilirsiniz.</p>
+              )}
+            </div>
+
+            {/* CLAUDE CODE SETTINGS */}
+            {data?.claudeSettings && (
+              <div className="p-3.5 rounded-lg bg-slate-950 border border-slate-800 space-y-2">
+                <span className="font-mono text-indigo-400 font-semibold block">🤖 Claude Code (settings.json & hooks):</span>
+                <pre className="p-3 rounded bg-slate-900 text-[11px] font-mono text-indigo-300 overflow-x-auto max-h-40">{JSON.stringify(data.claudeSettings, null, 2)}</pre>
+              </div>
+            )}
+
+            {/* ANTIGRAVITY SETTINGS */}
+            {data?.geminiSettings && (
+              <div className="p-3.5 rounded-lg bg-slate-950 border border-slate-800 space-y-2">
+                <span className="font-mono text-emerald-400 font-semibold block">🧠 Google Antigravity (config.json & policies):</span>
+                <pre className="p-3 rounded bg-slate-900 text-[11px] font-mono text-emerald-300 overflow-x-auto max-h-40">{JSON.stringify(data.geminiSettings, null, 2)}</pre>
+              </div>
+            )}
+
+            {/* CURSOR SETTINGS */}
+            {data?.cursorSettings && (
+              <div className="p-3.5 rounded-lg bg-slate-950 border border-slate-800 space-y-2">
+                <span className="font-mono text-sky-400 font-semibold block">💻 Cursor IDE (mcp.json):</span>
+                <pre className="p-3 rounded bg-slate-900 text-[11px] font-mono text-sky-300 overflow-x-auto max-h-40">{JSON.stringify(data.cursorSettings, null, 2)}</pre>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // MCP SERVER EDITOR MODAL
 function McpEditorModal({ serverKey, serverData, onSave, onClose }) {
   const [key, setKey] = useState(serverKey || '');
@@ -186,6 +578,9 @@ function McpEditorModal({ serverKey, serverData, onSave, onClose }) {
     if (keyLower.includes('n8n') && Object.keys(existing).length === 0) {
       return { N8N_HOST: 'http://localhost:5678', N8N_API_KEY: '' };
     }
+    if (keyLower.includes('dokploy') && Object.keys(existing).length === 0) {
+      return { DOKPLOY_URL: 'https://your-dokploy-host.example.com', DOKPLOY_API_KEY: '' };
+    }
     if (keyLower.includes('github') && Object.keys(existing).length === 0) {
       return { GITHUB_PERSONAL_ACCESS_TOKEN: '' };
     }
@@ -194,6 +589,26 @@ function McpEditorModal({ serverKey, serverData, onSave, onClose }) {
     }
     return existing;
   });
+
+  const [pasteText, setPasteText] = useState('');
+  const [showPasteBox, setShowPasteBox] = useState(false);
+
+  const handleAutoParsePaste = (textToParse) => {
+    if (!textToParse || !textToParse.trim()) return;
+    const parsed = autoParsePastedMcpConfig(textToParse);
+    if (parsed) {
+      if (parsed.key && !serverKey) setKey(parsed.key);
+      setMcpType(parsed.mcpType);
+      if (parsed.cmd) setCmd(parsed.cmd);
+      if (parsed.argsStr) setArgsStr(parsed.argsStr);
+      if (parsed.url) setUrl(parsed.url);
+      if (parsed.headerKey) setHeaderKey(parsed.headerKey);
+      if (parsed.headerVal) setHeaderVal(parsed.headerVal);
+      if (Object.keys(parsed.envVars).length > 0) {
+        setEnvVars(prev => ({ ...prev, ...parsed.envVars }));
+      }
+    }
+  };
 
   // Dynamic placeholders based on MCP server type
   const mcpProfile = useMemo(() => {
@@ -239,13 +654,47 @@ function McpEditorModal({ serverKey, serverData, onSave, onClose }) {
       setArgsStr('-y n8n-mcp@latest');
       setEnvVars({
         N8N_HOST: 'http://localhost:5678',
-        N8N_API_KEY: 'n8n_api_key_here'
+        N8N_API_KEY: ''
       });
+    } else if (presetType === 'brave') {
+      setKey(serverKey || 'brave-search');
+      setMcpType('stdio');
+      setCmd('npx');
+      setArgsStr('-y @modelcontextprotocol/server-brave-search');
+      setEnvVars({ BRAVE_API_KEY: '' });
+    } else if (presetType === 'github') {
+      setKey(serverKey || 'github');
+      setMcpType('stdio');
+      setCmd('npx');
+      setArgsStr('-y @modelcontextprotocol/server-github');
+      setEnvVars({ GITHUB_PERSONAL_ACCESS_TOKEN: '' });
+    } else if (presetType === 'slack') {
+      setKey(serverKey || 'slack');
+      setMcpType('stdio');
+      setCmd('npx');
+      setArgsStr('-y @modelcontextprotocol/server-slack');
+      setEnvVars({ SLACK_BOT_TOKEN: '', SLACK_TEAM_ID: '' });
+    } else if (presetType === 'dokploy') {
+      setKey(serverKey || 'dokploy');
+      setMcpType('remote');
+      setUrl('https://your-dokploy-host.example.com/api/mcp');
+      setHeaderKey('x-api-key');
+      setHeaderVal('$DOKPLOY_API_KEY');
+      setEnvVars({
+        DOKPLOY_URL: 'https://your-dokploy-host.example.com',
+        DOKPLOY_API_KEY: '$DOKPLOY_API_KEY'
+      });
+    } else if (presetType === 'sentry') {
+      setKey(serverKey || 'sentry');
+      setMcpType('stdio');
+      setCmd('npx');
+      setArgsStr('-y @modelcontextprotocol/server-sentry');
+      setEnvVars({ SENTRY_AUTH_TOKEN: '', SENTRY_ORG: '' });
     } else if (presetType === 'sqlite') {
       setKey(serverKey || 'sqlite');
       setMcpType('stdio');
       setCmd('npx');
-      setArgsStr('-y @modelcontextprotocol/server-sqlite C:/path/to/database.db');
+      setArgsStr('-y @modelcontextprotocol/server-sqlite /path/to/database.sqlite');
     } else if (presetType === 'postgres') {
       setKey(serverKey || 'postgres');
       setMcpType('stdio');
@@ -264,6 +713,16 @@ function McpEditorModal({ serverKey, serverData, onSave, onClose }) {
       setHeaderVal('$API_KEY_21ST');
     }
   };
+
+  const liveReqs = useMemo(() => {
+    return detectMcpRequirements(key, {
+      command: cmd,
+      args: argsStr ? argsStr.split(' ').filter(Boolean) : [],
+      url,
+      headers: headerKey ? { [headerKey]: headerVal } : {},
+      env: envVars
+    });
+  }, [key, cmd, argsStr, url, headerKey, headerVal, envVars]);
 
   const handleUpdateEnv = (k, val) => {
     setEnvVars(prev => ({ ...prev, [k]: val }));
@@ -319,25 +778,112 @@ function McpEditorModal({ serverKey, serverData, onSave, onClose }) {
 
         {/* READY PRESET TEMPLATE CHIPS */}
         <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-2">
-          <span className="text-[10px] font-mono text-indigo-400 uppercase font-semibold block">Sık Kullanılan Sunucular İçin Hızlı Konfigürasyon:</span>
-          <div className="flex flex-wrap gap-1.5">
-            <button type="button" onClick={() => handleApplyPreset('n8n')} className="px-2 py-1 rounded bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-mono transition">
-              ⚡ n8n MCP Server
-            </button>
-            <button type="button" onClick={() => handleApplyPreset('sqlite')} className="px-2 py-1 rounded bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-300 text-xs font-mono transition">
-              🗄️ SQLite MCP
-            </button>
-            <button type="button" onClick={() => handleApplyPreset('postgres')} className="px-2 py-1 rounded bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-mono transition">
-              🐘 Postgres MCP
-            </button>
-            <button type="button" onClick={() => handleApplyPreset('puppeteer')} className="px-2 py-1 rounded bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-mono transition">
-              🌐 Puppeteer Scraper
-            </button>
-            <button type="button" onClick={() => handleApplyPreset('21st')} className="px-2 py-1 rounded bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-mono transition">
-              🚀 21st.dev Remote HTTP
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono text-indigo-400 uppercase font-semibold block">Sık Kullanılan Sunucular İçin Hızlı Konfigürasyon:</span>
+            <button
+              type="button"
+              onClick={() => setShowPasteBox(!showPasteBox)}
+              className="text-[10px] font-mono text-amber-300 hover:text-amber-200 underline"
+            >
+              {showPasteBox ? '▲ Gizle' : '📋 Metin / JSON / Token Yapıştır (Otomatik Doldur)'}
             </button>
           </div>
+          <div className="flex flex-wrap gap-1.5">
+            <button type="button" onClick={() => handleApplyPreset('dokploy')} className="px-2 py-1 rounded bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/40 text-blue-300 text-xs font-mono font-bold transition">
+              🚀 Dokploy MCP
+            </button>
+            <button type="button" onClick={() => handleApplyPreset('brave')} className="px-2 py-1 rounded bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-mono transition">
+              🦁 Brave Search
+            </button>
+            <button type="button" onClick={() => handleApplyPreset('github')} className="px-2 py-1 rounded bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-300 text-xs font-mono transition">
+              🐙 GitHub
+            </button>
+            <button type="button" onClick={() => handleApplyPreset('slack')} className="px-2 py-1 rounded bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-mono transition">
+              💬 Slack
+            </button>
+            <button type="button" onClick={() => handleApplyPreset('n8n')} className="px-2 py-1 rounded bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-mono transition">
+              ⚡ n8n
+            </button>
+            <button type="button" onClick={() => handleApplyPreset('postgres')} className="px-2 py-1 rounded bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-mono transition">
+              🐘 Postgres
+            </button>
+            <button type="button" onClick={() => handleApplyPreset('sqlite')} className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono transition">
+              🗄️ SQLite
+            </button>
+            <button type="button" onClick={() => handleApplyPreset('puppeteer')} className="px-2 py-1 rounded bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-mono transition">
+              🌐 Puppeteer
+            </button>
+            <button type="button" onClick={() => handleApplyPreset('sentry')} className="px-2 py-1 rounded bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300 text-xs font-mono transition">
+              🎯 Sentry
+            </button>
+            <button type="button" onClick={() => handleApplyPreset('21st')} className="px-2 py-1 rounded bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/30 text-teal-300 text-xs font-mono transition">
+              🚀 21st.dev Remote
+            </button>
+          </div>
+
+          {showPasteBox && (
+            <div className="pt-2 space-y-2 border-t border-slate-800/80">
+              <textarea
+                placeholder="Herhangi bir URL, API Token, npx komutu veya JSON yapıştırın..."
+                value={pasteText}
+                onChange={e => {
+                  setPasteText(e.target.value);
+                  handleAutoParsePaste(e.target.value);
+                }}
+                rows="3"
+                className="w-full p-2.5 rounded bg-slate-900 border border-slate-800 font-mono text-xs text-amber-300 focus:outline-none focus:border-amber-500"
+              />
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-slate-400">Yazılan veya yapıştırılan metin anında otomatik olarak ayrıştırılır ve form alanlarına doldurulur!</span>
+                <button
+                  type="button"
+                  onClick={() => handleAutoParsePaste(pasteText)}
+                  className="px-3 py-1 rounded bg-amber-500 text-slate-950 text-xs font-bold transition"
+                >
+                  ⚡ Otomatik Ayrıştır
+                </button>
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* LIVE AUTO-DETECTED REQUIREMENTS BANNER */}
+        {liveReqs.length > 0 && (
+          <div className="p-3 rounded-lg bg-indigo-950/40 border border-indigo-500/30 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-mono text-indigo-300 font-semibold flex items-center space-x-1">
+                <span>🔍 Otomatik Algılanan Sistem Gereksinimleri ({liveReqs.length})</span>
+              </span>
+            </div>
+            <div className="space-y-1.5">
+              {liveReqs.map(req => {
+                const isEnvAdded = Object.prototype.hasOwnProperty.call(envVars, req.key);
+                return (
+                  <div key={req.key} className="flex items-center justify-between bg-slate-900/80 p-2 rounded border border-slate-800 text-xs">
+                    <div className="flex items-center space-x-2">
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        {req.type.toUpperCase()}
+                      </span>
+                      <div>
+                        <span className="font-mono text-slate-200 font-semibold">{req.key}</span>
+                        <p className="text-[10px] text-slate-400">{req.description}</p>
+                      </div>
+                    </div>
+                    {req.type === 'env' && !isEnvAdded && (
+                      <button
+                        type="button"
+                        onClick={() => setEnvVars(prev => ({ ...prev, [req.key]: '' }))}
+                        className="px-2 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-medium transition"
+                      >
+                        + Değişken Ekle
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto pr-1">
           <div>
@@ -560,6 +1106,8 @@ function App() {
   const [settingsData, setSettingsData] = useState({});
   const [sseConnected, setSseConnected] = useState(false);
   const [enginesList, setEnginesList] = useState([]);
+  const [coreCatalog, setCoreCatalog] = useState([]);
+  const [showCoreHub, setShowCoreHub] = useState(false);
 
   // Live Terminal State — streams live_log SSE events
   const [liveTerminal, setLiveTerminal] = useState({ lines: [], jobLabel: null, active: false });
@@ -573,6 +1121,23 @@ function App() {
         setEnginesList(data);
       }
     } catch (e) {}
+    try {
+      const c = await fetch('/api/core-services/catalog');
+      if (c.ok) setCoreCatalog(await c.json());
+    } catch (e) {}
+  };
+
+  const handleCoreHubAction = async (id, kind) => {
+    try {
+      const res = await fetch(`/api/core-services/${kind}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      const d = await res.json();
+      showToast(d.success ? 'Hub Güncellendi' : 'Hata', d.message, d.success ? 'success' : 'error');
+      fetchEngines();
+    } catch (e) { showToast('Hata', e.message, 'error'); }
   };
 
   // Toast Notifications
@@ -607,6 +1172,7 @@ function App() {
 
   // Presets State & Modal
   const [editingPreset, setEditingPreset] = useState(null);
+  const [showInspectorModal, setShowInspectorModal] = useState(false);
 
   // Sandbox Tester states
   const [sandboxPrompt, setSandboxPrompt] = useState('Review this React component for accessibility issues.');
@@ -785,6 +1351,25 @@ function App() {
       const data = await res.json();
       addLog(data.message, data.success ? 'success' : 'error');
       showToast(data.success ? 'Skill Toggle' : 'Error', data.message, data.success ? 'success' : 'error');
+      fetchData();
+    } catch (e) {
+      addLog('Error: ' + e.message, 'error');
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
+  const handleToggleSkillPersistent = async (skillName, currentPersistentState) => {
+    setLoadingAction(`persistent-${skillName}`);
+    try {
+      const res = await fetch('/api/toggle-skill-persistent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: skillName, persistent: !currentPersistentState })
+      });
+      const data = await res.json();
+      addLog(data.message, data.success ? 'success' : 'error');
+      showToast(data.success ? 'Persistent Hook' : 'Error', data.message, data.success ? 'success' : 'error');
       fetchData();
     } catch (e) {
       addLog('Error: ' + e.message, 'error');
@@ -1058,7 +1643,7 @@ function App() {
                 <h1 className="font-semibold text-sm tracking-tight text-white flex items-center space-x-1">
                   <span>🧠 Awesome Brain Manager</span>
                 </h1>
-                <p className="text-[10px] text-indigo-400 font-mono">Universal Agent Engine (19 Providers)</p>
+                <p className="text-[10px] text-indigo-400 font-mono">Universal Agent Engine ({Object.keys(aiStatus).length} Providers)</p>
               </div>
             </div>
             <button onClick={() => setLang(l => l === 'tr' ? 'en' : 'tr')} className="px-2 py-1 rounded bg-slate-800 text-[10px] font-mono text-indigo-300 hover:bg-slate-700 transition flex items-center space-x-1">
@@ -1072,7 +1657,7 @@ function App() {
               <Icons.Grid /> <span>{t.dashboard}</span>
             </button>
             <button onClick={() => setActiveTab('providers')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'providers' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
-              <Icons.Zap /> <span>{t.providers} ({installedCount}/19)</span>
+              <Icons.Zap /> <span>{t.providers} ({installedCount}/{Object.keys(aiStatus).length})</span>
             </button>
             <button onClick={() => setActiveTab('starterPacks')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'starterPacks' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
               <Icons.ShoppingBag /> <span>{t.starterPacks}</span>
@@ -1085,16 +1670,13 @@ function App() {
               <Icons.Code /> <span>{t.skills}</span>
             </button>
             <button onClick={() => setActiveTab('mcp')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'mcp' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
-              <Icons.Server /> <span>{t.mcp} ({mcpServersList.length})</span>
+              <Icons.Server /> <span>{t.mcp} + Çekirdek ({mcpServersList.length})</span>
             </button>
             <button onClick={() => setActiveTab('commands')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'commands' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
               <Icons.Terminal /> <span>{t.commands}</span>
             </button>
             <button onClick={() => setActiveTab('presets')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'presets' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
               <Icons.Sliders /> <span>{t.presets}</span>
-            </button>
-            <button onClick={() => setActiveTab('engines')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'engines' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
-              <Icons.Cpu /> <span>Çekirdek Servisler</span>
             </button>
             <button onClick={() => setActiveTab('sandbox')} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition ${activeTab === 'sandbox' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
               <Icons.Play /> <span>{t.sandbox}</span>
@@ -1127,9 +1709,14 @@ function App() {
             <h2 className="text-sm font-semibold text-white capitalize">{t[activeTab] || activeTab}</h2>
             <span className="text-xs text-slate-500 font-mono">| {linkedCount} Provider {t.linked}</span>
           </div>
-          <button onClick={handleUpdateAllRepos} disabled={loadingAction === 'update-all'} className="px-3 py-1.5 rounded-md bg-indigo-600/20 border border-indigo-500/30 hover:bg-indigo-600/30 text-indigo-300 text-xs font-medium flex items-center space-x-2 transition">
-            <Icons.Refresh /> <span>{loadingAction === 'update-all' ? 'Güncelleniyor...' : t.updateAll}</span>
-          </button>
+          <div className="flex items-center space-x-2">
+            <button onClick={() => setShowInspectorModal(true)} className="px-3 py-1.5 rounded-md bg-amber-500/20 border border-amber-500/30 hover:bg-amber-500/30 text-amber-300 text-xs font-medium flex items-center space-x-1.5 transition">
+              <span>⚙️</span> <span>Hooks & Settings Inspector</span>
+            </button>
+            <button onClick={handleUpdateAllRepos} disabled={loadingAction === 'update-all'} className="px-3 py-1.5 rounded-md bg-indigo-600/20 border border-indigo-500/30 hover:bg-indigo-600/30 text-indigo-300 text-xs font-medium flex items-center space-x-2 transition">
+              <Icons.Refresh /> <span>{loadingAction === 'update-all' ? 'Güncelleniyor...' : t.updateAll}</span>
+            </button>
+          </div>
         </header>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -1205,7 +1792,10 @@ function App() {
                         info.installed ? 'bg-slate-900 border-slate-700' :
                         'bg-slate-950 border-slate-800 opacity-50'
                       }`}>
-                        <span className="text-[11px] font-semibold text-slate-200 truncate">{info.name}</span>
+                        <span className="flex items-center space-x-1.5 min-w-0">
+                          <ProviderLogo k={key} className="w-4 h-4 flex-shrink-0" />
+                          <span className="text-[11px] font-semibold text-slate-200 truncate">{info.name}</span>
+                        </span>
                         <span className={`w-2 h-2 rounded-full flex-shrink-0 ml-2 ${
                           info.linked ? 'bg-emerald-400' : info.installed ? 'bg-amber-400' : 'bg-slate-600'
                         }`} />
@@ -1281,9 +1871,14 @@ function App() {
                 {Object.entries(aiStatus).map(([key, info]) => (
                   <div key={key} className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition flex flex-col justify-between space-y-3">
                     <div className="flex items-start justify-between">
-                      <div>
-                        <h4 className="text-sm font-semibold text-slate-200">{info.name}</h4>
-                        <p className="text-[11px] font-mono text-slate-500 truncate max-w-[160px]">{info.path}</p>
+                      <div className="flex items-center space-x-2.5 min-w-0">
+                        <span className="w-9 h-9 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-center flex-shrink-0">
+                          <ProviderLogo k={key} className="w-5 h-5" />
+                        </span>
+                        <div className="min-w-0">
+                          <h4 className="text-sm font-semibold text-slate-200 truncate">{info.name}</h4>
+                          <p className="text-[11px] font-mono text-slate-500 truncate max-w-[140px]">{info.path}</p>
+                        </div>
                       </div>
                       <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${info.installed ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-800 text-slate-500 border-slate-700'}`}>
                         {info.installed ? t.installed : t.notInstalled}
@@ -1293,7 +1888,25 @@ function App() {
                       <span className={`text-xs flex items-center space-x-1 ${info.linked ? 'text-emerald-400' : 'text-slate-500'}`}>
                         {info.linked ? <><Icons.Link /> <span>{t.linked}</span></> : <><Icons.Unlink /> <span>{t.unlinked}</span></>}
                       </span>
-                      <button onClick={() => handleToggleLink(key, info.linked)} disabled={loadingAction === `toggle-${key}`} className={`px-3 py-1 rounded text-xs font-medium transition ${info.linked ? 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20' : 'bg-indigo-600 text-white hover:bg-indigo-500'}`}>
+                      <button
+                        onClick={() => {
+                          if (!info.installed && !info.linked) {
+                            showToast('Yüklü Değil', `${info.name} bilgisayarınızda yüklü olmadığı için bağlantı kurulamaz. Lütfen önce uygulamayı kurun.`, 'error');
+                            addLog(`[UYARI] ${info.name} yüklü değil, bağlantı reddedildi.`, 'error');
+                            return;
+                          }
+                          handleToggleLink(key, info.linked);
+                        }}
+                        disabled={loadingAction === `toggle-${key}`}
+                        title={!info.installed && !info.linked ? `${info.name} bilgisayarınızda yüklü değil` : ''}
+                        className={`px-3 py-1 rounded text-xs font-medium transition ${
+                          info.linked
+                            ? 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20'
+                            : info.installed
+                            ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-sm shadow-indigo-500/20'
+                            : 'bg-slate-800/80 text-slate-500 border border-slate-700/50 cursor-not-allowed hover:bg-slate-800'
+                        }`}
+                      >
                         {info.linked ? t.disconnect : t.connect}
                       </button>
                     </div>
@@ -1583,13 +2196,26 @@ function App() {
                             <div className="flex items-center space-x-1">
                               {['claude-mem', 'graphify', 'understand-anything'].includes(r.name) && (
                                 <button
-                                  onClick={() => setActiveTab('engines')}
+                                  onClick={() => setActiveTab('mcp')}
                                   className="px-2 py-1 rounded bg-indigo-600/20 hover:bg-indigo-600/40 border border-indigo-500/30 text-indigo-300 text-[10px] font-mono transition flex items-center space-x-1"
-                                  title="Servis Sayfasına Git (Core Engines)"
+                                  title="Çekirdek Servisler (MCP sekmesi)"
                                 >
                                   <Icons.Cpu /> <span>Servise Git</span>
                                 </button>
                               )}
+                              <button
+                                onClick={() => handleToggleSkillPersistent(r.name, r.meta?.isPersistent)}
+                                disabled={loadingAction === `persistent-${r.name}`}
+                                className={`px-2 py-1 rounded text-[10px] font-mono font-medium transition flex items-center space-x-1 ${
+                                  r.meta?.isPersistent
+                                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm shadow-amber-500/20 font-bold'
+                                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-slate-700/60'
+                                }`}
+                                title={r.meta?.isPersistent ? 'Sürekli Hook (SessionStart & Prompt Submit aktif)' : 'İsteğe Bağlı (On-Demand)'}
+                              >
+                                <span>⚡</span>
+                                <span>{r.meta?.isPersistent ? 'Sürekli Hook' : 'İsteğe Bağlı'}</span>
+                              </button>
                               <button onClick={() => handleToggleSkillDisabled(r.name)} className={`p-1.5 rounded transition ${r.meta?.disabled ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20' : 'bg-slate-800 text-slate-400 hover:text-white'}`} title={r.meta?.disabled ? t.enableSkill : t.disableSkill}>
                                 <Icons.Power />
                               </button>
@@ -1629,74 +2255,119 @@ function App() {
 
               {mcpViewMode === 'cards' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {mcpServersList.map(([key, srv]) => (
-                    <div key={key} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between space-y-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
-                            <Icons.Server />
-                          </div>
-                          <div>
-                            <div className="flex items-center space-x-2">
-                              <h4 className="text-sm font-semibold text-slate-200 capitalize">{key}</h4>
-                              <span className={`px-2 py-0.2 rounded text-[9px] font-mono ${srv.url ? 'bg-sky-500/10 text-sky-400 border border-sky-500/20' : 'bg-slate-800 text-slate-400'}`}>
-                                {srv.url ? 'Remote HTTP/SSE' : 'Local Stdio'}
-                              </span>
+                  {mcpServersList.map(([key, srv]) => {
+                    const reqs = detectMcpRequirements(key, srv);
+                    const missingReqs = reqs.filter(r => r.status === 'missing');
+                    const placeholderReqs = reqs.filter(r => r.status === 'placeholder');
+                    const statusBadge = missingReqs.length > 0 ? (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                        🔴 Eksik: {missingReqs.length} Değişken/API Key
+                      </span>
+                    ) : placeholderReqs.length > 0 ? (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                        🟡 {placeholderReqs.length} Varsayılan Değişken
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        🟢 Yapılandırıldı
+                      </span>
+                    );
+
+                    return (
+                      <div key={key} className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between space-y-4 hover:border-slate-700 transition">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                              <Icons.Server />
                             </div>
-                            <p className="text-[11px] font-mono text-slate-500 truncate max-w-xs mt-0.5">
-                              {srv.url ? srv.url : `${srv.command} ${(srv.args || []).join(' ')}`}
-                            </p>
+                            <div>
+                              <div className="flex items-center space-x-2">
+                                <h4 className="text-sm font-semibold text-slate-200 capitalize">{key}</h4>
+                                <span className={`px-2 py-0.2 rounded text-[9px] font-mono ${srv.url ? 'bg-sky-500/10 text-sky-400 border border-sky-500/20' : 'bg-slate-800 text-slate-400'}`}>
+                                  {srv.url ? 'Remote HTTP/SSE' : 'Local Stdio'}
+                                </span>
+                              </div>
+                              <p className="text-[11px] font-mono text-slate-500 truncate max-w-xs mt-0.5">
+                                {srv.url ? srv.url : `${srv.command} ${(srv.args || []).join(' ')}`}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            {statusBadge}
+                            <button onClick={() => setEditingMcpServer({ key, data: srv })} className="p-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Edit MCP Server">
+                              <Icons.Edit />
+                            </button>
+                            <button onClick={() => handleRemoveMcpServer(key)} className="p-1.5 rounded hover:bg-rose-500/20 text-rose-400 transition" title="Delete MCP Server">
+                              <Icons.Trash />
+                            </button>
                           </div>
                         </div>
 
-                        <div className="flex items-center space-x-1">
-                          <button onClick={() => setEditingMcpServer({ key, data: srv })} className="p-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Edit MCP Server">
-                            <Icons.Edit />
-                          </button>
-                          <button onClick={() => handleRemoveMcpServer(key)} className="p-1.5 rounded hover:bg-rose-500/20 text-rose-400 transition" title="Delete MCP Server">
-                            <Icons.Trash />
-                          </button>
+                        {/* DETECTED REQUIREMENTS & VARIABLES PANEL */}
+                        <div className="p-3.5 rounded-lg bg-slate-950 border border-slate-800/80 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-mono text-amber-400 font-semibold flex items-center space-x-1">
+                              <Icons.Lock /> <span>⚡ Otomatik Algılanan Gereksinimler & Değişkenler ({reqs.length})</span>
+                            </span>
+                            <span className="text-[10px] text-slate-500">Dinamik MCP Özellikleri</span>
+                          </div>
+
+                          {reqs.length === 0 ? (
+                            <p className="text-[11px] text-slate-500 italic">Özel API Key veya ortam değişkeni gerektirmiyor.</p>
+                          ) : (
+                            <div className="space-y-2">
+                              {reqs.map(req => {
+                                const currentInputValue = mcpAuthInputs[`${key}_${req.key}`] !== undefined ? mcpAuthInputs[`${key}_${req.key}`] : req.value;
+                                return (
+                                  <div key={req.key} className="space-y-1 bg-slate-900/60 p-2 rounded border border-slate-800/60">
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center space-x-2">
+                                        <span className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold ${
+                                          req.type === 'header' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' :
+                                          req.type === 'arg' ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30' :
+                                          'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                        }`}>
+                                          {req.type.toUpperCase()}
+                                        </span>
+                                        <span className="text-xs font-mono font-semibold text-slate-200">{req.key}</span>
+                                      </div>
+                                      <span className={`px-1.5 py-0.2 rounded text-[9px] font-mono ${
+                                        req.status === 'configured' ? 'bg-emerald-500/20 text-emerald-400' :
+                                        req.status === 'placeholder' ? 'bg-amber-500/20 text-amber-400' :
+                                        'bg-rose-500/20 text-rose-400 font-bold'
+                                      }`}>
+                                        {req.status === 'configured' ? '🟢 Yapılandırıldı' : req.status === 'placeholder' ? '🟡 Default / Placeholder' : '🔴 Eksik Değişken / Key'}
+                                      </span>
+                                    </div>
+                                    <p className="text-[10px] text-slate-400 font-sans">{req.description}</p>
+                                    
+                                    {req.type === 'env' && (
+                                      <div className="flex items-center space-x-2 pt-1">
+                                        <input
+                                          type="password"
+                                          placeholder={`${req.key} değerini yazın...`}
+                                          value={currentInputValue}
+                                          onChange={e => setMcpAuthInputs({ ...mcpAuthInputs, [`${key}_${req.key}`]: e.target.value })}
+                                          className="flex-1 px-2 py-1 rounded bg-slate-950 border border-slate-800 text-xs font-mono text-indigo-300 focus:outline-none focus:border-indigo-500"
+                                        />
+                                        <button
+                                          onClick={() => handleSaveMcpAuthSecret(key, req.key)}
+                                          className="px-2.5 py-1 rounded bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/30 text-indigo-300 text-[10px] font-medium transition"
+                                        >
+                                          Kaydet
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
                       </div>
-
-                      {srv.headers && (
-                        <div className="p-3 rounded bg-slate-950 border border-slate-800 font-mono text-[11px] text-slate-300 space-y-1">
-                          <span className="text-[10px] text-indigo-400 uppercase font-semibold block">Headers Configuration:</span>
-                          {Object.entries(srv.headers).map(([hk, hv]) => (
-                            <div key={hk} className="flex justify-between items-center bg-slate-900/60 p-1.5 rounded border border-slate-800/80">
-                              <span className="text-slate-400">{hk}:</span>
-                              <span className="text-emerald-400">{hv}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {srv.env && (
-                        <div className="p-3 rounded bg-slate-950 border border-slate-800 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-mono text-amber-400 flex items-center space-x-1">
-                              <Icons.Lock /> <span>Environment Secrets</span>
-                            </span>
-                          </div>
-                          {Object.entries(srv.env).map(([ek, ev]) => (
-                            <div key={ek} className="flex items-center space-x-2 pt-1">
-                              <span className="text-[10px] font-mono text-slate-400 w-1/3 truncate">{ek}:</span>
-                              <input
-                                type="password"
-                                placeholder={`Enter ${ek}`}
-                                value={mcpAuthInputs[`${key}_${ek}`] !== undefined ? mcpAuthInputs[`${key}_${ek}`] : ev}
-                                onChange={e => setMcpAuthInputs({ ...mcpAuthInputs, [`${key}_${ek}`]: e.target.value })}
-                                className="flex-1 px-2 py-1 rounded bg-slate-900 border border-slate-800 text-xs font-mono text-indigo-300 focus:outline-none focus:border-indigo-500"
-                              />
-                              <button onClick={() => handleSaveMcpAuthSecret(key, ek)} className="px-2 py-1 rounded bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-400 text-[10px] font-medium transition">
-                                {t.setAuthSecret}
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="space-y-4 p-5 rounded-xl bg-slate-900/80 border border-slate-800">
@@ -1781,18 +2452,25 @@ function App() {
             </div>
           )}
           {/* TAB: CORE ENGINES & DAEMON MANAGER */}
-          {activeTab === 'engines' && (
+          {activeTab === 'mcp' && (
             <div className="space-y-6">
-              <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+              <div className="p-5 rounded-xl bg-slate-900/80 border border-indigo-500/20 flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-semibold text-slate-100 flex items-center space-x-2">
-                    <Icons.Cpu /> <span>Çekirdek Servisler (Core Engine Daemons)</span>
+                    <Icons.Cpu /> <span>Çekirdek Servisler (Docker Daemon / Çekirdek MCP)</span>
                   </h3>
                   <p className="text-xs text-slate-400 mt-1">
-                    Uzun süreli hafıza, 3D mimari haritalama ve derin kod analizi servislerini Docker üzerinden tek tıkla çalıştırın.
+                    Skill değil — arka planda çalışan gerçek daemon'lar. Docker container'da izole çalışır, host'a hiçbir şey kurmaz. Başlayınca çekirdek MCP olarak araçlara eklenir. <span className="text-amber-400">Varsayılan: kapalı.</span>
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setShowCoreHub(v => !v)}
+                    className="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition flex items-center space-x-1.5 shadow-lg"
+                    title="Çekirdek Servis Hub — kurulabilir servisler"
+                  >
+                    <Icons.Plus /> <span>{showCoreHub ? 'Hub\'ı Gizle' : 'Hub\'dan Ekle'}</span>
+                  </button>
                   <button
                     onClick={async () => {
                       showToast('Docker CLI Kuruluyor...', 'winget/brew/apt ile Docker CLI indiriliyor (Docker Desktop değil)', 'info');
@@ -1808,11 +2486,45 @@ function App() {
                   >
                     <Icons.Server /> <span>Docker CLI Kur</span>
                   </button>
-                  <span className="px-2.5 py-1 rounded bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-mono">
-                    Daemon Hub Active
-                  </span>
                 </div>
               </div>
+
+              {showCoreHub && (
+                <div className="p-5 rounded-xl bg-slate-950 border border-indigo-500/30 space-y-3">
+                  <h4 className="text-sm font-semibold text-indigo-300 flex items-center space-x-2">
+                    <Icons.ShoppingBag /> <span>Çekirdek Servis Hub</span>
+                    <span className="text-[10px] font-mono text-slate-500">— kur / kaldır</span>
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {coreCatalog.map(item => (
+                      <div key={item.id} className="p-3 rounded-lg bg-slate-900/80 border border-slate-800 flex items-start justify-between space-x-3">
+                        <div className="min-w-0">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm">{item.icon}</span>
+                            <span className="text-xs font-semibold text-slate-200 truncate">{item.name}</span>
+                            {item.runnable
+                              ? <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">hazır</span>
+                              : <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-amber-500/10 text-amber-400 border border-amber-500/20">şablon</span>}
+                          </div>
+                          <p className="text-[11px] text-slate-400 mt-1 leading-snug">{item.what || item.desc}</p>
+                          <p className="text-[10px] font-mono text-slate-600 mt-1">port {item.port} · MCP {item.mcp?.type}</p>
+                        </div>
+                        {item.installed ? (
+                          <button
+                            onClick={() => handleCoreHubAction(item.id, 'remove')}
+                            className="px-2.5 py-1 rounded text-[11px] font-medium bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 transition flex-shrink-0"
+                          >Kaldır</button>
+                        ) : (
+                          <button
+                            onClick={() => handleCoreHubAction(item.id, 'install')}
+                            className="px-2.5 py-1 rounded text-[11px] font-medium bg-indigo-600 hover:bg-indigo-500 text-white transition flex-shrink-0"
+                          >Ekle</button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 gap-4">
                 {(enginesList.length > 0 ? enginesList : [
@@ -1830,7 +2542,13 @@ function App() {
                             {isRunning ? <><Icons.Check /> <span>Port Dinleniyor ({eng.port}) - Aktif</span></> : <><Icons.AlertTriangle /> <span>Servis Kapalı (Port {eng.port})</span></>}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-400 leading-relaxed">{eng.desc}</p>
+                        <p className="text-xs text-slate-400 leading-relaxed">{eng.what || eng.desc}</p>
+                        {eng.runnable === false && (
+                          <p className="text-[11px] text-amber-400/90 font-mono">⚠ Docker image tanımlı değil — manifest'e image + buildDir ekleyin.</p>
+                        )}
+                        {eng.dockerAvailable === false && (
+                          <p className="text-[11px] text-rose-400/90 font-mono">⚠ Docker CLI bulunamadı — üstteki "Docker CLI Kur" ile kurun.</p>
+                        )}
                         <div className="flex items-center space-x-2 pt-1">
                           <span className="text-[10px] font-mono text-indigo-400 uppercase font-semibold">Gereksinimler:</span>
                           {(eng.reqs || []).map(r => (
@@ -1843,8 +2561,9 @@ function App() {
 
                       <div className="flex items-center space-x-2">
                         <button
+                          disabled={eng.runnable === false || eng.dockerAvailable === false}
                           onClick={async () => {
-                            showToast('Build Başlatıldı', `[${eng.id}] bağımlılıkları kuruluyor (npm / pip / cargo)...`, 'info');
+                            showToast('Docker Build Başlatıldı', `[${eng.id}] image build ediliyor (docker build)...`, 'info');
                             try {
                               const res = await fetch('/api/engines/build', {
                                 method: 'POST',
@@ -1852,17 +2571,18 @@ function App() {
                                 body: JSON.stringify({ engineId: eng.id })
                               });
                               const d = await res.json();
-                              showToast(d.success ? 'Build Tamamlandı' : 'Build Hatası', d.message, d.success ? 'success' : 'error');
+                              showToast(d.success ? 'Image Build Edildi' : 'Build Hatası', d.message, d.success ? 'success' : 'error');
                               fetchEngines();
                             } catch (e) {}
                           }}
-                          className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-medium transition flex items-center space-x-1"
-                          title="Bağımlılıkları Kur / Build (npm install, pip install, cargo build)"
+                          className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-medium transition flex items-center space-x-1 disabled:opacity-40 disabled:cursor-not-allowed"
+                          title="Docker image build et (docker build -t ...)"
                         >
-                          <Icons.Refresh /> <span>Bağımlılıkları Kur & Build Et</span>
+                          <Icons.Refresh /> <span>Docker Image Build Et</span>
                         </button>
 
                         <button
+                          disabled={!isRunning && (eng.runnable === false || eng.dockerAvailable === false)}
                           onClick={async () => {
                             const action = isRunning ? 'stop' : 'start';
                             try {
@@ -1876,7 +2596,7 @@ function App() {
                               fetchEngines();
                             } catch (e) {}
                           }}
-                          className={`px-3 py-2 rounded-lg text-xs font-medium transition flex items-center space-x-1 ${isRunning ? 'bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg'}`}
+                          className={`px-3 py-2 rounded-lg text-xs font-medium transition flex items-center space-x-1 disabled:opacity-40 disabled:cursor-not-allowed ${isRunning ? 'bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg'}`}
                         >
                           {isRunning ? <><Icons.Power /> <span>Servisi Durdur</span></> : <><Icons.Play /> <span>Servisi Başlat</span></>}
                         </button>
@@ -2354,6 +3074,10 @@ function App() {
           onSave={(presetObj) => handleSavePresetObj(presetObj)}
           onClose={() => setEditingPreset(null)}
         />
+      )}
+
+      {showInspectorModal && (
+        <AgentSettingsInspectorModal onClose={() => setShowInspectorModal(false)} />
       )}
 
       {editorModal && (

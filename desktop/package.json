@@ -1,0 +1,36 @@
+{
+  "name": "brain-manager-desktop",
+  "version": "1.0.0",
+  "description": "macOS masaüstü uygulaması — açılışta Brain Manager server'ını başlatır ve dashboard'u penceresinde gösterir.",
+  "main": "main.js",
+  "author": "Yigit Cengiz",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --mac"
+  },
+  "devDependencies": {
+    "electron": "^32.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.imyigo.brainmanager",
+    "productName": "Brain Manager",
+    "files": ["main.js", "preload.js", "assets/**"],
+    "extraResources": [
+      {
+        "from": "../gui",
+        "to": "app/gui",
+        "filter": ["**/*", "!web/node_modules/**", "!node_modules/**", "!tests/**", "!**/*.map"]
+      },
+      { "from": "../repo/core-services", "to": "app/repo/core-services" },
+      { "from": "../repo/commands", "to": "app/repo/commands", "filter": ["**/*", "!**/.git/**"] },
+      { "from": "../presets.json", "to": "app/presets.json" }
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": ["dmg"],
+      "identity": null
+    }
+  }
+}

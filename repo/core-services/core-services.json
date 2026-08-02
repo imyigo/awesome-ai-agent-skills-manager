@@ -1,0 +1,50 @@
+{
+  "$comment": "Çekirdek Servisler (Core Engine Daemons). Docker ile çalışır, varsayılan KAPALI. image+buildDir tanımlıysa başlatılabilir.",
+  "services": [
+    {
+      "id": "claude-mem",
+      "name": "Claude Long-Term Memory Engine",
+      "icon": "🧠",
+      "port": 3780,
+      "containerPort": 3780,
+      "image": "brain-core-claude-mem:local",
+      "buildDir": "claude-mem",
+      "enabledByDefault": false,
+      "env": {},
+      "mcp": { "type": "http", "url": "http://localhost:3780/mcp" },
+      "reqs": ["Docker"],
+      "desc": "Oturumlar arası silinmeyen uzun süreli hafıza veritabanı.",
+      "what": "AI ajanına kalıcı hafıza verir: geçmiş oturumları özetleyip SQLite'a saklar, yeni oturumda ilgili bağlamı otomatik enjekte eder. Container içinde çalışır, host'a hiçbir şey kurmaz."
+    },
+    {
+      "id": "graphify",
+      "name": "Graphify Knowledge Architecture Engine",
+      "icon": "🕸️",
+      "port": 3781,
+      "containerPort": 3781,
+      "image": null,
+      "buildDir": null,
+      "enabledByDefault": false,
+      "env": {},
+      "mcp": { "type": "http", "url": "http://localhost:3781/mcp" },
+      "reqs": ["Docker"],
+      "desc": "Kod deposu bağımlılıklarını mimari ilişki grafiğine dönüştürür.",
+      "what": "Kod tabanının bağımlılık haritasını çıkarır. Docker image henüz tanımlı değil — çalıştırmak için manifest'e image + buildDir ekleyin."
+    },
+    {
+      "id": "understand-anything",
+      "name": "Understand Anything Code Deep Inspector",
+      "icon": "🔬",
+      "port": 3782,
+      "containerPort": 3782,
+      "image": null,
+      "buildDir": null,
+      "enabledByDefault": false,
+      "env": {},
+      "mcp": { "type": "http", "url": "http://localhost:3782/mcp" },
+      "reqs": ["Docker"],
+      "desc": "AST tabanlı kod indeksleme ve anlık analiz.",
+      "what": "Projeyi AST düzeyinde indeksler, derin kod analizi sunar. Docker image henüz tanımlı değil — çalıştırmak için manifest'e image + buildDir ekleyin."
+    }
+  ]
+}

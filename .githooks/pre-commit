@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Brain Manager secret guard — özel sunucu/anahtarların public repo'ya
+# sızmasını engeller. Kurulum: git config core.hooksPath .githooks
+set -euo pipefail
+
+# Staged (eklenmiş/değişmiş) içeriği tara — sadece commit'lenecek diff.
+staged="$(git diff --cached --name-only --diff-filter=ACM)"
+[ -z "$staged" ] && exit 0
+
+fail=0
+report() { echo "🛑 BLOCKED: $1"; fail=1; }
+
+# 1) Özel sunucu host'ları — LOKAL gizli dosyadan okunur (public repo'ya girmez).
+#    .githooks/private-hosts (gitignore'lu): her satır bir regex/host.
+#    Örnek satır:  server\.example\.com
+HOSTS_FILE="$(git rev-parse --show-toplevel)/.githooks/private-hosts"
+PRIVATE_HOSTS=''
+if [ -f "$HOSTS_FILE" ]; then
+  PRIVATE_HOSTS="$(grep -vE '^\s*(#|$)' "$HOSTS_FILE" | paste -sd '|' -)"
+fi
+
+# 2) Yaygın credential desenleri.
+SECRET_PATTERNS='ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|DOKPLOY_API_KEY"?\s*[:=]\s*"?[A-Za-z0-9]{24,}'
+
+while IFS= read -r f; do
+  [ -z "$f" ] && continue
+  # Binary dosyaları atla.
+  git show ":$f" 2>/dev/null | grep -Iq . || continue
+  content="$(git show ":$f" 2>/dev/null || true)"
+
+  if [ -n "$PRIVATE_HOSTS" ] && echo "$content" | grep -EqI "$PRIVATE_HOSTS"; then
+    report "$f özel sunucu host'u içeriyor."
+  fi
+  if echo "$content" | grep -EqI "$SECRET_PATTERNS"; then
+    report "$f canlı credential/API key içeriyor."
+  fi
+done <<< "$staged"
+
+# 3) Sır barındıran dosyalar hiç staged olmamalı (gitignore emniyet ağı).
+echo "$staged" | grep -E '(^|/)(mcp_config\.json|db\.sqlite|presets\.json|\.env)$' \
+  && report "Gizli dosya staged edilmiş (gitignore atlanmış)." || true
+
+if [ "$fail" -ne 0 ]; then
+  echo ""
+  echo "Commit durduruldu. Sırrı çıkar veya .env/gitignore'a taşı."
+  echo "Bilerek geçmek istersen (önerilmez): git commit --no-verify"
+  exit 1
+fi
+exit 0

@@ -55,6 +55,10 @@ if [ "$1" = "--auto-install" ]; then
 
     if [ -f "$CONTROL_DIR/repo/mcp/mcp_config.json" ]; then
         create_link "$CONTROL_DIR/repo/mcp/mcp_config.json" "$CONFIG_DIR/mcp_config.json" "false"
+        create_link "$CONTROL_DIR/repo/mcp/mcp_config.json" "$ANTIGRAVITY_DIR/mcp_config.json" "false"
+        create_link "$CONTROL_DIR/repo/mcp/mcp_config.json" "$CLAUDE_DIR/mcp_config.json" "false"
+        create_link "$CONTROL_DIR/repo/mcp/mcp_config.json" "$CURSOR_DIR/mcp.json" "false"
+        create_link "$CONTROL_DIR/repo/mcp/mcp_config.json" "$CODEX_DIR/mcp.json" "false"
     fi
 
     create_link "$CONTROL_DIR/repo/skills" "$ANTIGRAVITY_DIR/skills" "true"

@@ -14,7 +14,15 @@ test.describe('Multi-AI Agent Skill Hub Full Feature Test Suite', () => {
       env: { ...process.env, PORT: PORT.toString(), NO_OPEN: '1' }
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 2500));
+    serverProcess.stderr?.on('data', d => console.error('TestServer Stderr:', d.toString()));
+
+    for (let i = 0; i < 30; i++) {
+      try {
+        const res = await fetch(`http://127.0.0.1:${PORT}/`);
+        if (res.status === 200) break;
+      } catch (e) {}
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
   });
 
   test.after(() => {
@@ -30,11 +38,13 @@ test.describe('Multi-AI Agent Skill Hub Full Feature Test Suite', () => {
     assert.ok(html.includes('<div id="root"></div>'));
   });
 
-  test('GET /api/status returns all 19 AI providers', async () => {
+  test('GET /api/status returns the 5 supported AI providers', async () => {
     const res = await fetch(`http://localhost:${PORT}/api/status`);
     assert.strictEqual(res.status, 200);
     const data = await res.json();
-    assert.strictEqual(Object.keys(data).length, 19);
+    assert.strictEqual(Object.keys(data).length, 5);
+    ['claude', 'cursor', 'copilot', 'antigravity', 'codex'].forEach(k =>
+      assert.ok(k in data, `${k} eksik`));
   });
 
   test('GET /api/presets returns merged predefined and custom presets', async () => {
@@ -77,5 +87,16 @@ test.describe('Multi-AI Agent Skill Hub Full Feature Test Suite', () => {
     assert.strictEqual(res.status, 200);
     const data = await res.json();
     assert.strictEqual(data.success, true);
+  });
+
+  test('POST /api/toggle-link rejects connection to uninstalled provider', async () => {
+    const res = await fetch(`http://localhost:${PORT}/api/toggle-link`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ai: 'non_existent_fake_app', state: true })
+    });
+    const data = await res.json();
+    assert.strictEqual(data.success, false);
+    assert.ok(data.message.includes('Desteklenmeyen AI aracı'));
   });
 });

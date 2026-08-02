@@ -1,7 +1,7 @@
 {
-  "name": "awesome-ai-agent-skills-manager",
+  "name": "awesome-universal-agent-brain-manager",
   "version": "1.0.0",
-  "description": "Universal Multi-AI Agent Control Center for Claude Code, Antigravity, Cursor, Codex, and 15+ more AI tools.",
+  "description": "Universal Multi-AI Agent Control Center for Claude Code, Cursor, Copilot, Antigravity and Codex.",
   "main": "gui/gui_server.js",
   "bin": {
     "skills": "gui/cli.js",
@@ -10,7 +10,10 @@
   "scripts": {
     "start": "node gui/gui_server.js",
     "cli": "node gui/cli.js",
-    "test": "node --test gui/tests/server.test.js"
+    "build:web": "npm --prefix gui/web install && npm --prefix gui/web run build",
+    "dev:web": "npm --prefix gui/web run dev",
+    "desktop": "npm --prefix desktop install && npm --prefix desktop start",
+    "test": "NO_OPEN=1 node --test gui/tests/server.test.js gui/tests/mcp_merge.test.js gui/tests/adapters.test.js gui/tests/core-services.test.js"
   },
   "keywords": [
     "ai-agents",

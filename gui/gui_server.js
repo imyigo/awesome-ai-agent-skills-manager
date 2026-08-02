@@ -5,6 +5,9 @@ const fs = require('fs');
 const path = require('path');
 const { exec, execSync, spawnSync } = require('child_process');
 const { DatabaseSync } = require('node:sqlite');
+const { ADAPTERS, loadSkills, renderCodexMcpToml } = require('./adapters.js');
+const coreServices = require('./core-services.js');
+const CORE_ROOT = path.join(__dirname, '..', 'repo', 'core-services');
 
 const PORT = parseInt(process.env.PORT || '3777', 10);
 const GUI_DIR = __dirname;
@@ -118,26 +121,13 @@ function broadcast(eventName, data) {
 // ============================================================
 // 19 AI PROVIDER HARNESS CATALOG
 // ============================================================
+// Desteklenen 5 araç. Her biri adapters.js'te GERÇEK native formatına çevrilir.
 const AI_PATHS = {
-  antigravity: { name: "Google Antigravity", path: path.join(homeDir, '.gemini', 'antigravity'), skillsSub: 'skills', cmdSub: 'commands' },
-  claude:      { name: "Claude Code",        path: path.join(homeDir, '.claude'),             skillsSub: 'skills', cmdSub: 'commands' },
-  cursor:      { name: "Cursor IDE",         path: path.join(homeDir, '.cursor'),             skillsSub: 'rules',  cmdSub: 'rules' },
-  codex:       { name: "OpenAI Codex",       path: path.join(homeDir, '.codex'),              skillsSub: 'skills', cmdSub: 'prompts' },
-  windsurf:    { name: "Windsurf",           path: path.join(homeDir, '.windsurf'),           skillsSub: 'rules',  cmdSub: 'rules' },
-  cline:       { name: "Cline",              path: path.join(homeDir, 'Documents', 'Cline'),  skillsSub: 'Rules',  cmdSub: 'Rules' },
-  roocode:     { name: "Roo Code",           path: path.join(homeDir, '.roo'),                skillsSub: 'rules',  cmdSub: 'rules' },
-  continue:    { name: "Continue",           path: path.join(homeDir, '.continue'),           skillsSub: 'rules',  cmdSub: 'rules' },
-  copilot:     { name: "GitHub Copilot",     path: path.join(homeDir, '.github'),             skillsSub: 'instructions', cmdSub: 'instructions' },
-  aider:       { name: "Aider",              path: path.join(homeDir, '.aider'),              skillsSub: 'skills', cmdSub: 'skills' },
-  opencode:    { name: "OpenCode",           path: path.join(homeDir, '.config', 'opencode'), skillsSub: 'skills', cmdSub: 'commands' },
-  zed:         { name: "Zed Editor",         path: path.join(homeDir, '.config', 'zed'),      skillsSub: 'prompt_overrides', cmdSub: 'prompt_overrides' },
-  augment:     { name: "Augment",            path: path.join(homeDir, '.augment'),            skillsSub: 'rules',  cmdSub: 'rules' },
-  amp:         { name: "Amp",                path: path.join(homeDir, '.amp'),                skillsSub: 'skills', cmdSub: 'skills' },
-  gemini:      { name: "Gemini CLI",         path: path.join(homeDir, '.gemini'),             skillsSub: 'skills', cmdSub: 'skills' },
-  pi:          { name: "Pi Agent",           path: path.join(homeDir, '.pi'),                 skillsSub: 'skills', cmdSub: 'skills' },
-  hermes:      { name: "Hermes",             path: path.join(homeDir, '.hermes'),             skillsSub: 'skills', cmdSub: 'skills' },
-  openclaw:    { name: "OpenClaw",           path: path.join(homeDir, '.openclaw'),           skillsSub: 'skills', cmdSub: 'skills' },
-  agents:      { name: "Generic Agents",     path: path.join(homeDir, '.agents'),             skillsSub: 'skills', cmdSub: 'skills' },
+  claude:      { name: "Claude Code",        path: path.join(homeDir, '.claude'),             skillsSub: 'skills',       cmdSub: 'commands' },
+  cursor:      { name: "Cursor IDE",         path: path.join(homeDir, '.cursor'),             skillsSub: 'rules',        cmdSub: 'commands' },
+  copilot:     { name: "GitHub Copilot",     path: path.join(homeDir, '.github'),             skillsSub: 'instructions', cmdSub: 'prompts' },
+  antigravity: { name: "Google Antigravity", path: path.join(homeDir, '.gemini', 'antigravity'), skillsSub: 'skills',    cmdSub: 'commands' },
+  codex:       { name: "OpenAI Codex",       path: path.join(homeDir, '.codex'),              skillsSub: '',             cmdSub: 'prompts' },
 };
 
 function watchAIDirectories() {
@@ -194,37 +184,96 @@ const REACT_HTML_SHELL = `<!DOCTYPE html>
 </body>
 </html>`;
 
+const MIME_TYPES = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.mjs': 'application/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.ico': 'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.map': 'application/json; charset=utf-8',
+};
+function mimeFor(filePath) {
+  return MIME_TYPES[path.extname(filePath).toLowerCase()] || 'application/octet-stream';
+}
+
+function isCommandAvailable(cmd) {
+  try {
+    const res = spawnSync(isWin ? 'where' : 'which', [cmd], { encoding: 'utf8', timeout: 1000 });
+    return res.status === 0 && !!res.stdout && res.stdout.trim().length > 0;
+  } catch (e) {
+    return false;
+  }
+}
+
+function isNonEmptyDir(dirPath) {
+  try {
+    if (!fs.existsSync(dirPath)) return false;
+    const stat = fs.statSync(dirPath);
+    if (!stat.isDirectory()) return false;
+    const files = fs.readdirSync(dirPath);
+    return files.length > 0;
+  } catch (e) {
+    return false;
+  }
+}
+
 function checkAIInstalled(aiKey) {
   const provider = AI_PATHS[aiKey];
   if (!provider) return false;
 
-  if (aiKey === 'antigravity') {
-    return fs.existsSync(provider.path) && fs.readdirSync(provider.path).length > 0;
+  switch (aiKey) {
+    case 'antigravity':
+      return isCommandAvailable('agy') || isCommandAvailable('antigravity') || fs.existsSync('/Applications/Antigravity.app') || isNonEmptyDir(provider.path);
+    case 'claude':
+      return isCommandAvailable('claude') || fs.existsSync('/Applications/Claude.app') || fs.existsSync(path.join(provider.path, 'settings.json')) || fs.existsSync(path.join(provider.path, 'CLAUDE.md')) || isNonEmptyDir(provider.path);
+    case 'cursor':
+      if (isWin) {
+        const cursorProg = path.join(process.env.LOCALAPPDATA || '', 'Programs', 'cursor');
+        const cursorProg64 = 'C:\\Program Files\\Cursor';
+        return fs.existsSync(cursorProg) || fs.existsSync(cursorProg64) || isCommandAvailable('cursor') || isNonEmptyDir(provider.path);
+      }
+      return fs.existsSync('/Applications/Cursor.app') || isCommandAvailable('cursor') || isNonEmptyDir(provider.path);
+    case 'codex':
+      return isCommandAvailable('codex') || isCommandAvailable('openai-codex') || isNonEmptyDir(provider.path);
+    case 'windsurf':
+      return fs.existsSync('/Applications/Windsurf.app') || isCommandAvailable('windsurf') || isNonEmptyDir(provider.path);
+    case 'cline':
+      return isNonEmptyDir(provider.path) || isNonEmptyDir(path.join(homeDir, 'Library', 'Application Support', 'Code', 'User', 'globalStorage', 'saoudrizwan.claude-dev'));
+    case 'roocode':
+      return isCommandAvailable('roo') || isCommandAvailable('roocode') || isNonEmptyDir(provider.path);
+    case 'continue':
+      return isCommandAvailable('continue') || isNonEmptyDir(provider.path);
+    case 'copilot':
+      return isCommandAvailable('copilot') || isNonEmptyDir(provider.path);
+    case 'aider':
+      return isCommandAvailable('aider') || fs.existsSync(path.join(homeDir, '.aider.conf.yml')) || isNonEmptyDir(provider.path);
+    case 'opencode':
+      return isCommandAvailable('opencode') || isNonEmptyDir(provider.path);
+    case 'zed':
+      return fs.existsSync('/Applications/Zed.app') || isCommandAvailable('zed') || isNonEmptyDir(provider.path);
+    case 'augment':
+      return isCommandAvailable('augment') || isNonEmptyDir(provider.path);
+    case 'amp':
+      return isCommandAvailable('amp') || isNonEmptyDir(provider.path);
+    case 'gemini':
+      return isCommandAvailable('gemini') || isNonEmptyDir(provider.path);
+    case 'pi':
+      return isCommandAvailable('pi') || isNonEmptyDir(provider.path);
+    case 'hermes':
+      return isCommandAvailable('hermes') || isNonEmptyDir(provider.path);
+    case 'openclaw':
+      return isCommandAvailable('openclaw') || isNonEmptyDir(provider.path);
+    case 'agents':
+      return isNonEmptyDir(provider.path);
+    default:
+      return isNonEmptyDir(provider.path);
   }
-  if (aiKey === 'claude') {
-    return fs.existsSync(path.join(provider.path, 'settings.json')) ||
-           fs.existsSync(path.join(provider.path, 'CLAUDE.md')) ||
-           fs.existsSync(provider.path);
-  }
-  if (aiKey === 'cursor') {
-    if (isWin) {
-      const cursorProg = path.join(process.env.LOCALAPPDATA || '', 'Programs', 'cursor');
-      const cursorProg64 = 'C:\\Program Files\\Cursor';
-      return fs.existsSync(cursorProg) || fs.existsSync(cursorProg64) || fs.existsSync(provider.path);
-    }
-    return fs.existsSync('/Applications/Cursor.app') || fs.existsSync(provider.path);
-  }
-  if (aiKey === 'codex') {
-    try {
-      const result = spawnSync(isWin ? 'where' : 'which', ['codex'], { encoding: 'utf8' });
-      if (result.status === 0 && result.stdout) return true;
-      return fs.existsSync(provider.path);
-    } catch (e) {
-      return fs.existsSync(provider.path);
-    }
-  }
-
-  return fs.existsSync(provider.path);
 }
 
 function getAIStatus() {
@@ -269,8 +318,12 @@ function parseSkillMetadata(skillDir) {
     targetPath = claudeMdPath;
   }
 
+  const skillName = path.basename(skillDir);
+  const persistentFile = path.join(SYNC_DIR, 'repo', 'commands', `always-active-${skillName}.md`);
+  const isPersistent = fs.existsSync(persistentFile);
+
   const meta = {
-    name: path.basename(skillDir),
+    name: skillName,
     description: "Açıklama belirtilmemiş",
     version: "1.0.0",
     tools: [],
@@ -279,6 +332,7 @@ function parseSkillMetadata(skillDir) {
     findings: [],
     hasFrontmatter: false,
     disabled: isDisabled,
+    isPersistent: isPersistent,
     filePath: targetPath
   };
 
@@ -577,29 +631,102 @@ function getMCPConfig() {
   return config;
 }
 
+function getOSAppSupportDir() {
+  if (isWin) {
+    return process.env.APPDATA || path.join(homeDir, 'AppData', 'Roaming');
+  }
+  if (process.platform === 'darwin') {
+    return path.join(homeDir, 'Library', 'Application Support');
+  }
+  return path.join(homeDir, '.config');
+}
+
+// Atomic write: yaz .tmp -> rename. Yarıda kesilme bozuk JSON bırakmaz.
+function atomicWrite(targetPath, content) {
+  const dir = path.dirname(targetPath);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  const tmp = `${targetPath}.tmp-${process.pid}-${Date.now()}`;
+  fs.writeFileSync(tmp, content, 'utf8');
+  fs.renameSync(tmp, targetPath);
+}
+
+// MCP config'i hedef dosyaya NON-DESTRUCTIVE merge et.
+// Kullanıcının kendi server'larına dokunmaz; sadece Brain Manager'ın
+// eklediklerini (__brainManaged) günceller/temizler.
+function mergeMcpInto(targetPath, incoming, serversKey = 'mcpServers') {
+  let curr = {};
+  try {
+    if (fs.existsSync(targetPath)) curr = JSON.parse(fs.readFileSync(targetPath, 'utf8') || '{}');
+  } catch (e) {
+    // Bozuk/parse edilemeyen dosyayı EZME — atla, kullanıcı verisi korunsun.
+    return false;
+  }
+  const bucket = curr[serversKey] && typeof curr[serversKey] === 'object' ? curr[serversKey] : {};
+  const managed = Array.isArray(curr.__brainManaged) ? curr.__brainManaged : [];
+  const incomingKeys = Object.keys(incoming || {});
+
+  // Eskiden bizim eklediğimiz ama artık listede olmayanları temizle.
+  for (const k of managed) {
+    if (!incomingKeys.includes(k)) delete bucket[k];
+  }
+  // Yenileri ekle/güncelle.
+  for (const k of incomingKeys) bucket[k] = incoming[k];
+
+  curr[serversKey] = bucket;
+  curr.__brainManaged = incomingKeys;
+  atomicWrite(targetPath, JSON.stringify(curr, null, 2));
+  return true;
+}
+
 function saveMCPConfig(config) {
   const mcpDir = path.join(SYNC_DIR, 'repo', 'mcp');
   if (!fs.existsSync(mcpDir)) fs.mkdirSync(mcpDir, { recursive: true });
   const mcpFile = path.join(mcpDir, 'mcp_config.json');
-  fs.writeFileSync(mcpFile, JSON.stringify(config, null, 2), 'utf8');
+  atomicWrite(mcpFile, JSON.stringify(config, null, 2));
 
-  const claudeJson = path.join(homeDir, '.claude.json');
-  const cursorMcp = path.join(homeDir, '.cursor', 'mcp.json');
+  const incoming = config.mcpServers || {};
 
+  // JSON hedefleri — her araç kendi anahtar/dosyasıyla, non-destructive merge.
+  const jsonTargets = [
+    // Claude Code — gerçekte ~/.claude.json > mcpServers okunur.
+    { file: path.join(homeDir, '.claude.json'), key: 'mcpServers' },
+    // Google Antigravity
+    { file: path.join(homeDir, '.gemini', 'antigravity', 'mcp_config.json'), key: 'mcpServers' },
+    // Cursor IDE — ~/.cursor/mcp.json (global) veya proje .cursor/mcp.json
+    { file: path.join(homeDir, '.cursor', 'mcp.json'), key: 'mcpServers' },
+    // GitHub Copilot (VS Code) — servers anahtarı
+    { file: path.join(homeDir, '.github', 'mcp.json'), key: 'servers' },
+  ];
+
+  jsonTargets.forEach(({ file, key }) => {
+    try {
+      if (fs.existsSync(path.dirname(file))) mergeMcpInto(file, incoming, key);
+    } catch (e) {}
+  });
+
+  // OpenAI Codex — MCP JSON değil, config.toml içinde [mcp_servers.x] TOML.
   try {
-    if (fs.existsSync(claudeJson)) {
-      const curr = JSON.parse(fs.readFileSync(claudeJson, 'utf8') || '{}');
-      curr.mcpServers = { ...curr.mcpServers, ...config.mcpServers };
-      fs.writeFileSync(claudeJson, JSON.stringify(curr, null, 2));
+    const codexToml = path.join(homeDir, '.codex', 'config.toml');
+    if (fs.existsSync(path.dirname(codexToml))) {
+      writeManagedTomlBlock(codexToml, renderCodexMcpToml(incoming));
     }
   } catch (e) {}
+}
 
-  try {
-    if (fs.existsSync(path.dirname(cursorMcp))) {
-      fs.mkdirSync(path.dirname(cursorMcp), { recursive: true });
-      fs.writeFileSync(cursorMcp, JSON.stringify(config, null, 2));
-    }
-  } catch (e) {}
+// Codex config.toml: kullanıcının TOML'unu koru, sadece managed bloğu değiştir.
+function writeManagedTomlBlock(filePath, managedToml) {
+  const START = '# <!-- brain-managed:start -->';
+  const END = '# <!-- brain-managed:end -->';
+  let existing = '';
+  try { if (fs.existsSync(filePath)) existing = fs.readFileSync(filePath, 'utf8'); } catch (e) {}
+  const s = existing.indexOf(START);
+  const e = existing.indexOf(END);
+  let base = existing;
+  if (s !== -1 && e !== -1 && e > s) {
+    base = existing.slice(0, s) + existing.slice(e + END.length);
+  }
+  const prefix = base.trim() ? base.replace(/\s*$/, '') + '\n\n' : '';
+  atomicWrite(filePath, prefix + managedToml.trim() + '\n');
 }
 
 function saveMCPAuthSecret(serverKey, envKey, authValue) {
@@ -637,6 +764,24 @@ function getCommandsList() {
   }
 }
 
+// Çekirdek Servisler (Docker daemon / çekirdek MCP). Skill değil — manifest'ten türetilir.
+// coreService:true işaretiyle UI bunları Engines sekmesine yönlendirir.
+function coreServiceMarketplaceEntries() {
+  try {
+    return coreServices.loadManifest(CORE_ROOT).map(svc => ({
+      name: `core/${svc.id}`,
+      label: `${svc.icon || '⚙️'} ${svc.name}`,
+      stars: 'Docker',
+      category: 'core-services',
+      desc: svc.what || svc.desc || '',
+      url: '#engines',
+      tags: ['Çekirdek Servis', 'Docker', 'MCP'],
+      coreService: true,
+      runnable: coreServices.isRunnable(svc)
+    }));
+  } catch (e) { return []; }
+}
+
 const MARKETPLACE_CATALOG = [
   { name: "anthropics/skills", label: "Official Anthropic Agent Skills", stars: "98.5k", category: "official", desc: "Anthropic'in ürettiği resmi docx, pptx, pdf ve kod co-authoring yetenekleri.", url: "https://github.com/anthropics/skills", tags: ["Official", "Document", "PDF", "Anthropic"] },
   { name: "obra/superpowers", label: "Superpowers Agent Framework", stars: "89.8k", category: "workflow", desc: "AI ajanları için TDD, kod inceleme, hata ayıklama ve otonom planlama yetenekleri.", url: "https://github.com/obra/superpowers", tags: ["TDD", "Debugging", "Workflow"] },
@@ -653,18 +798,33 @@ const MARKETPLACE_CATALOG = [
 ];
 
 function removeLinkTarget(targetPath) {
+  let stat;
   try {
-    const stat = fs.lstatSync(targetPath);
-    if (isWin && (stat.isSymbolicLink() || stat.isDirectory())) {
-      try {
-        fs.rmdirSync(targetPath);
-      } catch (e) {
-        fs.rmSync(targetPath, { recursive: true, force: true });
-      }
-    } else {
+    stat = fs.lstatSync(targetPath);
+  } catch (e) {
+    return; // hedef yok — yapılacak iş yok
+  }
+
+  // Symlink/junction ise: bizim oluşturduğumuz bağlantı, güvenle kaldır.
+  if (stat.isSymbolicLink()) {
+    try { fs.rmSync(targetPath, { recursive: true, force: true }); } catch (e) {}
+    return;
+  }
+
+  // GERÇEK dosya/klasör (kullanıcının kendi verisi): SİLME, yedeğe taşı.
+  // Böylece symlink/copy kurulumu kullanıcının mevcut skill'lerini yok etmez.
+  try {
+    const backup = `${targetPath}.brain-bak-${Date.now()}`;
+    fs.renameSync(targetPath, backup);
+    try { console.log(`[brain] mevcut hedef yedeklendi: ${backup}`); } catch (e) {}
+  } catch (e) {
+    // rename başarısızsa (ör. farklı disk) kopyalayıp sonra kaldır.
+    try {
+      const backup = `${targetPath}.brain-bak-${Date.now()}`;
+      fs.cpSync(targetPath, backup, { recursive: true });
       fs.rmSync(targetPath, { recursive: true, force: true });
-    }
-  } catch (e) {}
+    } catch (e2) {}
+  }
 }
 
 function copyRecursiveSync(src, dest) {
@@ -681,56 +841,101 @@ function copyRecursiveSync(src, dest) {
   }
 }
 
-function toggleLink(aiKey, targetState, callback) {
-  const provider = AI_PATHS[aiKey];
-  if (!provider) return callback(new Error('Bilinmeyen AI aracı'));
+const BRAIN_START = '<!-- brain-managed:start -->';
+const BRAIN_END = '<!-- brain-managed:end -->';
 
-  if (!fs.existsSync(provider.path)) {
-    fs.mkdirSync(provider.path, { recursive: true });
+// Kullanıcının dosyasındaki (AGENTS.md gibi) diğer içeriği KORU;
+// sadece brain-managed işaretleri arasını değiştir/ekle.
+function writeManagedBlock(filePath, managedContent) {
+  let existing = '';
+  try { if (fs.existsSync(filePath)) existing = fs.readFileSync(filePath, 'utf8'); } catch (e) {}
+
+  const s = existing.indexOf(BRAIN_START);
+  const e = existing.indexOf(BRAIN_END);
+  let base = existing;
+  if (s !== -1 && e !== -1 && e > s) {
+    base = existing.slice(0, s) + existing.slice(e + BRAIN_END.length);
+  }
+  const prefix = base.trim() ? base.replace(/\s*$/, '') + '\n\n' : '';
+  atomicWrite(filePath, prefix + managedContent.trim() + '\n');
+}
+
+// Adapter'a göre skill'leri hedefe uygula.
+function applySkills(aiKey, provider, linkMode) {
+  const adapter = ADAPTERS[aiKey];
+  const skillsSrc = path.join(SYNC_DIR, 'repo', 'skills');
+  const skills = loadSkills(skillsSrc);
+
+  // --- render/single: her araç için native format üret ---
+  if (adapter.skills.mode === 'render') {
+    if (adapter.skills.single) {
+      // Codex: tek AGENTS.md, kullanıcının içeriğini koru.
+      const dest = path.join(provider.path, adapter.skills.single);
+      writeManagedBlock(dest, adapter.skills.renderSingle(skills));
+      return `${adapter.skills.single} güncellendi`;
+    }
+    const destDir = path.join(provider.path, adapter.skills.sub);
+    removeLinkTarget(destDir);            // gerçek kullanıcı verisini yedekler
+    fs.mkdirSync(destDir, { recursive: true });
+    for (const f of adapter.skills.renderSkills(skills)) {
+      atomicWrite(path.join(destDir, f.relPath), f.content);
+    }
+    return `${adapter.skills.renderSkills(skills).length} skill ${provider.name} formatına çevrildi`;
   }
 
-  const skillsDest = path.join(provider.path, provider.skillsSub);
-  const commandsDest = path.join(provider.path, provider.cmdSub);
-
-  const currentLinkMode = getSetting('linkMode', isWin ? 'junction' : 'symlink');
-
-  if (targetState === true) {
-    removeLinkTarget(skillsDest);
-    removeLinkTarget(commandsDest);
-
-    const winSrcSkills = path.join(SYNC_DIR, 'repo', 'skills');
-    const winSrcCmds = path.join(SYNC_DIR, 'repo', 'commands');
-
-    if (currentLinkMode === 'copy') {
-      try {
-        copyRecursiveSync(winSrcSkills, skillsDest);
-        if (fs.existsSync(winSrcCmds)) {
-          copyRecursiveSync(winSrcCmds, commandsDest);
-        }
-        callback(null, `${provider.name} başarıyla dosya kopyalama (Copy) yöntemiyle bağlandı.`);
-      } catch (err) {
-        callback(err, `Kopyalama Hatası: ${err.message}`);
-      }
-    } else if (isWin) {
-      const linkFlag = currentLinkMode === 'symlink' ? '/D' : '/J';
-      try {
-        execSync(`cmd /c "mklink ${linkFlag} "${skillsDest}" "${winSrcSkills}""`);
-        if (fs.existsSync(winSrcCmds)) {
-          execSync(`cmd /c "mklink ${linkFlag} "${commandsDest}" "${winSrcCmds}""`);
-        }
-        callback(null, `${provider.name} başarıyla [${currentLinkMode.toUpperCase()}] yöntemiyle bağlandı.`);
-      } catch (err) {
-        callback(err, `Bağlama Hatası: ${err.message}`);
-      }
-    } else {
-      exec(`ln -s "${winSrcSkills}" "${skillsDest}" && ln -s "${winSrcCmds}" "${commandsDest}"`, (err) => {
-        callback(err, `${provider.name} başarıyla bağlandı.`);
-      });
-    }
+  // --- passthrough: SKILL.md spec (claude, antigravity) ---
+  const destDir = path.join(provider.path, adapter.skills.sub);
+  removeLinkTarget(destDir);
+  if (linkMode === 'copy') {
+    copyRecursiveSync(skillsSrc, destDir);
+    return 'skill klasörü kopyalandı';
+  }
+  if (isWin) {
+    const flag = linkMode === 'symlink' ? '/D' : '/J';
+    execSync(`cmd /c "mklink ${flag} "${destDir}" "${skillsSrc}""`);
   } else {
-    removeLinkTarget(skillsDest);
+    execSync(`ln -s "${skillsSrc}" "${destDir}"`);
+  }
+  return `skill klasörü ${linkMode} ile bağlandı`;
+}
+
+function toggleLink(aiKey, targetState, callback) {
+  const provider = AI_PATHS[aiKey];
+  const adapter = ADAPTERS[aiKey];
+  if (!provider || !adapter) return callback(new Error('Desteklenmeyen AI aracı'));
+
+  const commandsSrc = path.join(SYNC_DIR, 'repo', 'commands');
+  const commandsDest = path.join(provider.path, provider.cmdSub);
+  const linkMode = getSetting('linkMode', isWin ? 'junction' : 'symlink');
+
+  if (targetState !== true) {
+    // Bağlantıyı kaldır (render dosyaları/symlink hedefleri geri alınır, yedekler kalır).
+    if (adapter.skills.single) {
+      // Codex: AGENTS.md içindeki managed bloğu temizle, gerisini koru.
+      try { writeManagedBlock(path.join(provider.path, adapter.skills.single), ''); } catch (e) {}
+    } else {
+      removeLinkTarget(path.join(provider.path, adapter.skills.sub));
+    }
     removeLinkTarget(commandsDest);
-    callback(null, `${provider.name} bağlantısı kaldırıldı.`);
+    return callback(null, `${provider.name} bağlantısı kaldırıldı.`);
+  }
+
+  if (!checkAIInstalled(aiKey)) {
+    return callback(new Error(`${provider.name} sisteminizde yüklü değil! Yüklü olmayan araca bağlanılamaz.`));
+  }
+  if (!fs.existsSync(provider.path)) fs.mkdirSync(provider.path, { recursive: true });
+
+  try {
+    const msg = applySkills(aiKey, provider, linkMode);
+    // Komutları ham kopyala (md dosyaları — zararsız).
+    if (fs.existsSync(commandsSrc)) {
+      removeLinkTarget(commandsDest);
+      copyRecursiveSync(commandsSrc, commandsDest);
+    }
+    saveMCPConfig(getMCPConfig());
+    callback(null, `${provider.name} bağlandı — ${msg}.`);
+  } catch (err) {
+    callback(err, `Bağlama hatası: ${err.message}`);
   }
 }
 
@@ -814,7 +1019,21 @@ function createServer(port) {
       return;
     }
 
-    if (req.method === 'GET' && (req.url === '/' || req.url === '/index.html' || (!req.url.startsWith('/api') && !req.url.startsWith('/src/')))) {
+    if (req.method === 'GET' && !req.url.startsWith('/api') && !req.url.startsWith('/src/')) {
+      // Vite build varsa onu servis et (dist/); yoksa eski CDN shell'e düş.
+      const distDir = path.join(GUI_DIR, 'web', 'dist');
+      const distIndex = path.join(distDir, 'index.html');
+      if (fs.existsSync(distIndex)) {
+        const urlPath = req.url.split('?')[0];
+        const asset = path.normalize(path.join(distDir, urlPath));
+        // SPA: gerçek dosya varsa onu, yoksa index.html döndür (dizin dışına çıkma).
+        if (urlPath !== '/' && asset.startsWith(distDir) && fs.existsSync(asset) && fs.statSync(asset).isFile()) {
+          res.writeHead(200, { 'Content-Type': mimeFor(asset) });
+          return res.end(fs.readFileSync(asset));
+        }
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        return res.end(fs.readFileSync(distIndex));
+      }
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       res.end(REACT_HTML_SHELL);
     } else if (req.method === 'GET' && req.url.startsWith('/src/')) {
@@ -833,76 +1052,94 @@ function createServer(port) {
     } else if (req.method === 'GET' && req.url === '/api/skills') {
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify(getLiveSkillsData()));
-    } else if (req.method === 'GET' && req.url === '/api/engines/status') {
-      (async () => {
-        const memActive = await checkPortActive(3780);
-        const graphActive = await checkPortActive(3781);
-        const understandActive = await checkPortActive(3782);
-
-        const engines = [
-          {
-            id: 'claude-mem',
-            name: 'Claude Long-Term Memory Engine',
-            icon: '🧠',
-            installed: fs.existsSync(path.join(SYNC_DIR, 'repo', 'skills', 'claude-mem')),
-            status: memActive ? 'running' : 'stopped',
-            port: 3780,
-            webUrl: memActive ? 'http://localhost:3780' : null,
-            reqs: ['Node.js 18+', 'SQLite Vector Extension'],
-            desc: 'Ajanınız için oturumlar arası silinmeyen uzun süreli hafıza veritabanı.'
-          },
-          {
-            id: 'graphify',
-            name: 'Graphify Knowledge Architecture Engine',
-            icon: '🕸️',
-            installed: fs.existsSync(path.join(SYNC_DIR, 'repo', 'skills', 'graphify')),
-            status: graphActive ? 'running' : 'stopped',
-            port: 3781,
-            webUrl: graphActive ? 'http://localhost:3781' : null,
-            reqs: ['Python 3.10+', 'Graphviz'],
-            desc: 'Kod deposu bağımlılıklarını ve mimari ilişkileri 3D düğüm haritasına dönüştürür.'
-          },
-          {
-            id: 'understand-anything',
-            name: 'Understand Anything Code Deep Inspector',
-            icon: '🔬',
-            installed: fs.existsSync(path.join(SYNC_DIR, 'repo', 'skills', 'understand-anything')),
-            status: understandActive ? 'running' : 'stopped',
-            port: 3782,
-            webUrl: understandActive ? 'http://localhost:3782' : null,
-            reqs: ['Node.js 18+', 'pnpm'],
-            desc: 'Karmaşık projelerde AST kod indeksleme ve anlık analiz yapar.'
-          }
-        ];
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-        res.end(JSON.stringify(engines));
-      })();
-    } else if (req.method === 'POST' && req.url === '/api/engines/build') {
+    } else if (req.method === 'GET' && req.url === '/api/engines/available') {
+      // Docker CLI sistemde var mı? (Çekirdek servisler buna bağlı.)
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ docker: coreServices.dockerAvailable() }));
+    } else if (req.method === 'GET' && req.url === '/api/core-services/catalog') {
+      // Çekirdek Servis Hub: kurulabilir servisler + kurulu işareti.
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify(coreServices.catalogWithInstalled(CORE_ROOT)));
+    } else if (req.method === 'POST' && (req.url === '/api/core-services/install' || req.url === '/api/core-services/remove')) {
+      const isInstall = req.url.endsWith('/install');
       let body = '';
       req.on('data', chunk => { body += chunk.toString(); });
       req.on('end', () => {
         try {
-          const { engineId } = JSON.parse(body || '{}');
-          let enginePath = path.join(SYNC_DIR, 'repo', 'server-skills', engineId);
-          if (!fs.existsSync(enginePath)) enginePath = path.join(SYNC_DIR, 'repo', 'skills', engineId);
-          if (!fs.existsSync(enginePath)) throw new Error('Engine dizini bulunamadı!');
-
-          let buildCmd = '';
-          if (fs.existsSync(path.join(enginePath, 'package.json'))) {
-            buildCmd = `npm install`;
-          } else if (fs.existsSync(path.join(enginePath, 'pyproject.toml')) || fs.existsSync(path.join(enginePath, 'requirements.txt'))) {
-            buildCmd = `pip install -e . || pip install -r requirements.txt`;
-          } else if (fs.existsSync(path.join(enginePath, 'Cargo.toml'))) {
-            buildCmd = `cargo build --release`;
-          } else {
-            buildCmd = `echo "Kurulum tamamlandı"`;
-          }
-
-          exec(buildCmd, { cwd: enginePath }, (err, stdout, stderr) => {
-            setSetting(`engine_${engineId}_built`, 'true');
-            broadcast('engine_update', { id: engineId, built: true });
+          const { id } = JSON.parse(body || '{}');
+          if (isInstall) {
+            const item = coreServices.CATALOG.find(s => s.id === id);
+            if (!item) throw new Error('Katalogda böyle bir çekirdek servis yok.');
+            const r = coreServices.installToManifest(CORE_ROOT, item);
+            broadcast('engine_update', { id, installed: true });
             res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-            res.end(JSON.stringify({ success: !err, message: `[${engineId}] Bağımlılıklar Kuruldu & Build Edildi!\n${stdout || stderr}` }));
+            res.end(JSON.stringify({ success: true, message: r.installed ? `[${id}] çekirdek servis kuruldu.` : `[${id}] zaten kurulu.` }));
+          } else {
+            // Kaldırmadan önce çalışan container'ı durdur.
+            if (coreServices.dockerAvailable()) {
+              try { spawnSync('docker', ['stop', coreServices.containerName(id)], { timeout: 15000 }); } catch (e) {}
+            }
+            const r = coreServices.removeFromManifest(CORE_ROOT, id);
+            broadcast('engine_update', { id, installed: false });
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ success: r.removed, message: r.removed ? `[${id}] çekirdek servis kaldırıldı.` : `[${id}] zaten kurulu değil.` }));
+          }
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: false, message: e.message }));
+        }
+      });
+    } else if (req.method === 'GET' && req.url === '/api/engines/status') {
+      (async () => {
+        const dockerOk = coreServices.dockerAvailable();
+        const manifest = coreServices.loadManifest(CORE_ROOT);
+        const engines = manifest.map(svc => {
+          const runnable = coreServices.isRunnable(svc);
+          // Docker yoksa/başlatılamıyorsa port kontrolüne gerek yok — kapalı.
+          const state = (dockerOk && runnable) ? coreServices.containerState(svc.id) : 'absent';
+          const running = state === 'running';
+          return {
+            id: svc.id,
+            name: svc.name,
+            icon: svc.icon,
+            port: svc.port,
+            desc: svc.desc,
+            what: svc.what,
+            reqs: svc.reqs || ['Docker'],
+            runnable,
+            dockerAvailable: dockerOk,
+            containerState: state,          // running | stopped | absent
+            status: running ? 'running' : 'stopped',
+            webUrl: running ? `http://localhost:${svc.port}` : null,
+            mcp: svc.mcp || null
+          };
+        });
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify(engines));
+      })();
+    } else if (req.method === 'POST' && req.url === '/api/engines/build') {
+      // Docker image'ı build et (host'a hiçbir şey kurmaz).
+      let body = '';
+      req.on('data', chunk => { body += chunk.toString(); });
+      req.on('end', () => {
+        try {
+          if (!coreServices.dockerAvailable()) throw new Error('Docker CLI bulunamadı. Önce "Docker CLI Kur" ile kurun.');
+          const { engineId } = JSON.parse(body || '{}');
+          const svc = coreServices.loadManifest(CORE_ROOT).find(s => s.id === engineId);
+          if (!svc) throw new Error('Servis manifest\'te bulunamadı!');
+          if (!coreServices.isRunnable(svc)) throw new Error(`[${engineId}] için Docker image tanımlı değil (manifest'e image + buildDir ekleyin).`);
+
+          const args = coreServices.buildArgs(svc, CORE_ROOT);
+          broadcast('live_log', { jobId: `build-${engineId}`, line: `▶ docker ${args.join(' ')}`, type: 'start', label: `Build ${engineId}` });
+          const proc = require('child_process').spawn('docker', args);
+          proc.stdout.on('data', d => d.toString().split('\n').filter(l => l.trim()).forEach(line => broadcast('live_log', { jobId: `build-${engineId}`, line, type: 'stdout' })));
+          proc.stderr.on('data', d => d.toString().split('\n').filter(l => l.trim()).forEach(line => broadcast('live_log', { jobId: `build-${engineId}`, line, type: 'stderr' })));
+          proc.on('close', code => {
+            const ok = code === 0;
+            setSetting(`engine_${engineId}_built`, ok ? 'true' : 'false');
+            broadcast('engine_update', { id: engineId, built: ok });
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ success: ok, message: ok ? `[${engineId}] Docker image build edildi (${svc.image}).` : `[${engineId}] Build başarısız (kod: ${code}).` }));
           });
         } catch (e) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -912,61 +1149,50 @@ function createServer(port) {
 
 
     } else if (req.method === 'POST' && req.url === '/api/engines/toggle') {
+      // Docker container'ı başlat/durdur. Başlatınca çekirdek MCP olarak kaydeder.
       let body = '';
       req.on('data', chunk => { body += chunk.toString(); });
-      req.on('end', async () => {
+      req.on('end', () => {
         try {
+          if (!coreServices.dockerAvailable()) throw new Error('Docker CLI bulunamadı. Önce "Docker CLI Kur" ile kurun.');
           const { engineId, action } = JSON.parse(body || '{}');
-          let enginePath = path.join(SYNC_DIR, 'repo', 'server-skills', engineId);
-          if (!fs.existsSync(enginePath)) enginePath = path.join(SYNC_DIR, 'repo', 'skills', engineId);
+          const svc = coreServices.loadManifest(CORE_ROOT).find(s => s.id === engineId);
+          if (!svc) throw new Error('Servis manifest\'te bulunamadı!');
+
+          const cname = coreServices.containerName(engineId);
+          const respond = (success, message) => {
+            setSetting(`engine_${engineId}_status`, success && action === 'start' ? 'running' : 'stopped');
+            broadcast('engine_update', { id: engineId, status: action === 'start' ? 'running' : 'stopped' });
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ success, message }));
+          };
 
           if (action === 'start') {
-            if (engineProcesses[engineId]) {
-              try { engineProcesses[engineId].kill(); } catch (e) {}
+            if (!coreServices.isRunnable(svc)) throw new Error(`[${engineId}] için Docker image tanımlı değil.`);
+            const state = coreServices.containerState(engineId);
+            // Zaten varsa 'docker start', yoksa 'docker run'.
+            const args = state === 'absent' ? coreServices.runArgs(svc) : ['start', cname];
+            const r = spawnSync('docker', args, { encoding: 'utf8', timeout: 30000 });
+            if (r.status !== 0) {
+              const msg = (r.stderr || '').trim();
+              if (/No such image|Unable to find image/i.test(msg)) {
+                return respond(false, `[${engineId}] image yok — önce "Bağımlılıkları Kur & Build Et" ile image'ı oluşturun.`);
+              }
+              return respond(false, `[${engineId}] başlatılamadı: ${msg}`);
             }
-
-            let cmd = '';
-            let args = [];
-            let enginePort = 3780;
-
-            if (engineId === 'claude-mem') {
-              cmd = isWin ? 'npx.cmd' : 'npx';
-              args = ['-y', '@thedotmack/claude-mem', 'server', '--port', '3780'];
-              enginePort = 3780;
-            } else if (engineId === 'graphify') {
-              cmd = 'python';
-              args = ['-m', 'http.server', '3781'];
-              enginePort = 3781;
-            } else if (engineId === 'understand-anything') {
-              cmd = isWin ? 'npx.cmd' : 'npx';
-              args = ['-y', 'serve', 'repo/skills/understand-anything', '-p', '3782'];
-              enginePort = 3782;
+            // Çekirdek MCP olarak kaydet: bağlı AI araçlarına eklenir.
+            const entry = coreServices.mcpEntryFor(svc);
+            if (entry) {
+              const cfg = getMCPConfig();
+              cfg.mcpServers = cfg.mcpServers || {};
+              cfg.mcpServers[entry.key] = entry.def;
+              saveMCPConfig(cfg);
             }
-
-            const proc = require('child_process').spawn(cmd, args, {
-              cwd: SYNC_DIR,
-              shell: true,
-              detached: false,
-              stdio: 'ignore'
-            });
-
-            engineProcesses[engineId] = proc;
-            setSetting(`engine_${engineId}_status`, 'running');
-
-            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-            res.end(JSON.stringify({ success: true, message: `[${engineId}] Daemon başlatıldı ve Port ${enginePort} dinleniyor!` }));
+            return respond(true, `[${engineId}] container başlatıldı — port ${svc.port} + çekirdek MCP kaydedildi.`);
           } else {
-            if (engineProcesses[engineId]) {
-              try { engineProcesses[engineId].kill('SIGKILL'); } catch (e) {}
-              delete engineProcesses[engineId];
-            }
-            if (isWin) {
-              const killPort = engineId === 'claude-mem' ? 3780 : engineId === 'graphify' ? 3781 : 3782;
-              try { execSync(`cmd /c "for /f \\"tokens=5\\" %a in ('netstat -aon ^| findstr :${killPort}') do taskkill /F /PID %a"`, { stdio: 'ignore' }); } catch (e) {}
-            }
-            setSetting(`engine_${engineId}_status`, 'stopped');
-            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-            res.end(JSON.stringify({ success: true, message: `[${engineId}] Servisi başarıyla durduruldu!` }));
+            const r = spawnSync('docker', ['stop', cname], { encoding: 'utf8', timeout: 20000 });
+            const ok = r.status === 0 || /No such container/i.test(r.stderr || '');
+            return respond(ok, ok ? `[${engineId}] container durduruldu.` : `[${engineId}] durdurulamadı: ${(r.stderr || '').trim()}`);
           }
         } catch (e) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -1316,6 +1542,84 @@ function createServer(port) {
           res.end(JSON.stringify({ success: false, message: e.message }));
         }
       });
+    } else if (req.method === 'POST' && req.url === '/api/toggle-skill-persistent') {
+      let body = '';
+      req.on('data', chunk => { body += chunk.toString(); });
+      req.on('end', () => {
+        try {
+          const { name, persistent } = JSON.parse(body || '{}');
+          if (!name) throw new Error('Skill adı eksik');
+
+          const cmdDir = path.join(SYNC_DIR, 'repo', 'commands');
+          if (!fs.existsSync(cmdDir)) fs.mkdirSync(cmdDir, { recursive: true });
+
+          const persistentRuleFile = path.join(cmdDir, `always-active-${name}.md`);
+
+          if (persistent === true) {
+            let skillDir = path.join(SYNC_DIR, 'repo', 'server-skills', name);
+            if (!fs.existsSync(skillDir)) skillDir = path.join(SYNC_DIR, 'repo', 'skills', name);
+            const meta = parseSkillMetadata(skillDir);
+            const skillContent = meta.content || `# ${name} Persistent Rule\n\n- ${meta.description}`;
+
+            const banner = `<!-- ALWAYS-ACTIVE PERSISTENT HOOK RULE: ${name} -->\n# ⚡ ALWAYS-ACTIVE SKILL: ${name.toUpperCase()}\n> [PERSISTENT SESSION & PROMPT HOOK INJECTED]\n\n${skillContent}\n`;
+            fs.writeFileSync(persistentRuleFile, banner, 'utf8');
+
+            broadcast('skills_update', getLiveSkillsData());
+            broadcast('live_log', { line: `⚡ [${name}] Skill 'Her Zaman Aktif (SessionStart & Prompt Hook)' kuralı olarak enjekte edildi!` });
+
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ success: true, persistent: true, message: `Skill [${name}] 'Her Zaman Aktif' (SessionStart & Prompt Hook) olarak ayarlandı!` }));
+          } else {
+            if (fs.existsSync(persistentRuleFile)) {
+              fs.unlinkSync(persistentRuleFile);
+            }
+            broadcast('skills_update', getLiveSkillsData());
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ success: true, persistent: false, message: `Skill [${name}] 'İsteğe Bağlı (On-Demand)' konumuna getirildi.` }));
+          }
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: false, message: e.message }));
+        }
+      });
+    } else if (req.method === 'GET' && req.url === '/api/settings/inspect') {
+      try {
+        const claudeSettingsFile = path.join(homeDir, '.claude', 'settings.json');
+        const geminiConfigFile = path.join(homeDir, '.gemini', 'config', 'config.json');
+        const cursorMcpFile = path.join(homeDir, '.cursor', 'mcp.json');
+
+        let claudeSettings = null;
+        let geminiSettings = null;
+        let cursorSettings = null;
+
+        if (fs.existsSync(claudeSettingsFile)) {
+          try { claudeSettings = JSON.parse(fs.readFileSync(claudeSettingsFile, 'utf8')); } catch (e) {}
+        }
+        if (fs.existsSync(geminiConfigFile)) {
+          try { geminiSettings = JSON.parse(fs.readFileSync(geminiConfigFile, 'utf8')); } catch (e) {}
+        }
+        if (fs.existsSync(cursorMcpFile)) {
+          try { cursorSettings = JSON.parse(fs.readFileSync(cursorMcpFile, 'utf8')); } catch (e) {}
+        }
+
+        const cmdDir = path.join(SYNC_DIR, 'repo', 'commands');
+        let activePersistentRules = [];
+        if (fs.existsSync(cmdDir)) {
+          activePersistentRules = fs.readdirSync(cmdDir).filter(f => f.startsWith('always-active-'));
+        }
+
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({
+          success: true,
+          claudeSettings,
+          geminiSettings,
+          cursorSettings,
+          activePersistentRules
+        }));
+      } catch (e) {
+        res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ success: false, message: e.message }));
+      }
     } else if (req.method === 'POST' && req.url === '/api/sandbox/test') {
       let body = '';
       req.on('data', chunk => { body += chunk.toString(); });
@@ -1343,8 +1647,9 @@ function createServer(port) {
         res.end(JSON.stringify(items));
       });
     } else if (req.method === 'GET' && req.url === '/api/marketplace') {
+      // Çekirdek servisleri en üste ekle (Docker daemon / çekirdek MCP).
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-      res.end(JSON.stringify(MARKETPLACE_CATALOG));
+      res.end(JSON.stringify([...coreServiceMarketplaceEntries(), ...MARKETPLACE_CATALOG]));
     } else if (req.method === 'POST' && req.url === '/api/security/llm-scan') {
       let body = '';
       req.on('data', chunk => { body += chunk.toString(); });
@@ -1567,4 +1872,10 @@ function createServer(port) {
   process.on('SIGTERM', () => { server.close(); process.exit(0); });
 }
 
-createServer(PORT);
+// require() edildiğinde server'ı başlatma — sadece doğrudan çalıştırınca.
+// Bu, saf yardımcı fonksiyonların unit-test edilmesini sağlar.
+if (require.main === module) {
+  createServer(PORT);
+}
+
+module.exports = { atomicWrite, mergeMcpInto, removeLinkTarget };
